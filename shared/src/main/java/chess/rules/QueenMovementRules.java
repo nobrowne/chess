@@ -18,6 +18,7 @@ public class QueenMovementRules extends SharedMovementRules{
         calculateMoves(board, position, 0, -1, moves, true);
         calculateMoves(board, position, 0, 1, moves, true);
 
+        // Diagonal moves
         calculateMoves(board, position, 1, -1, moves, true);
         calculateMoves(board, position, 1, 1, moves, true);
         calculateMoves(board, position, -1, -1, moves, true);
