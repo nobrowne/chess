@@ -12,8 +12,8 @@ public class ChessPosition {
     private final int column;
 
     public ChessPosition(int row, int col) {
-        this.row = row;
-        this.column = col;
+        this.row = row - 1;
+        this.column = col - 1;
     }
 
     /**
