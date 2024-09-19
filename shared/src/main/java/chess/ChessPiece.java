@@ -1,7 +1,10 @@
 package chess;
 
+import chess.rules.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,9 +58,19 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        System.out.println(piece.type);
 
-        return new ArrayList<>();
+        MovementRules rules;
+        switch (type) {
+            case PieceType.KING -> rules = new KingMovementRules();
+            case PieceType.QUEEN -> rules = new QueenMovementRules();
+            case PieceType.BISHOP -> rules = new BishopMovementRules();
+            case PieceType.KNIGHT -> rules = new KnightMovementRules();
+            case PieceType.ROOK -> rules = new RookMovementRules();
+            case PieceType.PAWN -> rules = new RookMovementRules();
+            default -> throw new IllegalArgumentException("Type should not be null");
+        }
+
+        return rules.pieceMoves(board, myPosition);
     }
 
     @Override
