@@ -77,7 +77,7 @@ public class ChessBoard {
         }
     }
 
-    public boolean isOnBoard(ChessPosition position) {
+    public boolean isInBounds(ChessPosition position) {
         int row = position.getRow();
         int column = position.getColumn();
 
