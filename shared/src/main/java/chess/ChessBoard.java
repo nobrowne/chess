@@ -23,8 +23,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        int row = position.getRow();
-        int column = position.getColumn();
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
         board[row][column] = piece;
     }
 
@@ -36,8 +36,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        int row = position.getRow();
-        int column = position.getColumn();
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
+
         return board[row][column];
     }
 
@@ -78,7 +79,7 @@ public class ChessBoard {
     }
 
     public boolean isInBounds(int row, int column) {
-        return row >= 0 && row < 8 && column >= 0 && column < 8;
+        return row >= 1 && row <= 8 && column >= 1 && column <= 8;
     }
 
     public boolean isOccupied(ChessPosition position) {
