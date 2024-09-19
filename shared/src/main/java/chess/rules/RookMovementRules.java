@@ -6,8 +6,6 @@ import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 public class RookMovementRules extends SharedMovementRules {
     @Override
