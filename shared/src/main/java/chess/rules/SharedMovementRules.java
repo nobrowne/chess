@@ -18,7 +18,9 @@ public abstract class SharedMovementRules implements MovementRules{
             row += rowIncrement;
             column += columnIncrement;
 
-            if (!board.isInBounds(row, column)) {
+            ChessPosition movePosition = new ChessPosition(row, column);
+
+            if (!board.isInBounds(movePosition)) {
                 break;
             }
 

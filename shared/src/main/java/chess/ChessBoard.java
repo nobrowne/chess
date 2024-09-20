@@ -78,7 +78,10 @@ public class ChessBoard {
         }
     }
 
-    public boolean isInBounds(int row, int column) {
+    public boolean isInBounds(ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+
         return row >= 1 && row <= 8 && column >= 1 && column <= 8;
     }
 

@@ -63,10 +63,10 @@ public class ChessPiece {
         switch (type) {
             case PieceType.KING -> rules = new KingMovementRules();
             case PieceType.QUEEN -> rules = new QueenMovementRules();
-            case PieceType.BISHOP -> rules = new BishopMovementRules();
+            case PieceType.BISHOP -> rules = new BishopMovementRules(); 
             case PieceType.KNIGHT -> rules = new KnightMovementRules();
             case PieceType.ROOK -> rules = new RookMovementRules();
-            case PieceType.PAWN -> rules = new RookMovementRules();
+            case PieceType.PAWN -> rules = new PawnMovementRules();
             default -> throw new IllegalArgumentException("Type should not be null");
         }
 
