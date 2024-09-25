@@ -7,22 +7,20 @@ import chess.ChessPosition;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class QueenMovementRules extends SharedMovementRules{
+public class QueenMovementRules extends SharedMovementRules {
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        // Orthogonal moves
-        calculateMoves(board, position, 1, 0, moves, true);
-        calculateMoves(board, position, -1, 0, moves, true);
-        calculateMoves(board, position, 0, -1, moves, true);
-        calculateMoves(board, position, 0, 1, moves, true);
+        calculateMoves(board, startPosition, 1, 0, moves, true);
+        calculateMoves(board, startPosition, -1, 0, moves, true);
+        calculateMoves(board, startPosition, 0, 1, moves, true);
+        calculateMoves(board, startPosition, 0, -1, moves, true);
 
-        // Diagonal moves
-        calculateMoves(board, position, 1, -1, moves, true);
-        calculateMoves(board, position, 1, 1, moves, true);
-        calculateMoves(board, position, -1, -1, moves, true);
-        calculateMoves(board, position, -1, 1, moves, true);
+        calculateMoves(board, startPosition, 1, 1, moves, true);
+        calculateMoves(board, startPosition, 1, -1, moves, true);
+        calculateMoves(board, startPosition, -1, 1, moves, true);
+        calculateMoves(board, startPosition, -1, -1, moves, true);
 
         return moves;
     }

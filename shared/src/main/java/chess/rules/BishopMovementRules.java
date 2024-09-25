@@ -6,17 +6,16 @@ import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class BishopMovementRules extends SharedMovementRules{
+public class BishopMovementRules extends SharedMovementRules {
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        calculateMoves(board, position, 1, 1, moves, true);
-        calculateMoves(board, position, 1, -1, moves, true);
-        calculateMoves(board, position, -1, 1, moves, true);
-        calculateMoves(board, position, -1, -1, moves, true);
+        calculateMoves(board, startPosition, 1, 1, moves, true);
+        calculateMoves(board, startPosition, 1, -1, moves, true);
+        calculateMoves(board, startPosition, -1, 1, moves, true);
+        calculateMoves(board, startPosition, -1, -1, moves, true);
 
         return moves;
     }

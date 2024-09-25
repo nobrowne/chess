@@ -9,13 +9,13 @@ import java.util.Collection;
 
 public class RookMovementRules extends SharedMovementRules {
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        calculateMoves(board, position, 1, 0, moves, true);
-        calculateMoves(board, position, -1, 0, moves, true);
-        calculateMoves(board, position, 0, -1, moves, true);
-        calculateMoves(board, position, 0, 1, moves, true);
+        calculateMoves(board, startPosition, 1, 0, moves, true);
+        calculateMoves(board, startPosition, -1, 0, moves, true);
+        calculateMoves(board, startPosition, 0, 1, moves, true);
+        calculateMoves(board, startPosition, 0, -1, moves, true);
 
         return moves;
     }

@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 /**
  * Represents moving a chess piece on a chessboard
  * <p>
@@ -44,25 +46,22 @@ public class ChessMove {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        ChessMove move = (ChessMove) obj;
-        return (startPosition.equals(move.startPosition) && endPosition.equals(move.endPosition)
-                && promotionPiece == move.promotionPiece);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessMove chessMove = (ChessMove) o;
+        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
     public int hashCode() {
-        var promotionCode = (promotionPiece == null ?
-                9 : promotionPiece.ordinal());
-        return (71 * startPosition.hashCode()) + endPosition.hashCode() + promotionCode;
+        return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
     @Override
     public String toString() {
-        var p = (promotionPiece == null ? "" : ":" + promotionPiece);
-        return String.format("%s:%s%s", startPosition.toString(), endPosition.toString(), p);
-    }
+        var promotion = (promotionPiece == null) ? "" : " " + promotionPiece.toString();
 
+        return String.format("%s:%s%s", startPosition.toString(), endPosition.toString(), promotion);
+    }
 }

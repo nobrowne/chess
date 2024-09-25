@@ -11,11 +11,12 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] board = new ChessPiece[8][8];
+    ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
-        
+
     }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -24,8 +25,8 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         int row = position.getRow() - 1;
-        int column = position.getColumn() - 1;
-        board[row][column] = piece;
+        int col = position.getColumn() - 1;
+        board[row][col] = piece;
     }
 
     /**
@@ -37,9 +38,9 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         int row = position.getRow() - 1;
-        int column = position.getColumn() - 1;
+        int col = position.getColumn() - 1;
 
-        return board[row][column];
+        return board[row][col];
     }
 
     /**
@@ -49,7 +50,6 @@ public class ChessBoard {
     public void resetBoard() {
         board = new ChessPiece[8][8];
 
-        // White pieces
         board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         board[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         board[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
@@ -59,11 +59,10 @@ public class ChessBoard {
         board[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         board[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
 
-        for (int col  = 0; col < 8; col++) {
+        for (int col = 0; col < 8; col++) {
             board[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         }
 
-        // Black pieces
         board[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         board[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         board[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
@@ -73,19 +72,19 @@ public class ChessBoard {
         board[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         board[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
-        for (int col  = 0; col < 8; col++) {
+        for (int col = 0; col < 8; col++) {
             board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
     }
 
-    public boolean isInBounds(ChessPosition position) {
+    public boolean isRealPosition(ChessPosition position) {
         int row = position.getRow();
-        int column = position.getColumn();
+        int col = position.getColumn();
 
-        return row >= 1 && row <= 8 && column >= 1 && column <= 8;
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
-    public boolean isOccupied(ChessPosition position) {
+    public boolean isOccupiedAt(ChessPosition position) {
         return getPiece(position) != null;
     }
 
@@ -93,24 +92,23 @@ public class ChessBoard {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ChessBoard otherBoard = (ChessBoard) o;
-        return Objects.deepEquals(board, otherBoard.board);
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
     }
 
     @Override
     public int hashCode() {
-        return 71 * Arrays.deepHashCode(board);
+        return Arrays.deepHashCode(board);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
         for (int row = 0; row < 8; row++) {
             sb.append("|");
-            for (int column = 0; column < 8; column++) {
-                ChessPiece piece = board[row][column];
-                sb.append(piece != null ? piece.toString() : " ");
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = board[row][col];
+                sb.append((piece != null) ? piece.toString() : " ");
                 sb.append("|");
             }
             sb.append("\n");

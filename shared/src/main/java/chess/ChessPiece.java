@@ -2,9 +2,7 @@ package chess;
 
 import chess.rules.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,7 +16,7 @@ public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
@@ -57,19 +55,17 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
 
         MovementRules rules;
         switch (type) {
-            case PieceType.KING -> rules = new KingMovementRules();
-            case PieceType.QUEEN -> rules = new QueenMovementRules();
-            case PieceType.BISHOP -> rules = new BishopMovementRules(); 
-            case PieceType.KNIGHT -> rules = new KnightMovementRules();
-            case PieceType.ROOK -> rules = new RookMovementRules();
-            case PieceType.PAWN -> rules = new PawnMovementRules();
-            default -> throw new IllegalArgumentException("Type should not be null");
+            case KING -> rules = new KingMovementRules();
+            case QUEEN -> rules = new QueenMovementRules();
+            case BISHOP -> rules = new BishopMovementRules();
+            case KNIGHT -> rules = new KnightMovementRules();
+            case ROOK -> rules = new RookMovementRules();
+            case PAWN -> rules = new PawnMovementRules();
+            default -> throw new IllegalArgumentException("Unexpected piece type: " + type);
         }
-
         return rules.pieceMoves(board, myPosition);
     }
 
@@ -83,23 +79,21 @@ public class ChessPiece {
 
     @Override
     public int hashCode() {
-        return 71 * pieceColor.hashCode() + type.hashCode();
+        return Objects.hash(pieceColor, type);
     }
 
     @Override
     public String toString() {
-        String pieceSymbol = switch (type) {
+        String pieceLetterRepr = switch (type) {
             case KING -> "K";
             case QUEEN -> "Q";
             case BISHOP -> "B";
             case KNIGHT -> "N";
             case ROOK -> "R";
             case PAWN -> "P";
-            default -> throw new IllegalArgumentException("Unexpected value: " + type);
+            default -> throw new IllegalArgumentException("Unexpected piece tpye: " + type);
         };
 
-        pieceSymbol = (pieceColor == ChessGame.TeamColor.WHITE) ? pieceSymbol : pieceSymbol.toLowerCase();
-
-        return pieceSymbol;
+        return (pieceColor == ChessGame.TeamColor.WHITE) ? pieceLetterRepr : pieceLetterRepr.toLowerCase();
     }
 }

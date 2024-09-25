@@ -1,45 +1,43 @@
 package chess.rules;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.Collection;
 
-public abstract class SharedMovementRules implements MovementRules{
-    protected void calculateMoves(ChessBoard board, ChessPosition position,
-                                  int rowIncrement,int columnIncrement, Collection<ChessMove> moves,
-                                  boolean allowDistance) {
+public abstract class SharedMovementRules implements MovementRules {
+    public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition);
 
-        int row = position.getRow();
-        int column = position.getColumn();
+    protected void calculateMoves(ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection,
+                                  Collection<ChessMove> moves, boolean canMoveLongRange) {
+
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+        ChessPiece piece = board.getPiece(startPosition);
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
 
         while (true) {
-            row += rowIncrement;
-            column += columnIncrement;
+            row += rowDirection;
+            col += colDirection;
 
-            ChessPosition movePosition = new ChessPosition(row, column);
+            ChessPosition endPosition = new ChessPosition(row, col);
 
-            if (!board.isInBounds(movePosition)) {
+            if (!board.isRealPosition(endPosition)) {
                 break;
             }
 
-            ChessPosition newPosition = new ChessPosition(row, column);
-
-            if (board.isOccupied(newPosition)) {
-                if (board.getPiece(newPosition).getTeamColor() != board.getPiece(position).getTeamColor()) {
-                    moves.add(new ChessMove(position, newPosition, null));
+            if (board.isOccupiedAt(endPosition)) {
+                ChessPiece otherPiece = board.getPiece(endPosition);
+                ChessGame.TeamColor otherPieceTeamColor = otherPiece.getTeamColor();
+                if (teamColor != otherPieceTeamColor) {
+                    moves.add(new ChessMove(startPosition, endPosition, null));
                 }
                 break;
             }
+            moves.add(new ChessMove(startPosition, endPosition, null));
 
-            moves.add(new ChessMove(position, newPosition, null));
-
-            if (!allowDistance) {
+            if (!canMoveLongRange) {
                 break;
             }
         }
     }
-
-    public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
 }

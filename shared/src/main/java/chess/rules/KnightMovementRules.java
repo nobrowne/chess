@@ -7,19 +7,19 @@ import chess.ChessPosition;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class KnightMovementRules extends SharedMovementRules{
+public class KnightMovementRules extends SharedMovementRules {
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        calculateMoves(board, position, 1, -2, moves, false);
-        calculateMoves(board, position, 2, -1, moves, false);
-        calculateMoves(board, position, 2, 1, moves, false);
-        calculateMoves(board, position, 1, 2, moves, false);
-        calculateMoves(board, position, -1, -2, moves, false);
-        calculateMoves(board, position, -2, -1, moves, false);
-        calculateMoves(board, position, -2, 1, moves, false);
-        calculateMoves(board, position, -1, 2, moves, false);
+        calculateMoves(board, startPosition, 2, 1, moves, false);
+        calculateMoves(board, startPosition, 1, 2, moves, false);
+        calculateMoves(board, startPosition, 2, -1, moves, false);
+        calculateMoves(board, startPosition, 1, -2, moves, false);
+        calculateMoves(board, startPosition, -2, 1, moves, false);
+        calculateMoves(board, startPosition, -1, 2, moves, false);
+        calculateMoves(board, startPosition, -2, -1, moves, false);
+        calculateMoves(board, startPosition, -1, -2, moves, false);
 
         return moves;
     }

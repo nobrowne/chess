@@ -1,102 +1,103 @@
 package chess.rules;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.ChessPiece;
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class PawnMovementRules extends SharedMovementRules{
+public class PawnMovementRules extends SharedMovementRules {
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        // Get identifying information about pawn
-        ChessPiece piece = board.getPiece(position);
-        ChessGame.TeamColor team = piece.getTeamColor();
-        int direction = (team == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        ChessPiece piece = board.getPiece(startPosition);
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
+        int forwardDirection = getForwardDirection(teamColor);
 
-        // Forward moves
-        addForwardMoves(board, position, direction, moves);
+        addForwardMoves(board, startPosition, forwardDirection, teamColor, moves);
 
-        // Capture moves
-        addCaptureMoves(board, position, direction, moves);
+        int rightDiagonal = 1;
+        int leftDiagonal = -1;
+        addCaptureMoves(board, startPosition, forwardDirection, rightDiagonal, teamColor, moves);
+        addCaptureMoves(board, startPosition, forwardDirection, leftDiagonal, teamColor, moves);
 
         return moves;
     }
 
-    private void addForwardMoves(ChessBoard board, ChessPosition position,
-                                 int direction, Collection<ChessMove> moves) {
-        int row = position.getRow();
-        int column = position.getColumn();
+    private int getForwardDirection(ChessGame.TeamColor teamColor) {
+        ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
 
-        ChessPosition oneForwardStep = new ChessPosition(row + direction, column);
+        return (teamColor == white) ? 1 : -1;
+    }
 
-        if (board.isInBounds(oneForwardStep) && !board.isOccupied(oneForwardStep)) {
-            if (isPromotionRow(oneForwardStep, board.getPiece(position).getTeamColor())) {
-                promotePiece(board.getPiece(position), position, oneForwardStep, moves);
+    private void addForwardMoves(ChessBoard board, ChessPosition startPosition, int forwardDirection,
+                                 ChessGame.TeamColor teamColor, Collection<ChessMove> moves) {
+
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+
+        ChessPosition oneForward = new ChessPosition(row + forwardDirection, col);
+        ChessPosition twoForward = new ChessPosition(row + (2 * forwardDirection), col);
+
+        if (isFirstMove(teamColor, startPosition)) {
+            if (board.isRealPosition(twoForward) && !board.isOccupiedAt(twoForward) && !board.isOccupiedAt(oneForward)) {
+                moves.add(new ChessMove(startPosition, oneForward, null));
+                moves.add(new ChessMove(startPosition, twoForward, null));
+            }
+        }
+
+        if (board.isRealPosition(oneForward) && !board.isOccupiedAt(oneForward)) {
+            if (isPromotionRow(teamColor, oneForward)) {
+                promotePiece(startPosition, oneForward, moves);
             }
             else {
-                moves.add(new ChessMove(position, oneForwardStep, null));
+                moves.add(new ChessMove(startPosition, oneForward, null));
             }
+        }
+    }
 
-            if (isFirstMove(position, board.getPiece(position))) {
-                ChessPosition twoForwardSteps = new ChessPosition(row + (2 * direction), column);
-                if (board.isInBounds(twoForwardSteps) && !board.isOccupied(twoForwardSteps)) {
-                    moves.add(new ChessMove(position, twoForwardSteps, null));
+    private void addCaptureMoves(ChessBoard board, ChessPosition startPosition, int forwardDirection,
+                                 int diagonalDirection, ChessGame.TeamColor teamColor, Collection<ChessMove> moves) {
+
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
+
+        ChessPosition endPosition = new ChessPosition(row + forwardDirection, col + diagonalDirection);
+
+        if (board.isRealPosition(endPosition) && board.isOccupiedAt(endPosition)) {
+            ChessPiece otherPiece = board.getPiece(endPosition);
+            ChessGame.TeamColor otherPieceTeamColor = otherPiece.getTeamColor();
+            if (teamColor != otherPieceTeamColor) {
+                if (isPromotionRow(teamColor, endPosition)) {
+                    promotePiece(startPosition, endPosition, moves);
+                }
+                else {
+                    moves.add(new ChessMove(startPosition, endPosition, null));
                 }
             }
         }
     }
 
-    private void addCaptureMoves(ChessBoard board, ChessPosition position,
-                                 int direction, Collection<ChessMove> moves) {
+    private boolean isFirstMove(ChessGame.TeamColor teamColor, ChessPosition startPosition) {
+        ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor black = ChessGame.TeamColor.BLACK;
+        int row = startPosition.getRow();
+
+        return (teamColor == white && row == 2) || (teamColor == black && row == 7);
+    }
+
+    private boolean isPromotionRow(ChessGame.TeamColor teamColor, ChessPosition position) {
+        ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor black = ChessGame.TeamColor.BLACK;
         int row = position.getRow();
-        int column = position.getColumn();
 
-        ChessPosition leftDiagonal = new ChessPosition(row + direction, column - 1);
-        ChessPosition rightDiagonal = new ChessPosition(row + direction, column + 1);
-
-        if (board.isInBounds(leftDiagonal) && board.isOccupied(leftDiagonal) &&
-        board.getPiece(leftDiagonal).getTeamColor() != board.getPiece(position).getTeamColor()) {
-            if (isPromotionRow(leftDiagonal, board.getPiece(position).getTeamColor())) {
-                promotePiece(board.getPiece(position), position, leftDiagonal, moves);
-            }
-            else {
-                moves.add(new ChessMove(position, leftDiagonal, null));
-            }
-        }
-
-        if (board.isInBounds(rightDiagonal) && board.isOccupied(rightDiagonal) &&
-        board.getPiece(rightDiagonal).getTeamColor() != board.getPiece(position).getTeamColor()) {
-            if (isPromotionRow(rightDiagonal, board.getPiece(position).getTeamColor())) {
-                promotePiece(board.getPiece(position), position, rightDiagonal, moves);
-            }
-            else {
-                moves.add(new ChessMove(position, rightDiagonal, null));
-            }
-        }
+        return (teamColor == white && row == 8) || (teamColor == black && row == 1);
     }
 
-    private boolean isFirstMove(ChessPosition position, ChessPiece piece) {
-        int row = position.getRow();
-        return (piece.getTeamColor() == ChessGame.TeamColor.WHITE && row == 2) ||
-                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && row == 7);
-    }
-
-    private boolean isPromotionRow(ChessPosition position, ChessGame.TeamColor team) {
-        return (team == ChessGame.TeamColor.WHITE && position.getRow() == 8) ||
-                (team == ChessGame.TeamColor.BLACK && position.getRow() == 1);
-    }
-
-    private void promotePiece(ChessPiece piece, ChessPosition position,
-                              ChessPosition endPosition, Collection<ChessMove> moves) {
-        moves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.QUEEN));
-        moves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.BISHOP));
-        moves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.KNIGHT));
-        moves.add(new ChessMove(position, endPosition, ChessPiece.PieceType.ROOK));
+    private void promotePiece(ChessPosition startPosition, ChessPosition endPosition, Collection<ChessMove> moves) {
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.BISHOP));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.KNIGHT));
+        moves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.ROOK));
     }
 }
