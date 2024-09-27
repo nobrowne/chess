@@ -10,24 +10,28 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    public ChessGame() {
+    ChessBoard board = new ChessBoard();
+    TeamColor teamTurn;
 
+    public ChessGame() {
+        board.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
-     * Set's which teams turn it is
+     * Sets which team's turn it is
      *
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -60,7 +64,8 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in check
+     * Determines if the given team is in check. This occurs when the position of the given team's king is in the list
+     * of valid moves for the other team.
      *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
@@ -70,7 +75,8 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in checkmate
+     * Determines if the given team is in checkmate. This occurs when the given team's king IS IN CHECK and the given
+     * team has no valid moves.
      *
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
@@ -80,8 +86,8 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves
+     * Determines if the given team is in stalemate. This occurs when the given team's king is NOT IN CHECK and the
+     * given team has no valid moves.
      *
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
@@ -96,7 +102,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -105,6 +111,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 }
