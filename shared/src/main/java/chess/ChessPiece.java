@@ -91,7 +91,7 @@ public class ChessPiece {
             case KNIGHT -> "N";
             case ROOK -> "R";
             case PAWN -> "P";
-            default -> throw new IllegalArgumentException("Unexpected piece tpye: " + type);
+            default -> throw new IllegalArgumentException("Unexpected piece type: " + type);
         };
 
         return (pieceColor == ChessGame.TeamColor.WHITE) ? pieceLetterRepr : pieceLetterRepr.toLowerCase();
