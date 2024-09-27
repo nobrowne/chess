@@ -104,7 +104,7 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int row = 0; row < 8; row++) {
+        for (int row = 7; row >= 0; row--) {
             sb.append("|");
             for (int col = 0; col < 8; col++) {
                 ChessPiece piece = board[row][col];
