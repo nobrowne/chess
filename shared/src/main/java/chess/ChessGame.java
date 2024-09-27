@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -50,7 +51,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+
+        if (piece == null) {
+            return null;
+        }
+
+        var pieceType = piece.getPieceType();
+
+        Collection<ChessMove> validMovesList = new ArrayList<>();
+
+        return validMovesList;
     }
 
     /**
@@ -62,15 +73,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
 
-        ChessPiece piece = board.getPiece(startPosition);
-
-        // Figure out how to do promotion piece for pawn here
-
-        // Figure out if the end position is in the list of valid moves
-
-        board.addPiece(endPosition, piece);
-        board.addPiece(startPosition, null);
+        board.movePiece(startPosition, endPosition);
     }
 
     /**

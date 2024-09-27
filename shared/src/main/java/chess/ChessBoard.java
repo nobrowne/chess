@@ -43,6 +43,18 @@ public class ChessBoard {
         return board[row][col];
     }
 
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition) {
+        ChessPiece piece = getPiece(startPosition);
+
+        int startRow = startPosition.getRow() - 1;
+        int startCol = startPosition.getColumn() - 1;
+        board[startRow][startCol] = null;
+
+        int endRow = endPosition.getRow() - 1;
+        int endCol = endPosition.getColumn() - 1;
+        board[endRow][endCol] = piece;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
