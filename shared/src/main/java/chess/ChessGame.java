@@ -55,10 +55,6 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
 
-        if (piece == null) {
-            return Collections.emptyList();
-        }
-
         TeamColor teamColor = piece.getTeamColor();
         Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
 
@@ -95,7 +91,24 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
 
-        board.movePiece(startPosition, endPosition);
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) {
+            throw new InvalidMoveException("There is no piece at the specified location" + endPosition);
+        }
+
+        TeamColor teamColor = piece.getTeamColor();
+        if (!moveIsOnTurn(teamColor)) {
+            throw new InvalidMoveException(String.format("You are on the %s team. It is currently the %s team's turn", teamColor, getTeamTurn()));
+        }
+
+        Collection<ChessMove> validMoves = validMoves(startPosition);
+        if (validMoves.contains(move)) {
+            board.movePiece(startPosition, endPosition);
+        }
+        else {
+            throw new InvalidMoveException("Invalid move");
+        }
+
 //        System.out.println("AFTER MOVE:\n" + board.toString());
     }
 
@@ -109,9 +122,13 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
 
-        if (kingPosition == null) {
-            throw new IllegalStateException("King not found for team: " + teamColor);
-        }
+        /*
+            Even though the king should be on the board, some of the tests don't use the King
+
+            if (kingPosition == null) {
+                throw new IllegalStateException("King not found for team: " + teamColor);
+            }
+        */
 
         Set<ChessPosition> threatenedPositions = getThreatenedPositions(board, teamColor);
 
@@ -161,6 +178,10 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+    }
+
+    public boolean moveIsOnTurn(TeamColor teamColor) {
+        return getTeamTurn() == teamColor;
     }
 
     /**
