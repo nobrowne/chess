@@ -140,7 +140,7 @@ public class ChessBoard {
      * Determines whether the given position is actually on the board
      *
      * @param position A position on the board
-     * @return true if the position specified is on the board
+     * @return True if the position specified is on the board
      */
     public boolean isRealPosition(ChessPosition position) {
         int row = position.getRow();
@@ -153,7 +153,7 @@ public class ChessBoard {
      * Gets all positions the given team can move to on their turn
      *
      * @param position A position on the board
-     * @return true if the position is occupied by another piece
+     * @return True if the position is occupied by another piece
      */
     public boolean isOccupiedAt(ChessPosition position) {
         return getPiece(position) != null;
