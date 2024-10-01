@@ -16,6 +16,11 @@ public class ChessBoard {
     public ChessBoard() {
     }
 
+    /**
+     * Copies an existing chessboard
+     *
+     * @param other the board being copied
+     */
     public ChessBoard(ChessBoard other) {
         this.board = new ChessPiece[8][8];
 
