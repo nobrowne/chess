@@ -11,10 +11,24 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    ChessPiece[][] board = new ChessPiece[8][8];
+    private ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
+    }
 
+    public ChessBoard(ChessBoard other) {
+        this.board = new ChessPiece[8][8];
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = other.board[row][col];
+                if (piece != null) {
+                    this.board[row][col] = new ChessPiece(piece);
+                } else {
+                    this.board[row][col] = null;
+                }
+            }
+        }
     }
 
     /**
