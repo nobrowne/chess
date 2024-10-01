@@ -1,7 +1,6 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -19,7 +18,7 @@ public class ChessBoard {
     /**
      * Copies an existing chessboard
      *
-     * @param other the board being copied
+     * @param other The board being copied
      */
     public ChessBoard(ChessBoard other) {
         this.board = new ChessPiece[8][8];
@@ -39,8 +38,8 @@ public class ChessBoard {
     /**
      * Adds a chess piece to the chessboard
      *
-     * @param position where to add the piece to
-     * @param piece    the piece to add
+     * @param position Where to add the piece to
+     * @param piece    The piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         int row = position.getRow() - 1;
@@ -62,6 +61,12 @@ public class ChessBoard {
         return board[row][col];
     }
 
+    /**
+     * Gets the position of the given team's king
+     *
+     * @param teamColor Which team to get the king's position for
+     * @return Either the position of the king, or null if no king is found on the board
+     */
     public ChessPosition getKingPosition(ChessGame.TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
@@ -76,6 +81,42 @@ public class ChessBoard {
         return null;
     }
 
+    /**
+     * Gets all positions the given team can move to on their turn
+     *
+     * @param teamColor Which team to get all available positions for
+     * @return The set of board positions that the team can move to
+     */
+    Set<ChessPosition> getAvailablePositions(ChessGame.TeamColor teamColor) {
+        Set<ChessPosition> occupiablePositions = new HashSet<>();
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = getPiece(position);
+
+                if (piece == null || piece.getTeamColor() == teamColor) {
+                    continue;
+                }
+
+                Collection<ChessMove> pieceMoves = piece.pieceMoves(this, position);
+
+                for (ChessMove move : pieceMoves) {
+                    occupiablePositions.add(move.getEndPosition());
+                }
+            }
+        }
+
+        return occupiablePositions;
+    }
+
+    /**
+     * Moves a piece from one position to another, promoting it if the piece is a pawn in the final row
+     *
+     * @param startPosition     The board position in which the piece is currently located
+     * @param endPosition       The board position to the piece will be moved
+     * @param promotionPiece    The piece type the piece will become if it is promoted
+     */
     public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         ChessPiece piece = getPiece(startPosition);
 
@@ -93,6 +134,29 @@ public class ChessBoard {
         else {
             board[endRow][endCol] = piece;
         }
+    }
+
+    /**
+     * Determines whether the given position is actually on the board
+     *
+     * @param position A position on the board
+     * @return true if the position specified is on the board
+     */
+    public boolean isRealPosition(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
+    }
+
+    /**
+     * Gets all positions the given team can move to on their turn
+     *
+     * @param position A position on the board
+     * @return true if the position is occupied by another piece
+     */
+    public boolean isOccupiedAt(ChessPosition position) {
+        return getPiece(position) != null;
     }
 
     /**
@@ -127,17 +191,6 @@ public class ChessBoard {
         for (int col = 0; col < 8; col++) {
             board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
-    }
-
-    public boolean isRealPosition(ChessPosition position) {
-        int row = position.getRow();
-        int col = position.getColumn();
-
-        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
-    }
-
-    public boolean isOccupiedAt(ChessPosition position) {
-        return getPiece(position) != null;
     }
 
     @Override

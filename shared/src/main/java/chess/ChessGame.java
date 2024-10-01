@@ -21,6 +21,24 @@ public class ChessGame {
     }
 
     /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board The new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        this.board = board;
+    }
+
+    /**
+     * Gets the current chessboard
+     *
+     * @return The chessboard
+     */
+    public ChessBoard getBoard() {
+        return board;
+    }
+
+    /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
@@ -57,9 +75,9 @@ public class ChessGame {
     }
 
     /**
-     * Gets a valid moves for a piece at the given location
+     * Gets the valid moves for a piece at the given location
      *
-     * @param startPosition the piece to get valid moves for
+     * @param startPosition The piece to get valid moves for
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
@@ -89,10 +107,38 @@ public class ChessGame {
         return pieceMoves;
     }
 
+    public boolean hasNoValidMoves(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> validMoves = validMoves(position);
+
+                    if (!validMoves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks to see if the turn belongs to the team making a move
+     *
+     * @param teamColor The team making the move
+     * @return True if the turn belongs to the team making the move
+     */
+    public boolean moveIsOnTurn(TeamColor teamColor) {
+        return getTeamTurn() == teamColor;
+    }
+
     /**
      * Makes a move in a chess game
      *
-     * @param move chess move to perform
+     * @param move The chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
@@ -125,112 +171,35 @@ public class ChessGame {
      * Determines if the given team is in check. This occurs when the position of the given team's king is in the list
      * of valid moves for the other team.
      *
-     * @param teamColor which team to check for check
+     * @param teamColor Which team to check for check
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
+        Set<ChessPosition> availablePositions = board.getAvailablePositions(teamColor);
 
-        /*
-            Even though the king should be on the board, some of the tests don't use the King
-
-            if (kingPosition == null) {
-                throw new IllegalStateException("King not found for team: " + teamColor);
-            }
-        */
-
-        Set<ChessPosition> threatenedPositions = getThreatenedPositions(board, teamColor);
-
-        return threatenedPositions.contains(kingPosition);
-    }
-
-    private Set<ChessPosition> getThreatenedPositions(ChessBoard board, TeamColor teamColor) {
-        Set<ChessPosition> threatenedPositions = new HashSet<>();
-
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(position);
-
-                if (piece == null || piece.getTeamColor() == teamColor) {
-                    continue;
-                }
-
-                Collection<ChessMove> pieceMoves = piece.pieceMoves(board, position);
-
-                for (ChessMove move : pieceMoves) {
-                    threatenedPositions.add(move.getEndPosition());
-                }
-            }
-        }
-
-        return threatenedPositions;
+        return availablePositions.contains(kingPosition);
     }
 
     /**
      * Determines if the given team is in checkmate. This occurs when the given team's king IS IN CHECK and the given
      * team has no valid moves.
      *
-     * @param teamColor which team to check for checkmate
+     * @param teamColor Which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) {
-            return false;
-        }
-
-
-        return hasNoValidMoves(teamColor);
+        return isInCheck(teamColor) && hasNoValidMoves(teamColor);
     }
 
     /**
      * Determines if the given team is in stalemate. This occurs when the given team's king is NOT IN CHECK and the
      * given team has no valid moves.
      *
-     * @param teamColor which team to check for stalemate
+     * @param teamColor Which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
         return !isInCheck(teamColor) && hasNoValidMoves(teamColor);
-    }
-
-    public boolean hasNoValidMoves(TeamColor teamColor) {
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(position);
-
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> validMoves = validMoves(position);
-
-                    if (!validMoves.isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean moveIsOnTurn(TeamColor teamColor) {
-        return getTeamTurn() == teamColor;
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-        this.board = board;
-    }
-
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-        return board;
     }
 }
