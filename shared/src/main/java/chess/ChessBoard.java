@@ -76,7 +76,7 @@ public class ChessBoard {
         return null;
     }
 
-    public void movePiece(ChessPosition startPosition, ChessPosition endPosition) {
+    public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         ChessPiece piece = getPiece(startPosition);
 
         int startRow = startPosition.getRow() - 1;
@@ -85,7 +85,14 @@ public class ChessBoard {
 
         int endRow = endPosition.getRow() - 1;
         int endCol = endPosition.getColumn() - 1;
-        board[endRow][endCol] = piece;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && promotionPiece != null) {
+            ChessGame.TeamColor teamColor = piece.getTeamColor();
+            board[endRow][endCol] = new ChessPiece(teamColor, promotionPiece);
+        }
+        else {
+            board[endRow][endCol] = piece;
+        }
     }
 
     /**

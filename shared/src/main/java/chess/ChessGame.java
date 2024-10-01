@@ -38,6 +38,18 @@ public class ChessGame {
     }
 
     /**
+     * Switches which team's turn it is after a move is made
+     */
+    public void switchTeamTurn() {
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        }
+        else {
+            setTeamTurn(TeamColor.WHITE);
+        }
+    }
+
+    /**
      * Enum identifying the 2 possible teams in a chess game
      */
     public enum TeamColor {
@@ -63,7 +75,7 @@ public class ChessGame {
         for (ChessMove move : pieceMoves) {
             ChessBoard boardCopy = new ChessBoard(board);
             ChessPosition endPosition = move.getEndPosition();
-            boardCopy.movePiece(startPosition, endPosition);
+            boardCopy.movePiece(startPosition, endPosition, null);
 
             ChessGame simulatedGame = new ChessGame();
             simulatedGame.setBoard(boardCopy);
@@ -85,8 +97,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-//        System.out.println("BEFORE MOVE:\n" + board.toString());
-
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
@@ -97,19 +107,19 @@ public class ChessGame {
         }
 
         TeamColor teamColor = piece.getTeamColor();
+        TeamColor teamTurn = getTeamTurn();
         if (!moveIsOnTurn(teamColor)) {
-            throw new InvalidMoveException(String.format("You are on the %s team. It is currently the %s team's turn", teamColor, getTeamTurn()));
+            throw new InvalidMoveException(String.format("You are on the %s team. It is currently the %s team's turn", teamColor, teamTurn));
         }
 
         Collection<ChessMove> validMoves = validMoves(startPosition);
         if (validMoves.contains(move)) {
-            board.movePiece(startPosition, endPosition);
+            board.movePiece(startPosition, endPosition, promotionPiece);
+            switchTeamTurn();
         }
         else {
             throw new InvalidMoveException("Invalid move");
         }
-
-//        System.out.println("AFTER MOVE:\n" + board.toString());
     }
 
     /**
