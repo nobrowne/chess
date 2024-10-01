@@ -1,7 +1,8 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -51,17 +52,82 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = board.getPiece(startPosition);
+        ChessPiece currentPiece = board.getPiece(startPosition);
 
-        if (piece == null) {
+        if (currentPiece == null) {
             return null;
         }
 
-        var pieceType = piece.getPieceType();
+        TeamColor currentPieceTeamColor = currentPiece.getTeamColor();
+        Collection<ChessMove> pieceMoves = currentPiece.pieceMoves(board, startPosition);
 
-        Collection<ChessMove> validMovesList = new ArrayList<>();
+        Collection<ChessMove> validMovesList = pieceMoves;
+        Set<ChessMove> movesToRemove = new HashSet<>();
+
+        for (ChessMove move : pieceMoves) {
+            ChessBoard boardCopy = new ChessBoard(board);
+
+            ChessPosition endPosition = move.getEndPosition();
+            boardCopy.movePiece(startPosition, endPosition);
+
+            Set<ChessPosition> threatenedPositions = new HashSet<>();
+
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    ChessPosition position = new ChessPosition(row, col);
+                    ChessPiece otherPiece = boardCopy.getPiece(position);
+
+                    if (otherPiece == null) {
+                        continue;
+                    }
+
+                    TeamColor otherPieceTeamColor = otherPiece.getTeamColor();
+
+                    if (otherPieceTeamColor == currentPieceTeamColor) {
+                        continue;
+                    }
+
+                    Collection<ChessMove> otherPieceMoves = otherPiece.pieceMoves(boardCopy, position);
+
+                    for (ChessMove otherPieceMove : otherPieceMoves) {
+                        ChessPosition threatenedPosition = otherPieceMove.getEndPosition();
+                        threatenedPositions.add(threatenedPosition);
+                    }
+                }
+            }
+
+            ChessPosition kingPosition = getKingPosition(boardCopy, currentPieceTeamColor);
+            // Figure out how to handle if the king isn't found
+
+            if (threatenedPositions.contains(kingPosition)) {
+                movesToRemove.add(move);
+            }
+        }
+
+        validMovesList.removeAll(movesToRemove);
 
         return validMovesList;
+    }
+
+    public ChessPosition getKingPosition(ChessBoard board, TeamColor currentPieceTeamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece otherPiece = board.getPiece(position);
+
+                if (otherPiece == null) {
+                    continue;
+                }
+
+                ChessPiece.PieceType otherPieceType = otherPiece.getPieceType();
+                TeamColor otherPieceTeamColor = otherPiece.getTeamColor();
+
+                if (otherPieceTeamColor == currentPieceTeamColor && otherPieceType == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(row, col);
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -71,11 +137,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+//        System.out.println("BEFORE MOVE:\n" + board.toString());
+
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
 
         board.movePiece(startPosition, endPosition);
+//        System.out.println("AFTER MOVE:\n" + board.toString());
     }
 
     /**
