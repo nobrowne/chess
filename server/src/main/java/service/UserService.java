@@ -14,7 +14,7 @@ public class UserService {
         return null;
     }
 
-    public void logout(UserData user) {
+    public void logout(AuthData credentials) {
         // TODO implement
     }
 }
