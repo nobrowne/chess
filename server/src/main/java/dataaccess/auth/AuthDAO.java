@@ -1,5 +1,7 @@
 package dataaccess.auth;
 
+import dataaccess.DataAccessException;
+
 public interface AuthDAO {
-    void clear();
+    void clear() throws DataAccessException;
 }

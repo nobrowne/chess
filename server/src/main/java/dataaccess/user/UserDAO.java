@@ -1,5 +1,7 @@
 package dataaccess.user;
 
+import dataaccess.DataAccessException;
+
 public interface UserDAO {
-    void clear();
+    void clear() throws DataAccessException;
 }

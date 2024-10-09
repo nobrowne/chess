@@ -1,5 +1,7 @@
 package dataaccess.game;
 
+import dataaccess.DataAccessException;
+
 public interface GameDAO {
-    void clear();
+    void clear() throws DataAccessException;
 }
