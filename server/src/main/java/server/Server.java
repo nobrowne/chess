@@ -1,8 +1,10 @@
 package server;
 
-import spark.*;
+import server.handlers.UserHandler;
+import spark.Spark;
 
 public class Server {
+    private final UserHandler userHandler = new UserHandler();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -10,7 +12,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", (request, response) -> "register");
+        Spark.post("/user", userHandler::register);
         Spark.post("/session", (request, response) -> "login");
         Spark.delete("/session", (request, response) -> "logout");
         Spark.get("/game", (request, response) -> "list games");
