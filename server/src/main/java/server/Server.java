@@ -1,24 +1,17 @@
 package server;
 
-import server.handlers.UserHandler;
+import spark.Request;
+import spark.Response;
 import spark.Spark;
 
 public class Server {
-    private final UserHandler userHandler = new UserHandler();
-
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", userHandler::register);
-        Spark.post("/session", (request, response) -> "login");
-        Spark.delete("/session", (request, response) -> "logout");
-        Spark.get("/game", (request, response) -> "list games");
-        Spark.post("/game", (request, response) -> "create game");
-        Spark.put("/game", (request, response) -> "join game");
-        Spark.delete("/db", (request, response) -> "clear application");
+        Spark.post("/user", (req, res) -> "register");
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -30,5 +23,11 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    public Object registerUser(Request req, Response res) {
+        res.type("application/json");
+
+        return null;
     }
 }
