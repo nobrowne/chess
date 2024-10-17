@@ -1,10 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import model.AuthData;
+import exception.ResponseException;
 import model.UserData;
 import service.Service;
+import service.UsernameTakenException;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -33,12 +35,16 @@ public class Server {
         Spark.awaitStop();
     }
 
-    public Object registerUser(Request req, Response res) {
-        UserData user = new Gson().fromJson(req.body(), UserData.class);
-        AuthData auth = service.registerUser(user);
+    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
+    }
+
+    public Object registerUser(Request req, Response res) throws DataAccessException, UsernameTakenException {
+        var user = new Gson().fromJson(req.body(), UserData.class);
+        var result = service.registerUser(user);
 
         res.type("application/json");
         res.status(200);
-        return new Gson().toJson(auth);
+        return new Gson().toJson(result);
     }
 }
