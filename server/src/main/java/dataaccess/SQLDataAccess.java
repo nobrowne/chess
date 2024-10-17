@@ -5,32 +5,32 @@ import model.UserData;
 
 public class SQLDataAccess implements DataAccess {
     @Override
-    public UserData getUser(UserData user) {
+    public UserData getUser(UserData user) throws DataAccessException {
         return null;
     }
 
     @Override
-    public void createUser(UserData user) {
+    public void createUser(UserData user) throws DataAccessException {
 
     }
 
     @Override
-    public AuthData getAuth(AuthData auth) {
+    public AuthData getAuth(AuthData auth) throws DataAccessException {
         return null;
     }
 
     @Override
-    public void createAuth(AuthData auth) {
+    public void createAuth(AuthData auth) throws DataAccessException {
 
     }
 
     @Override
-    public void deleteAuth(AuthData auth) {
+    public void deleteAuth(AuthData auth) throws DataAccessException {
 
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
 
     }
 }

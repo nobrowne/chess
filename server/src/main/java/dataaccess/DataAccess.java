@@ -4,15 +4,15 @@ import model.AuthData;
 import model.UserData;
 
 public interface DataAccess {
-    UserData getUser(UserData user);
+    UserData getUser(UserData user) throws DataAccessException;
 
-    void createUser(UserData user);
+    void createUser(UserData user) throws DataAccessException;
 
-    AuthData getAuth(AuthData auth);
+    AuthData getAuth(AuthData auth) throws DataAccessException;
 
-    void createAuth(AuthData auth);
+    void createAuth(AuthData auth) throws DataAccessException;
 
-    void deleteAuth(AuthData auth);
+    void deleteAuth(AuthData auth) throws DataAccessException;
 
-    void clear();
+    void clear() throws DataAccessException;
 }

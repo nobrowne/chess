@@ -12,6 +12,6 @@ public class Service {
     }
 
     public AuthData registerUser(UserData user) {
-        return new AuthData("authToken123", "nobrowne");
+        return null;
     }
 }
