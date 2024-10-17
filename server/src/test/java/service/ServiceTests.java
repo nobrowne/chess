@@ -6,7 +6,7 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
     private MemoryDataAccess dataAccess;
@@ -27,7 +27,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void register_with_existing_username_throws_usernameTakenException() throws UsernameTakenException, DataAccessException {
+    public void register_with_existing_username_throws_usernameTakenException() {
         var user = new UserData("username5000", "p455w0rd", "email@email.com");
         dataAccess.createUser(user);
 
@@ -35,5 +35,14 @@ public class ServiceTests {
         assertThrows(UsernameTakenException.class, () -> {
             service.registerUser(newUser);
         });
+    }
+
+    @Test
+    public void registering_user_returns_correct_authentication_data() throws DataAccessException, InvalidInputException, UsernameTakenException {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        var result = service.registerUser(user);
+
+        assertEquals(user.username(), result.username());
+        assertNotNull(result.authToken());
     }
 }

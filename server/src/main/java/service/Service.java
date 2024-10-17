@@ -2,7 +2,10 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import model.AuthData;
 import model.UserData;
+
+import java.util.UUID;
 
 public class Service {
     private final DataAccess dataAccess;
@@ -11,7 +14,7 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    public UserData registerUser(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
+    public AuthData registerUser(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
         String username = user.username();
         String password = user.password();
         String email = user.email();
@@ -26,6 +29,19 @@ public class Service {
 
         dataAccess.createUser(user);
 
-        return user;
+        String authToken = generateAuthToken();
+        AuthData authData = new AuthData(authToken, username);
+        dataAccess.createAuth(authData);
+
+        return authData;
+    }
+
+    private String generateAuthToken() throws DataAccessException {
+        String authToken;
+        do {
+            authToken = UUID.randomUUID().toString();
+        } while (dataAccess.getAuth(authToken) != null);
+
+        return authToken;
     }
 }
