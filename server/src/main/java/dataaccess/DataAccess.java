@@ -14,5 +14,5 @@ public interface DataAccess {
 
     void deleteAuth(AuthData auth) throws DataAccessException;
 
-    void clear() throws DataAccessException;
+    void clearApplication() throws DataAccessException;
 }

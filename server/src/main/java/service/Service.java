@@ -19,7 +19,7 @@ public class Service {
         String password = user.password();
         String email = user.email();
 
-        if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+        if (username == null || password == null || email == null) {
             throw new InvalidInputException("username, password, and email must all be filled");
         }
 
@@ -34,6 +34,10 @@ public class Service {
         dataAccess.createAuth(authData);
 
         return authData;
+    }
+
+    public void clearApplication() throws DataAccessException {
+        dataAccess.clearApplication();
     }
 
     private String generateAuthToken() throws DataAccessException {

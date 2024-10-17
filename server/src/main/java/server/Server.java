@@ -23,6 +23,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerUser);
+        Spark.delete("/db", this::clearApplication);
 
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
         Spark.exception(InvalidInputException.class, this::exceptionHandler);
@@ -50,5 +51,13 @@ public class Server {
         res.type("application/json");
         res.status(200);
         return new Gson().toJson(result);
+    }
+
+    public Object clearApplication(Request req, Response res) throws DataAccessException {
+        service.clearApplication();
+
+        res.type("application/json");
+        res.status(200);
+        return "";
     }
 }
