@@ -19,6 +19,14 @@ public class ServiceTests {
     }
 
     @Test
+    public void register_missing_required_input_throws_InvalidInputException() {
+        var user = new UserData("username5000", "p455w0rd", "");
+        assertThrows(InvalidInputException.class, () -> {
+            service.registerUser(user);
+        });
+    }
+
+    @Test
     public void register_with_existing_username_throws_usernameTakenException() throws UsernameTakenException, DataAccessException {
         var user = new UserData("username5000", "p455w0rd", "email@email.com");
         dataAccess.createUser(user);

@@ -5,7 +5,7 @@ import model.UserData;
 
 public class SQLDataAccess implements DataAccess {
     @Override
-    public UserData getUser(UserData user) throws DataAccessException {
+    public UserData getUser(String username) throws DataAccessException {
         return null;
     }
 
@@ -15,7 +15,7 @@ public class SQLDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData getAuth(AuthData auth) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         return null;
     }
 

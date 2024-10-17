@@ -12,8 +12,8 @@ public class MemoryDataAccess implements DataAccess {
     private final HashMap<Integer, GameData> games = new HashMap<>();
 
     @Override
-    public UserData getUser(UserData user) {
-        return users.get(user.username());
+    public UserData getUser(String username) {
+        return users.get(username);
     }
 
     @Override
@@ -22,8 +22,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public AuthData getAuth(AuthData auth) {
-        return auths.get(auth.authToken());
+    public AuthData getAuth(String authToken) {
+        return auths.get(authToken);
     }
 
     @Override

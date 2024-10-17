@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import exception.ResponseException;
 import model.UserData;
+import service.InvalidInputException;
 import service.Service;
 import service.UsernameTakenException;
 import spark.Request;
@@ -39,7 +40,7 @@ public class Server {
         res.status(ex.StatusCode());
     }
 
-    public Object registerUser(Request req, Response res) throws DataAccessException, UsernameTakenException {
+    public Object registerUser(Request req, Response res) throws DataAccessException, UsernameTakenException, InvalidInputException {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.registerUser(user);
 

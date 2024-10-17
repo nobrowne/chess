@@ -11,8 +11,16 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    public UserData registerUser(UserData user) throws UsernameTakenException, DataAccessException {
-        if (dataAccess.getUser(user) != null) {
+    public UserData registerUser(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
+        String username = user.username();
+        String password = user.password();
+        String email = user.email();
+
+        if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+            throw new InvalidInputException("username, password, and email must all be filled");
+        }
+
+        if (dataAccess.getUser(username) != null) {
             throw new UsernameTakenException("username already taken");
         }
 
