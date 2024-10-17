@@ -1,4 +1,3 @@
-import chess.*;
 import server.Server;
 
 public class Main {
@@ -10,7 +9,9 @@ public class Main {
             }
 
             var server = new Server();
+
             server.run(port);
+
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
         }
