@@ -59,6 +59,17 @@ public class ServiceTests {
     }
 
     @Test
+    public void loggingInWithIncorrectPasswordThrowsInvalidPasswordException() {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        dataAccess.createUser(user);
+
+        var loginInfo = new UserData("username5000", "password", null);
+        assertThrows(InvalidPasswordException.class, () -> {
+            service.login(loginInfo);
+        });
+    }
+
+    @Test
     public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, UsernameTakenException, DataAccessException {
         ArrayList<UserData> users = new ArrayList<>();
         users.add(new UserData("username5000", "p455w0rd", "email@email.com"));

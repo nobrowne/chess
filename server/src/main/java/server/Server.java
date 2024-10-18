@@ -5,10 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import exception.ResponseException;
 import model.UserData;
-import service.InvalidInputException;
-import service.Service;
-import service.UserNotRegisteredException;
-import service.UsernameTakenException;
+import service.*;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -55,7 +52,7 @@ public class Server {
         return new Gson().toJson(result);
     }
 
-    public Object login(Request req, Response res) throws UserNotRegisteredException, DataAccessException {
+    public Object login(Request req, Response res) throws UserNotRegisteredException, DataAccessException, InvalidPasswordException {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.login(user);
 

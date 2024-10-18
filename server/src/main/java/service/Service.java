@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Service {
@@ -36,12 +37,17 @@ public class Service {
         return authData;
     }
 
-    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException {
+    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException, InvalidPasswordException {
         String username = user.username();
         String password = user.password();
 
         if (dataAccess.getUser(username) == null) {
             throw new UserNotRegisteredException("user has not registered an account yet");
+        }
+
+        String storedPassword = dataAccess.getUser(username).password();
+        if (!Objects.equals(password, storedPassword)) {
+            throw new InvalidPasswordException("invalid password");
         }
 
         return null;
