@@ -12,7 +12,7 @@ public interface DataAccess {
 
     void createAuth(AuthData auth) throws DataAccessException;
 
-    void deleteAuth(AuthData auth) throws DataAccessException;
+    void deleteAuth(String authToken) throws DataAccessException;
 
     void clearApplication() throws DataAccessException;
 }

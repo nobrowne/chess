@@ -27,7 +27,7 @@ public class Server {
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
         Spark.exception(InvalidInputException.class, this::exceptionHandler);
         Spark.exception(UserNotRegisteredException.class, this::exceptionHandler);
-        Spark.exception(InvalidPasswordException.class, this::exceptionHandler);
+        Spark.exception(UnauthorizedUserException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -54,13 +54,22 @@ public class Server {
         return new Gson().toJson(result);
     }
 
-    public Object login(Request req, Response res) throws UserNotRegisteredException, DataAccessException, InvalidPasswordException {
+    public Object login(Request req, Response res) throws UserNotRegisteredException, DataAccessException, UnauthorizedUserException {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.login(user);
 
         res.type("application/json");
         res.status(200);
         return new Gson().toJson(result);
+    }
+
+    public Object logout(Request req, Response res) throws UserNotRegisteredException, DataAccessException, UnauthorizedUserException {
+        String authToken = req.headers("Authorization");
+        service.logout(authToken);
+
+        res.type("application/json");
+        res.status(200);
+        return new Gson().toJson("");
     }
 
     public Object clearApplication(Request req, Response res) throws DataAccessException {

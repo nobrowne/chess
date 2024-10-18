@@ -2,8 +2,8 @@ package service;
 
 import exception.ResponseException;
 
-public class InvalidPasswordException extends ResponseException {
-    public InvalidPasswordException(String message) {
+public class UnauthorizedUserException extends ResponseException {
+    public UnauthorizedUserException(String message) {
         super(401, message);
     }
 }

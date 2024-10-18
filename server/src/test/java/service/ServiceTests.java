@@ -59,24 +59,48 @@ public class ServiceTests {
     }
 
     @Test
-    public void loggingInWithIncorrectPasswordThrowsInvalidPasswordException() {
+    public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
         var user = new UserData("username5000", "p455w0rd", "email@email.com");
         dataAccess.createUser(user);
 
         var loginInfo = new UserData("username5000", "password", null);
-        assertThrows(InvalidPasswordException.class, () -> {
+        assertThrows(UnauthorizedUserException.class, () -> {
             service.login(loginInfo);
         });
     }
 
     @Test
-    public void loggingInReturnsCorrectAuthenticationData() throws UserNotRegisteredException, InvalidPasswordException, DataAccessException {
+    public void loggingInReturnsCorrectAuthenticationData() throws UserNotRegisteredException, UnauthorizedUserException, DataAccessException {
         var user = new UserData("username5000", "p455w0rd", "email@email.com");
         dataAccess.createUser(user);
 
         var result = service.login(user);
         assertEquals(user.username(), result.username());
         assertNotNull(result.authToken());
+    }
+
+    @Test
+    public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        dataAccess.createUser(user);
+
+        String fakeAuthToken = "abc123def456";
+
+        assertThrows(UnauthorizedUserException.class, () -> {
+            service.logout(fakeAuthToken);
+        });
+    }
+
+    @Test
+    public void loggingOutWithValidAuthTokenDeletesAuthData() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        dataAccess.createUser(user);
+
+        AuthData loginResult = service.login(user);
+        String authToken = loginResult.authToken();
+
+        service.logout(authToken);
+        assertNull(dataAccess.getAuth(authToken));
     }
 
     @Test

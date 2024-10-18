@@ -25,7 +25,7 @@ public class SQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void deleteAuth(AuthData auth) throws DataAccessException {
+    public void deleteAuth(String authToken) throws DataAccessException {
 
     }
 

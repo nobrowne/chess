@@ -37,7 +37,7 @@ public class Service {
         return authData;
     }
 
-    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException, InvalidPasswordException {
+    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException, UnauthorizedUserException {
         String username = user.username();
         String password = user.password();
 
@@ -47,7 +47,7 @@ public class Service {
 
         UserData registeredUser = dataAccess.getUser(username);
         if (!Objects.equals(password, registeredUser.password())) {
-            throw new InvalidPasswordException("invalid password");
+            throw new UnauthorizedUserException("invalid password");
         }
 
         String authToken = generateAuthToken();
@@ -55,6 +55,14 @@ public class Service {
         dataAccess.createAuth(authData);
 
         return authData;
+    }
+
+    public void logout(String authToken) throws DataAccessException, UnauthorizedUserException {
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedUserException("unauthorized user");
+        }
+
+        dataAccess.deleteAuth(authToken);
     }
 
     public void clearApplication() throws DataAccessException {

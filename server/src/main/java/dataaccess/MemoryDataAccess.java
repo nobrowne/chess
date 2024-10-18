@@ -32,8 +32,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void deleteAuth(AuthData auth) {
-        auths.remove(auth.authToken());
+    public void deleteAuth(String authToken) {
+        auths.remove(authToken);
     }
 
     @Override
