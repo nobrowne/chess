@@ -45,8 +45,8 @@ public class Service {
             throw new UserNotRegisteredException("user has not registered an account yet");
         }
 
-        String storedPassword = dataAccess.getUser(username).password();
-        if (!Objects.equals(password, storedPassword)) {
+        UserData registeredUser = dataAccess.getUser(username);
+        if (!Objects.equals(password, registeredUser.password())) {
             throw new InvalidPasswordException("invalid password");
         }
 

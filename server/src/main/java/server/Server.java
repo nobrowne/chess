@@ -26,6 +26,8 @@ public class Server {
 
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
         Spark.exception(InvalidInputException.class, this::exceptionHandler);
+        Spark.exception(UserNotRegisteredException.class, this::exceptionHandler);
+        Spark.exception(InvalidPasswordException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
