@@ -70,6 +70,16 @@ public class ServiceTests {
     }
 
     @Test
+    public void loggingInReturnsCorrectAuthenticationData() throws UserNotRegisteredException, InvalidPasswordException, DataAccessException {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        dataAccess.createUser(user);
+
+        var result = service.login(user);
+        assertEquals(user.username(), result.username());
+        assertNotNull(result.authToken());
+    }
+
+    @Test
     public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, UsernameTakenException, DataAccessException {
         ArrayList<UserData> users = new ArrayList<>();
         users.add(new UserData("username5000", "p455w0rd", "email@email.com"));

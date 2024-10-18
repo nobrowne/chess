@@ -50,7 +50,11 @@ public class Service {
             throw new InvalidPasswordException("invalid password");
         }
 
-        return null;
+        String authToken = generateAuthToken();
+        AuthData authData = new AuthData(authToken, username);
+        dataAccess.createAuth(authData);
+
+        return authData;
     }
 
     public void clearApplication() throws DataAccessException {
