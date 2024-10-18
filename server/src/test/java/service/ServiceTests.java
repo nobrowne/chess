@@ -26,7 +26,7 @@ public class ServiceTests {
     public void registeringWithMissingUserDataThrowsInvalidInputException() {
         var user = new UserData("username5000", "p455w0rd", null);
         assertThrows(InvalidInputException.class, () -> {
-            service.registerUser(user);
+            service.register(user);
         });
     }
 
@@ -37,17 +37,25 @@ public class ServiceTests {
 
         var newUser = new UserData("username5000", "5tr0ng3rp455w0rd", "betteremail@betteremail.com");
         assertThrows(UsernameTakenException.class, () -> {
-            service.registerUser(newUser);
+            service.register(newUser);
         });
     }
 
     @Test
     public void registeringUserReturnsCorrectAuthenticationData() throws DataAccessException, InvalidInputException, UsernameTakenException {
         var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        var result = service.registerUser(user);
+        var result = service.register(user);
 
         assertEquals(user.username(), result.username());
         assertNotNull(result.authToken());
+    }
+
+    @Test
+    public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
+        var user = new UserData("username5000", "p455w0rd", "email@email.com");
+        assertThrows(UserNotRegisteredException.class, () -> {
+            service.login(user);
+        });
     }
 
     @Test
@@ -60,7 +68,7 @@ public class ServiceTests {
         ArrayList<AuthData> auths = new ArrayList<>();
 
         for (UserData user : users) {
-            AuthData auth = service.registerUser(user);
+            AuthData auth = service.register(user);
             auths.add(auth);
 
             assertNotNull(dataAccess.getUser(user.username()));

@@ -14,7 +14,7 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData registerUser(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
+    public AuthData register(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
         String username = user.username();
         String password = user.password();
         String email = user.email();
@@ -34,6 +34,17 @@ public class Service {
         dataAccess.createAuth(authData);
 
         return authData;
+    }
+
+    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException {
+        String username = user.username();
+        String password = user.password();
+
+        if (dataAccess.getUser(username) == null) {
+            throw new UserNotRegisteredException("user has not registered an account yet");
+        }
+
+        return null;
     }
 
     public void clearApplication() throws DataAccessException {

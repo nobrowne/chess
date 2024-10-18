@@ -7,6 +7,7 @@ import exception.ResponseException;
 import model.UserData;
 import service.InvalidInputException;
 import service.Service;
+import service.UserNotRegisteredException;
 import service.UsernameTakenException;
 import spark.Request;
 import spark.Response;
@@ -22,7 +23,8 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", this::registerUser);
+        Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
         Spark.delete("/db", this::clearApplication);
 
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
@@ -44,9 +46,18 @@ public class Server {
         res.status(ex.StatusCode());
     }
 
-    public Object registerUser(Request req, Response res) throws DataAccessException, UsernameTakenException, InvalidInputException {
+    public Object register(Request req, Response res) throws DataAccessException, UsernameTakenException, InvalidInputException {
         var user = new Gson().fromJson(req.body(), UserData.class);
-        var result = service.registerUser(user);
+        var result = service.register(user);
+
+        res.type("application/json");
+        res.status(200);
+        return new Gson().toJson(result);
+    }
+
+    public Object login(Request req, Response res) throws UserNotRegisteredException, DataAccessException {
+        var user = new Gson().fromJson(req.body(), UserData.class);
+        var result = service.login(user);
 
         res.type("application/json");
         res.status(200);
