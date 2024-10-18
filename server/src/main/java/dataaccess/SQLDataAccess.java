@@ -1,7 +1,10 @@
 package dataaccess;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
+
+import java.util.ArrayList;
 
 public class SQLDataAccess implements DataAccess {
     @Override
@@ -26,6 +29,26 @@ public class SQLDataAccess implements DataAccess {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
+
+    }
+
+    @Override
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public void createGame(GameData game) throws DataAccessException {
+
+    }
+
+    @Override
+    public void updateGame(GameData game) {
 
     }
 
