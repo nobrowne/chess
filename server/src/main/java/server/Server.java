@@ -10,6 +10,8 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+import java.util.Map;
+
 public class Server {
     private final MemoryDataAccess dataAccess = new MemoryDataAccess();
     private final Service service = new Service(dataAccess);
@@ -20,8 +22,10 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", this::register);
         Spark.post("/session", this::login);
+        Spark.post("/user", this::register);
+
+        Spark.delete("/session", this::logout);
         Spark.delete("/db", this::clearApplication);
 
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
@@ -43,13 +47,13 @@ public class Server {
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
         res.status(ex.StatusCode());
+        res.body(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
 
     public Object register(Request req, Response res) throws DataAccessException, UsernameTakenException, InvalidInputException {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.register(user);
 
-        res.type("application/json");
         res.status(200);
         return new Gson().toJson(result);
     }
@@ -58,7 +62,6 @@ public class Server {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.login(user);
 
-        res.type("application/json");
         res.status(200);
         return new Gson().toJson(result);
     }
@@ -67,16 +70,14 @@ public class Server {
         String authToken = req.headers("Authorization");
         service.logout(authToken);
 
-        res.type("application/json");
         res.status(200);
-        return new Gson().toJson("");
+        return "{}";
     }
 
     public Object clearApplication(Request req, Response res) throws DataAccessException {
         service.clearApplication();
 
-        res.type("application/json");
         res.status(200);
-        return "";
+        return "{}";
     }
 }

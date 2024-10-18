@@ -21,11 +21,11 @@ public class Service {
         String email = user.email();
 
         if (username == null || password == null || email == null) {
-            throw new InvalidInputException("username, password, and email must all be filled");
+            throw new InvalidInputException("error: username, password, and email must all be filled");
         }
 
         if (dataAccess.getUser(username) != null) {
-            throw new UsernameTakenException("username already taken");
+            throw new UsernameTakenException("error: username already taken");
         }
 
         dataAccess.createUser(user);
@@ -42,12 +42,12 @@ public class Service {
         String password = user.password();
 
         if (dataAccess.getUser(username) == null) {
-            throw new UserNotRegisteredException("user has not registered an account yet");
+            throw new UserNotRegisteredException("error: user has not registered an account yet");
         }
 
         UserData registeredUser = dataAccess.getUser(username);
         if (!Objects.equals(password, registeredUser.password())) {
-            throw new UnauthorizedUserException("invalid password");
+            throw new UnauthorizedUserException("error: invalid password");
         }
 
         String authToken = generateAuthToken();
@@ -59,7 +59,7 @@ public class Service {
 
     public void logout(String authToken) throws DataAccessException, UnauthorizedUserException {
         if (dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedUserException("unauthorized user");
+            throw new UnauthorizedUserException("error: unauthorized user");
         }
 
         dataAccess.deleteAuth(authToken);
