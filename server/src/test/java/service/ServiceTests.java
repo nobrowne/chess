@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.UserData;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,79 +13,83 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
-    private MemoryDataAccess dataAccess;
-    private Service service;
+    private static MemoryDataAccess dataAccess;
+    private static Service service;
+    private static UserData existingUser;
+    private static UserData newUser;
 
-    @BeforeEach
-    void setUp() throws DataAccessException {
+    private String existingAuthToken;
+
+    @BeforeAll
+    public static void init() {
         dataAccess = new MemoryDataAccess();
         service = new Service(dataAccess);
+
+        existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
+        newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
+    }
+
+    @BeforeEach
+    void setUp() throws DataAccessException, InvalidInputException, UsernameTakenException {
         service.clearApplication();
+
+        AuthData authData = service.register(existingUser);
+        existingAuthToken = authData.authToken();
     }
 
     @Test
     public void registeringWithMissingUserDataThrowsInvalidInputException() {
-        var user = new UserData("username5000", "p455w0rd", null);
+        var registerRequest = new UserData(newUser.username(), newUser.password(), null);
         assertThrows(InvalidInputException.class, () -> {
-            service.register(user);
+            service.register(registerRequest);
         });
     }
 
     @Test
     public void registeringWithExistingUsernameThrowsUsernameTakenException() {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        dataAccess.createUser(user);
-
-        var newUser = new UserData("username5000", "5tr0ng3rp455w0rd", "betteremail@betteremail.com");
+        var registerRequest = new UserData(existingUser.username(), newUser.password(), newUser.email());
         assertThrows(UsernameTakenException.class, () -> {
-            service.register(newUser);
+            service.register(registerRequest);
         });
     }
 
     @Test
     public void registeringUserReturnsCorrectAuthenticationData() throws DataAccessException, InvalidInputException, UsernameTakenException {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        var result = service.register(user);
+        var registerResult = service.register(newUser);
 
-        assertEquals(user.username(), result.username());
-        assertNotNull(result.authToken());
+        assertEquals(newUser.username(), registerResult.username());
+        assertNotNull(registerResult.authToken());
     }
 
     @Test
     public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
         assertThrows(UserNotRegisteredException.class, () -> {
-            service.login(user);
+            service.login(newUser);
         });
     }
 
     @Test
     public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        dataAccess.createUser(user);
+        var loginRequest = new UserData(existingUser.username(), newUser.password(), null);
 
-        var loginInfo = new UserData("username5000", "password", null);
         assertThrows(UnauthorizedUserException.class, () -> {
-            service.login(loginInfo);
+            service.login(loginRequest);
         });
     }
 
     @Test
     public void loggingInReturnsCorrectAuthenticationData() throws UserNotRegisteredException, UnauthorizedUserException, DataAccessException {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        dataAccess.createUser(user);
+        var loginResult = service.login(existingUser);
 
-        var result = service.login(user);
-        assertEquals(user.username(), result.username());
-        assertNotNull(result.authToken());
+        assertEquals(existingUser.username(), loginResult.username());
+        assertNotNull(loginResult.authToken());
     }
 
     @Test
     public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        dataAccess.createUser(user);
-
         String fakeAuthToken = "abc123def456";
+
+        assertNotEquals(fakeAuthToken, existingAuthToken);
 
         assertThrows(UnauthorizedUserException.class, () -> {
             service.logout(fakeAuthToken);
@@ -93,14 +98,8 @@ public class ServiceTests {
 
     @Test
     public void loggingOutWithValidAuthTokenDeletesAuthData() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
-        var user = new UserData("username5000", "p455w0rd", "email@email.com");
-        dataAccess.createUser(user);
-
-        AuthData loginResult = service.login(user);
-        String authToken = loginResult.authToken();
-
-        service.logout(authToken);
-        assertNull(dataAccess.getAuth(authToken));
+        service.logout(existingAuthToken);
+        assertNull(dataAccess.getAuth(existingAuthToken));
     }
 
     @Test
