@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
@@ -123,7 +124,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, UsernameTakenException, DataAccessException {
+    public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, UsernameTakenException, DataAccessException, UnauthorizedUserException {
         ArrayList<UserData> users = new ArrayList<>();
         users.add(new UserData("username5000", "p455w0rd", "email@email.com"));
         users.add(new UserData("username6000", "5tr0ng3rp455w0rd", "betteremail@betteremail.com"));
@@ -139,7 +140,17 @@ public class ServiceTests {
             assertNotNull(dataAccess.getAuth(auth.authToken()));
         }
 
-        // Eventually add games and assert they're not null
+        ArrayList<GameData> games = new ArrayList<>();
+        games.add(new GameData(null, null, null, "game 1", new ChessGame()));
+        games.add(new GameData(null, null, null, "game 2", new ChessGame()));
+        games.add(new GameData(null, null, null, "game 3", new ChessGame()));
+
+        ArrayList<Integer> gameIDs = new ArrayList<>();
+        for (GameData game : games) {
+            int gameID = service.createGame(existingAuthToken, game.gameName());
+            gameIDs.add(gameID);
+            assertNotNull(dataAccess.getGame(gameID));
+        }
 
         service.clearApplication();
 
@@ -151,6 +162,8 @@ public class ServiceTests {
             assertNull(dataAccess.getAuth(auth.authToken()));
         }
 
-        // Eventually assert that games are null
+        for (int gameID : gameIDs) {
+            assertNull(dataAccess.getGame(gameID));
+        }
     }
 }
