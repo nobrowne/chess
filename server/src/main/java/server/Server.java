@@ -26,6 +26,7 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.delete("/db", this::clearApplication);
 
@@ -73,6 +74,14 @@ public class Server {
 
         res.status(200);
         return "{}";
+    }
+
+    public Object listGames(Request req, Response res) throws UnauthorizedUserException, DataAccessException {
+        String authToken = req.headers("Authorization");
+        var result = service.listGames(authToken);
+
+        res.status(200);
+        return new Gson().toJson(Map.of("games", result));
     }
 
     public Object createGame(Request req, Response res) throws UnauthorizedUserException, DataAccessException {

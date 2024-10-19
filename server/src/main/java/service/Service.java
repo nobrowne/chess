@@ -7,6 +7,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -61,17 +62,18 @@ public class Service {
     }
 
     public void logout(String authToken) throws DataAccessException, UnauthorizedUserException {
-        if (dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedUserException("error: unauthorized user");
-        }
-
+        validateAuthToken(authToken);
         dataAccess.deleteAuth(authToken);
     }
 
+    public ArrayList<GameData> listGames(String authToken) throws UnauthorizedUserException, DataAccessException {
+        validateAuthToken(authToken);
+
+        return dataAccess.listGames();
+    }
+
     public Integer createGame(String authToken, String gameName) throws DataAccessException, UnauthorizedUserException {
-        if (dataAccess.getAuth(authToken) == null) {
-            throw new UnauthorizedUserException("error: unauthorized user");
-        }
+        validateAuthToken(authToken);
 
         int gameID = generateGameID();
         ChessGame newGame = new ChessGame();
@@ -83,6 +85,12 @@ public class Service {
 
     public void clearApplication() throws DataAccessException {
         dataAccess.clearApplication();
+    }
+
+    private void validateAuthToken(String authToken) throws UnauthorizedUserException, DataAccessException {
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedUserException("error: unauthorized user");
+        }
     }
 
     private String generateAuthToken() throws DataAccessException {

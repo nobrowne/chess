@@ -99,6 +99,28 @@ public class ServiceTests {
     }
 
     @Test
+    public void listingGamesWithoutValidAuthTokenThrowsUnauthorizedUserException() {
+        assertNotEquals(badAuthToken, existingAuthToken);
+
+        assertThrows(UnauthorizedUserException.class, () -> service.listGames(badAuthToken));
+    }
+
+    @Test
+    public void listingGamesWithValidAuthTokenWorks() throws UnauthorizedUserException, DataAccessException {
+        ArrayList<GameData> games = new ArrayList<>();
+        games.add(new GameData(null, null, null, "game 1", new ChessGame()));
+        games.add(new GameData(null, null, null, "game 2", new ChessGame()));
+        games.add(new GameData(null, null, null, "game 3", new ChessGame()));
+
+        for (GameData game : games) {
+            service.createGame(existingAuthToken, game.gameName());
+        }
+
+        ArrayList<GameData> allGames = service.listGames(existingAuthToken);
+        assertEquals(allGames.size(), games.size());
+    }
+
+    @Test
     public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
         assertThrows(UnauthorizedUserException.class, () -> service.createGame(badAuthToken, testGameName));
     }
