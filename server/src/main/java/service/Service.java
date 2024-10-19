@@ -1,11 +1,14 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 public class Service {
@@ -65,6 +68,19 @@ public class Service {
         dataAccess.deleteAuth(authToken);
     }
 
+    public Integer createGame(String authToken, String gameName) throws DataAccessException, UnauthorizedUserException {
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedUserException("error: unauthorized user");
+        }
+
+        int gameID = generateGameID();
+        ChessGame newGame = new ChessGame();
+        GameData gameData = new GameData(gameID, null, null, gameName, newGame);
+        dataAccess.createGame(gameData);
+
+        return gameID;
+    }
+
     public void clearApplication() throws DataAccessException {
         dataAccess.clearApplication();
     }
@@ -76,5 +92,16 @@ public class Service {
         } while (dataAccess.getAuth(authToken) != null);
 
         return authToken;
+    }
+
+    private Integer generateGameID() throws DataAccessException {
+        Random rand = new Random();
+
+        int gameID;
+        do {
+            gameID = rand.nextInt(1000);
+        } while (dataAccess.getGame(gameID) != null);
+
+        return gameID;
     }
 }

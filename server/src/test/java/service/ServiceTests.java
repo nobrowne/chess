@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,8 @@ public class ServiceTests {
     private static UserData existingUser;
     private static UserData newUser;
 
+    private String badAuthToken;
+    private String testGameName;
     private String existingAuthToken;
 
     @BeforeAll
@@ -35,6 +38,10 @@ public class ServiceTests {
 
         AuthData authData = service.register(existingUser);
         existingAuthToken = authData.authToken();
+
+        badAuthToken = "abc123def456";
+
+        testGameName = "TestGame";
     }
 
     @Test
@@ -86,20 +93,33 @@ public class ServiceTests {
     }
 
     @Test
-    public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
-        String fakeAuthToken = "abc123def456";
-
-        assertNotEquals(fakeAuthToken, existingAuthToken);
+    public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() throws UserNotRegisteredException {
+        assertNotEquals(badAuthToken, existingAuthToken);
 
         assertThrows(UnauthorizedUserException.class, () -> {
-            service.logout(fakeAuthToken);
+            service.logout(badAuthToken);
         });
     }
 
     @Test
-    public void loggingOutWithValidAuthTokenDeletesAuthData() throws UnauthorizedUserException, UserNotRegisteredException, DataAccessException {
+    public void loggingOutWithValidAuthTokenDeletesAuthData() throws UnauthorizedUserException, DataAccessException {
         service.logout(existingAuthToken);
         assertNull(dataAccess.getAuth(existingAuthToken));
+    }
+
+    @Test
+    public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
+        assertThrows(UnauthorizedUserException.class, () -> {
+            service.createGame(badAuthToken, testGameName);
+        });
+    }
+
+    @Test
+    public void creatingGameWithValidAuthTokenWorks() throws UnauthorizedUserException, DataAccessException {
+        int gameID = service.createGame(existingAuthToken, testGameName);
+        GameData gameData = dataAccess.getGame(gameID);
+
+        assertNotNull(gameData);
     }
 
     @Test

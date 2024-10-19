@@ -22,10 +22,11 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/session", this::login);
-        Spark.post("/user", this::register);
 
+        Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.post("/game", this::createGame);
         Spark.delete("/db", this::clearApplication);
 
         Spark.exception(UsernameTakenException.class, this::exceptionHandler);
@@ -72,6 +73,15 @@ public class Server {
 
         res.status(200);
         return "{}";
+    }
+
+    public Object createGame(Request req, Response res) throws UnauthorizedUserException, DataAccessException {
+        String authToken = req.headers("Authorization");
+        String gameName = req.body();
+        int result = service.createGame(authToken, gameName);
+
+        res.status(200);
+        return new Gson().toJson(Map.of("gameID", result));
     }
 
     public Object clearApplication(Request req, Response res) throws DataAccessException {
