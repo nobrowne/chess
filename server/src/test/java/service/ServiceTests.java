@@ -48,17 +48,13 @@ public class ServiceTests {
     @Test
     public void registeringWithMissingUserDataThrowsInvalidInputException() {
         var registerRequest = new UserData(newUser.username(), newUser.password(), null);
-        assertThrows(InvalidInputException.class, () -> {
-            service.register(registerRequest);
-        });
+        assertThrows(InvalidInputException.class, () -> service.register(registerRequest));
     }
 
     @Test
     public void registeringWithExistingUsernameThrowsUsernameTakenException() {
         var registerRequest = new UserData(existingUser.username(), newUser.password(), newUser.email());
-        assertThrows(UsernameTakenException.class, () -> {
-            service.register(registerRequest);
-        });
+        assertThrows(UsernameTakenException.class, () -> service.register(registerRequest));
     }
 
     @Test
@@ -71,18 +67,14 @@ public class ServiceTests {
 
     @Test
     public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
-        assertThrows(UserNotRegisteredException.class, () -> {
-            service.login(newUser);
-        });
+        assertThrows(UserNotRegisteredException.class, () -> service.login(newUser));
     }
 
     @Test
     public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
         var loginRequest = new UserData(existingUser.username(), newUser.password(), null);
 
-        assertThrows(UnauthorizedUserException.class, () -> {
-            service.login(loginRequest);
-        });
+        assertThrows(UnauthorizedUserException.class, () -> service.login(loginRequest));
     }
 
     @Test
@@ -94,12 +86,10 @@ public class ServiceTests {
     }
 
     @Test
-    public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() throws UserNotRegisteredException {
+    public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() {
         assertNotEquals(badAuthToken, existingAuthToken);
 
-        assertThrows(UnauthorizedUserException.class, () -> {
-            service.logout(badAuthToken);
-        });
+        assertThrows(UnauthorizedUserException.class, () -> service.logout(badAuthToken));
     }
 
     @Test
@@ -110,9 +100,7 @@ public class ServiceTests {
 
     @Test
     public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
-        assertThrows(UnauthorizedUserException.class, () -> {
-            service.createGame(badAuthToken, testGameName);
-        });
+        assertThrows(UnauthorizedUserException.class, () -> service.createGame(badAuthToken, testGameName));
     }
 
     @Test

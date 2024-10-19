@@ -67,7 +67,7 @@ public class Server {
         return new Gson().toJson(result);
     }
 
-    public Object logout(Request req, Response res) throws UserNotRegisteredException, DataAccessException, UnauthorizedUserException {
+    public Object logout(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         String authToken = req.headers("Authorization");
         service.logout(authToken);
 
