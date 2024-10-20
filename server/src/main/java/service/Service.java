@@ -83,7 +83,8 @@ public class Service {
         return gameID;
     }
 
-    public void joinGame(String authToken, ChessGame.TeamColor teamColor, int gameID) throws DataAccessException, UnauthorizedUserException, InvalidInputException, AlreadyTakenException {
+    public void joinGame(String authToken, ChessGame.TeamColor teamColor, int gameID)
+            throws DataAccessException, UnauthorizedUserException, InvalidInputException, AlreadyTakenException {
         validateAuthToken(authToken);
 
         GameData game = dataAccess.getGame(gameID);
@@ -91,19 +92,21 @@ public class Service {
         if (game == null) {
             throw new InvalidInputException("error: invalid gameID");
         }
-        
+
         String username = dataAccess.getAuth(authToken).username();
 
         if (teamColor == ChessGame.TeamColor.WHITE) {
             if (game.whiteUsername() != null) {
                 throw new AlreadyTakenException("error: white team already taken");
             }
-            dataAccess.updateGame(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+            dataAccess.updateGame(
+                    new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
         } else if (teamColor == ChessGame.TeamColor.BLACK) {
             if (game.blackUsername() != null) {
                 throw new AlreadyTakenException("error: black team already taken");
             }
-            dataAccess.updateGame(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
+            dataAccess.updateGame(
+                    new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         } else {
             throw new InvalidInputException("error: invalid team color");
         }

@@ -58,7 +58,8 @@ public class ServiceTests {
     }
 
     @Test
-    public void registeringUserReturnsCorrectAuthenticationData() throws DataAccessException, InvalidInputException, AlreadyTakenException {
+    public void registeringUserReturnsCorrectAuthenticationData()
+            throws DataAccessException, InvalidInputException, AlreadyTakenException {
         var registerResult = service.register(newUser);
 
         assertEquals(newUser.username(), registerResult.username());
@@ -133,25 +134,30 @@ public class ServiceTests {
     }
 
     @Test
-    public void joiningGameWithBadIDThrowsInvalidInputException() throws UnauthorizedUserException, DataAccessException {
+    public void joiningGameWithBadIDThrowsInvalidInputException()
+            throws UnauthorizedUserException, DataAccessException {
         int gameID = service.createGame(existingAuthToken, testGameName);
         GameData gameData = dataAccess.getGame(gameID);
 
         int badGameID = 15;
-        assertThrows(InvalidInputException.class, () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
+        assertThrows(InvalidInputException.class,
+                () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
     }
 
     @Test
-    public void joiningGameWithTakenTeamColorThrowsAlreadyTakenException() throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
+    public void joiningGameWithTakenTeamColorThrowsAlreadyTakenException()
+            throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
         int gameID = service.createGame(existingAuthToken, testGameName);
         GameData gameData = dataAccess.getGame(gameID);
 
         service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
-        assertThrows(AlreadyTakenException.class, () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
+        assertThrows(AlreadyTakenException.class,
+                () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
     }
 
     @Test
-    public void joiningGameWithValidInputsWorks() throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
+    public void joiningGameWithValidInputsWorks()
+            throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
         int gameID = service.createGame(existingAuthToken, testGameName);
         GameData gameData = dataAccess.getGame(gameID);
 
@@ -162,12 +168,14 @@ public class ServiceTests {
         service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
         service.joinGame(newUserAuthToken, ChessGame.TeamColor.WHITE, gameID);
 
-        GameData expectedGame = new GameData(gameID, newUser.username(), existingUser.username(), testGameName, gameData.game());
+        GameData expectedGame = new GameData(gameID, newUser.username(), existingUser.username(), testGameName,
+                gameData.game());
         assertEquals(expectedGame, dataAccess.getGame(gameID));
     }
 
     @Test
-    public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, AlreadyTakenException, DataAccessException, UnauthorizedUserException {
+    public void clearingApplicationDeletesAllDataObjects()
+            throws InvalidInputException, AlreadyTakenException, DataAccessException, UnauthorizedUserException {
         ArrayList<UserData> users = new ArrayList<>();
         users.add(new UserData("username5000", "p455w0rd", "email@email.com"));
         users.add(new UserData("username6000", "5tr0ng3rp455w0rd", "betteremail@betteremail.com"));

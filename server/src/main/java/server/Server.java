@@ -55,11 +55,12 @@ public class Server {
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.statusCode());
         res.body(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
 
-    public Object register(Request req, Response res) throws DataAccessException, InvalidInputException, AlreadyTakenException {
+    public Object register(Request req, Response res)
+            throws DataAccessException, InvalidInputException, AlreadyTakenException {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var result = service.register(user);
 
@@ -100,7 +101,8 @@ public class Server {
         return new Gson().toJson(Map.of("gameID", result));
     }
 
-    public Object joinGame(Request req, Response res) throws DataAccessException, UnauthorizedUserException, InvalidInputException, AlreadyTakenException {
+    public Object joinGame(Request req, Response res)
+            throws DataAccessException, UnauthorizedUserException, InvalidInputException, AlreadyTakenException {
         String authToken = req.headers("Authorization");
 
         JsonObject body = new Gson().fromJson(req.body(), JsonObject.class);

@@ -21,21 +21,21 @@ public class ChessGame {
     }
 
     /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board The new board to use
-     */
-    public void setBoard(ChessBoard board) {
-        this.board = board;
-    }
-
-    /**
      * Gets the current chessboard
      *
      * @return The chessboard
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board The new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        this.board = board;
     }
 
     /**
@@ -60,18 +60,9 @@ public class ChessGame {
     public void switchTeamTurn() {
         if (getTeamTurn() == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
-        }
-        else {
+        } else {
             setTeamTurn(TeamColor.WHITE);
         }
-    }
-
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
-    public enum TeamColor {
-        WHITE,
-        BLACK
     }
 
     /**
@@ -154,15 +145,15 @@ public class ChessGame {
         TeamColor teamColor = piece.getTeamColor();
         TeamColor teamTurn = getTeamTurn();
         if (!moveIsOnTurn(teamColor)) {
-            throw new InvalidMoveException(String.format("You are on the %s team. It is currently the %s team's turn", teamColor, teamTurn));
+            throw new InvalidMoveException(
+                    String.format("You are on the %s team. It is currently the %s team's turn", teamColor, teamTurn));
         }
 
         Collection<ChessMove> validMoves = validMoves(startPosition);
         if (validMoves.contains(move)) {
             board.movePiece(startPosition, endPosition, promotionPiece);
             switchTeamTurn();
-        }
-        else {
+        } else {
             throw new InvalidMoveException("Invalid move");
         }
     }
@@ -201,5 +192,13 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         return !isInCheck(teamColor) && hasNoValidMoves(teamColor);
+    }
+
+    /**
+     * Enum identifying the 2 possible teams in a chess game
+     */
+    public enum TeamColor {
+        WHITE,
+        BLACK
     }
 }

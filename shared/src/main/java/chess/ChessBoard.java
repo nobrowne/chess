@@ -113,9 +113,9 @@ public class ChessBoard {
     /**
      * Moves a piece from one position to another, promoting it if the piece is a pawn in the final row
      *
-     * @param startPosition     The board position in which the piece is currently located
-     * @param endPosition       The board position to the piece will be moved
-     * @param promotionPiece    The piece type the piece will become if it is promoted
+     * @param startPosition  The board position in which the piece is currently located
+     * @param endPosition    The board position to the piece will be moved
+     * @param promotionPiece The piece type the piece will become if it is promoted
      */
     public void movePiece(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         ChessPiece piece = getPiece(startPosition);
@@ -130,8 +130,7 @@ public class ChessBoard {
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN && promotionPiece != null) {
             ChessGame.TeamColor teamColor = piece.getTeamColor();
             board[endRow][endCol] = new ChessPiece(teamColor, promotionPiece);
-        }
-        else {
+        } else {
             board[endRow][endCol] = piece;
         }
     }
@@ -195,8 +194,12 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessBoard that = (ChessBoard) o;
         return Objects.deepEquals(board, that.board);
     }
