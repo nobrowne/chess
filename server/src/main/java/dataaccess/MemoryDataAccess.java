@@ -54,7 +54,7 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public void updateGame(GameData game) {
-
+        games.put(game.gameID(), game);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData register(UserData user) throws UsernameTakenException, DataAccessException, InvalidInputException {
+    public AuthData register(UserData user) throws DataAccessException, InvalidInputException, AlreadyTakenException {
         String username = user.username();
         String password = user.password();
         String email = user.email();
@@ -29,7 +29,7 @@ public class Service {
         }
 
         if (dataAccess.getUser(username) != null) {
-            throw new UsernameTakenException("error: username already taken");
+            throw new AlreadyTakenException("error: username already taken");
         }
 
         dataAccess.createUser(user);
@@ -41,12 +41,12 @@ public class Service {
         return authData;
     }
 
-    public AuthData login(UserData user) throws DataAccessException, UserNotRegisteredException, UnauthorizedUserException {
+    public AuthData login(UserData user) throws DataAccessException, UnauthorizedUserException {
         String username = user.username();
         String password = user.password();
 
         if (dataAccess.getUser(username) == null) {
-            throw new UserNotRegisteredException("error: user has not registered an account yet");
+            throw new UnauthorizedUserException("error: user has not registered an account yet");
         }
 
         UserData registeredUser = dataAccess.getUser(username);
@@ -66,7 +66,7 @@ public class Service {
         dataAccess.deleteAuth(authToken);
     }
 
-    public ArrayList<GameData> listGames(String authToken) throws UnauthorizedUserException, DataAccessException {
+    public ArrayList<GameData> listGames(String authToken) throws DataAccessException, UnauthorizedUserException {
         validateAuthToken(authToken);
 
         return dataAccess.listGames();
@@ -83,11 +83,37 @@ public class Service {
         return gameID;
     }
 
+    public void joinGame(String authToken, ChessGame.TeamColor teamColor, int gameID) throws DataAccessException, UnauthorizedUserException, InvalidInputException, AlreadyTakenException {
+        validateAuthToken(authToken);
+
+        GameData game = dataAccess.getGame(gameID);
+
+        if (game == null) {
+            throw new InvalidInputException("error: invalid gameID");
+        }
+        
+        String username = dataAccess.getAuth(authToken).username();
+
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            if (game.whiteUsername() != null) {
+                throw new AlreadyTakenException("error: white team already taken");
+            }
+            dataAccess.updateGame(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+        } else if (teamColor == ChessGame.TeamColor.BLACK) {
+            if (game.blackUsername() != null) {
+                throw new AlreadyTakenException("error: black team already taken");
+            }
+            dataAccess.updateGame(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
+        } else {
+            throw new InvalidInputException("error: invalid team color");
+        }
+    }
+
     public void clearApplication() throws DataAccessException {
         dataAccess.clearApplication();
     }
 
-    private void validateAuthToken(String authToken) throws UnauthorizedUserException, DataAccessException {
+    private void validateAuthToken(String authToken) throws DataAccessException, UnauthorizedUserException {
         if (dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedUserException("error: unauthorized user");
         }

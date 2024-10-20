@@ -34,7 +34,7 @@ public class ServiceTests {
     }
 
     @BeforeEach
-    void setUp() throws DataAccessException, InvalidInputException, UsernameTakenException {
+    void setUp() throws DataAccessException, InvalidInputException, AlreadyTakenException {
         service.clearApplication();
 
         AuthData authData = service.register(existingUser);
@@ -54,11 +54,11 @@ public class ServiceTests {
     @Test
     public void registeringWithExistingUsernameThrowsUsernameTakenException() {
         var registerRequest = new UserData(existingUser.username(), newUser.password(), newUser.email());
-        assertThrows(UsernameTakenException.class, () -> service.register(registerRequest));
+        assertThrows(AlreadyTakenException.class, () -> service.register(registerRequest));
     }
 
     @Test
-    public void registeringUserReturnsCorrectAuthenticationData() throws DataAccessException, InvalidInputException, UsernameTakenException {
+    public void registeringUserReturnsCorrectAuthenticationData() throws DataAccessException, InvalidInputException, AlreadyTakenException {
         var registerResult = service.register(newUser);
 
         assertEquals(newUser.username(), registerResult.username());
@@ -67,7 +67,7 @@ public class ServiceTests {
 
     @Test
     public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
-        assertThrows(UserNotRegisteredException.class, () -> service.login(newUser));
+        assertThrows(UnauthorizedUserException.class, () -> service.login(newUser));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void loggingInReturnsCorrectAuthenticationData() throws UserNotRegisteredException, UnauthorizedUserException, DataAccessException {
+    public void loggingInReturnsCorrectAuthenticationData() throws UnauthorizedUserException, DataAccessException {
         var loginResult = service.login(existingUser);
 
         assertEquals(existingUser.username(), loginResult.username());
@@ -129,12 +129,45 @@ public class ServiceTests {
     public void creatingGameWithValidAuthTokenWorks() throws UnauthorizedUserException, DataAccessException {
         int gameID = service.createGame(existingAuthToken, testGameName);
         GameData gameData = dataAccess.getGame(gameID);
-
         assertNotNull(gameData);
     }
 
     @Test
-    public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, UsernameTakenException, DataAccessException, UnauthorizedUserException {
+    public void joiningGameWithBadIDThrowsInvalidInputException() throws UnauthorizedUserException, DataAccessException {
+        int gameID = service.createGame(existingAuthToken, testGameName);
+        GameData gameData = dataAccess.getGame(gameID);
+
+        int badGameID = 15;
+        assertThrows(InvalidInputException.class, () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
+    }
+
+    @Test
+    public void joiningGameWithTakenTeamColorThrowsAlreadyTakenException() throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
+        int gameID = service.createGame(existingAuthToken, testGameName);
+        GameData gameData = dataAccess.getGame(gameID);
+
+        service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+        assertThrows(AlreadyTakenException.class, () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
+    }
+
+    @Test
+    public void joiningGameWithValidInputsWorks() throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
+        int gameID = service.createGame(existingAuthToken, testGameName);
+        GameData gameData = dataAccess.getGame(gameID);
+
+        service.register(newUser);
+        String newUserAuthToken = service.login(newUser).authToken();
+
+
+        service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+        service.joinGame(newUserAuthToken, ChessGame.TeamColor.WHITE, gameID);
+
+        GameData expectedGame = new GameData(gameID, newUser.username(), existingUser.username(), testGameName, gameData.game());
+        assertEquals(expectedGame, dataAccess.getGame(gameID));
+    }
+
+    @Test
+    public void clearingApplicationDeletesAllDataObjects() throws InvalidInputException, AlreadyTakenException, DataAccessException, UnauthorizedUserException {
         ArrayList<UserData> users = new ArrayList<>();
         users.add(new UserData("username5000", "p455w0rd", "email@email.com"));
         users.add(new UserData("username6000", "5tr0ng3rp455w0rd", "betteremail@betteremail.com"));
