@@ -6,10 +6,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.auth.AuthDAO;
-import dataaccess.auth.MemoryAuthDAO;
+import dataaccess.auth.SQLAuthDAO;
 import dataaccess.game.GameDAO;
-import dataaccess.game.MemoryGameDAO;
-import dataaccess.user.MemoryUserDAO;
+import dataaccess.game.SQLGameDAO;
+import dataaccess.user.SQLUserDAO;
 import dataaccess.user.UserDAO;
 import exception.ResponseException;
 import model.UserData;
@@ -27,9 +27,13 @@ import spark.Spark;
 import java.util.Map;
 
 public class Server {
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
-    private final UserDAO userDAO = new MemoryUserDAO();
+//    private final AuthDAO authDAO = new MemoryAuthDAO();
+//    private final GameDAO gameDAO = new MemoryGameDAO();
+//    private final UserDAO userDAO = new MemoryUserDAO();
+
+    private final AuthDAO authDAO = new SQLAuthDAO();
+    private final GameDAO gameDAO = new SQLGameDAO();
+    private final UserDAO userDAO = new SQLUserDAO();
 
     private final AdminService adminService = new AdminService(authDAO, gameDAO, userDAO);
     private final AuthService authService = new AuthService(authDAO);
@@ -37,7 +41,7 @@ public class Server {
     private final UserService userService = new UserService(authDAO, userDAO, authService);
 
     public Server() {
-        
+
     }
 
     public int run(int desiredPort) {

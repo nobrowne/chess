@@ -1,8 +1,12 @@
 package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.monolith.DataAccess;
-import dataaccess.monolith.MemoryDataAccess;
+import dataaccess.auth.AuthDAO;
+import dataaccess.auth.SQLAuthDAO;
+import dataaccess.game.GameDAO;
+import dataaccess.game.SQLGameDAO;
+import dataaccess.user.SQLUserDAO;
+import dataaccess.user.UserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -10,11 +14,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 public class DataAccessTests {
-    private static DataAccess dataAccess;
+    private static AuthDAO authDAO;
+    private static GameDAO gameDAO;
+    private static UserDAO userDAO;
 
     @BeforeAll
     public static void init() {
-        DataAccess dataAccess = new MemoryDataAccess(); // new SQLDataAccess(); new MemoryDataAccess();
+        authDAO = new SQLAuthDAO(); // new SQLAuthDAO(); new MemoryAuthDAO();
+        gameDAO = new SQLGameDAO(); // new SQLGameDAO(); new MemoryGameDAO();
+        userDAO = new SQLUserDAO(); // new SQLUserDAO(); new MemoryUserDAO();
 
         UserData user1 = new UserData("u1", "p1", "e1");
         UserData user2 = new UserData("u2", "p2", "e2");
