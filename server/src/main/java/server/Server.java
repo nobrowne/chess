@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataaccess.SQLDataAccess;
 import exception.ResponseException;
 import model.UserData;
 import service.AlreadyTakenException;
@@ -19,8 +19,11 @@ import spark.Spark;
 import java.util.Map;
 
 public class Server {
-    private final MemoryDataAccess dataAccess = new MemoryDataAccess();
+    private final SQLDataAccess dataAccess = new SQLDataAccess();
     private final Service service = new Service(dataAccess);
+
+    public Server() throws DataAccessException {
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
