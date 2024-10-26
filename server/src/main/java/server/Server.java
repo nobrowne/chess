@@ -5,13 +5,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
-import dataaccess.SQLDataAccess;
+import dataaccess.auth.AuthDAO;
+import dataaccess.auth.MemoryAuthDAO;
+import dataaccess.game.GameDAO;
+import dataaccess.game.MemoryGameDAO;
+import dataaccess.user.MemoryUserDAO;
+import dataaccess.user.UserDAO;
 import exception.ResponseException;
 import model.UserData;
-import service.AlreadyTakenException;
-import service.InvalidInputException;
-import service.Service;
-import service.UnauthorizedUserException;
+import service.AdminService;
+import service.AuthService;
+import service.GameService;
+import service.UserService;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.InvalidInputException;
+import service.exceptions.UnauthorizedUserException;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -19,10 +27,17 @@ import spark.Spark;
 import java.util.Map;
 
 public class Server {
-    private final SQLDataAccess dataAccess = new SQLDataAccess();
-    private final Service service = new Service(dataAccess);
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
+    private final UserDAO userDAO = new MemoryUserDAO();
 
-    public Server() throws DataAccessException {
+    private final AdminService adminService = new AdminService(authDAO, gameDAO, userDAO);
+    private final AuthService authService = new AuthService(authDAO);
+    private final GameService gameService = new GameService(authDAO, gameDAO, userDAO, authService);
+    private final UserService userService = new UserService(authDAO, userDAO, authService);
+
+    public Server() {
+        
     }
 
     public int run(int desiredPort) {
@@ -65,7 +80,7 @@ public class Server {
     public Object register(Request req, Response res)
             throws DataAccessException, InvalidInputException, AlreadyTakenException {
         var user = new Gson().fromJson(req.body(), UserData.class);
-        var result = service.register(user);
+        var result = userService.register(user);
 
         res.status(200);
         return new Gson().toJson(result);
@@ -73,7 +88,7 @@ public class Server {
 
     public Object login(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         var user = new Gson().fromJson(req.body(), UserData.class);
-        var result = service.login(user);
+        var result = userService.login(user);
 
         res.status(200);
         return new Gson().toJson(result);
@@ -81,7 +96,7 @@ public class Server {
 
     public Object logout(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         String authToken = req.headers("Authorization");
-        service.logout(authToken);
+        userService.logout(authToken);
 
         res.status(200);
         return "{}";
@@ -89,7 +104,7 @@ public class Server {
 
     public Object listGames(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         String authToken = req.headers("Authorization");
-        var result = service.listGames(authToken);
+        var result = gameService.listGames(authToken);
 
         res.status(200);
         return new Gson().toJson(Map.of("games", result));
@@ -98,7 +113,7 @@ public class Server {
     public Object createGame(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         String authToken = req.headers("Authorization");
         String gameName = req.body();
-        int result = service.createGame(authToken, gameName);
+        int result = gameService.createGame(authToken, gameName);
 
         res.status(200);
         return new Gson().toJson(Map.of("gameID", result));
@@ -122,14 +137,14 @@ public class Server {
         }
         int gameID = gameIDElement.getAsInt();
 
-        service.joinGame(authToken, teamColor, gameID);
+        gameService.joinGame(authToken, teamColor, gameID);
 
         res.status(200);
         return "{}";
     }
 
     public Object clearApplication(Request req, Response res) throws DataAccessException {
-        service.clearApplication();
+        adminService.clearApplication();
 
         res.status(200);
         return "{}";

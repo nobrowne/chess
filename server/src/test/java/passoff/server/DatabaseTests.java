@@ -30,16 +30,15 @@ public class DatabaseTests {
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
     }
 
-    @BeforeEach
-    public void setUp() {
-        serverFacade.clear();
-    }
-
     @AfterAll
     static void stopServer() {
         server.stop();
     }
 
+    @BeforeEach
+    public void setUp() {
+        serverFacade.clear();
+    }
 
     @Test
     @DisplayName("Persistence Test")
@@ -147,7 +146,7 @@ public class DatabaseTests {
     }
 
     private Class<?> findDatabaseManager() throws ClassNotFoundException {
-        if(databaseManagerClass != null) {
+        if (databaseManagerClass != null) {
             return databaseManagerClass;
         }
 
@@ -157,15 +156,16 @@ public class DatabaseTests {
                 clazz.getDeclaredMethod("getConnection");
                 databaseManagerClass = clazz;
                 return clazz;
-            } catch (ReflectiveOperationException ignored) {}
+            } catch (ReflectiveOperationException ignored) {
+            }
         }
         throw new ClassNotFoundException("Unable to load database in order to verify persistence. " +
-                "Are you using DatabaseManager to set your credentials? " +
-                "Did you edit the signature of the getConnection method?");
+                                         "Are you using DatabaseManager to set your credentials? " +
+                                         "Did you edit the signature of the getConnection method?");
     }
 
     @FunctionalInterface
-    private static interface TableAction {
+    private interface TableAction {
         void execute(String tableName, Connection connection) throws SQLException;
     }
 

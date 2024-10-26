@@ -1,4 +1,4 @@
-package dataaccess;
+package dataaccess.monolith;
 
 import model.AuthData;
 import model.GameData;

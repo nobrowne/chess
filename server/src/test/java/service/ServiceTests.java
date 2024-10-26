@@ -2,21 +2,32 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataaccess.auth.MemoryAuthDAO;
+import dataaccess.game.MemoryGameDAO;
+import dataaccess.user.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.InvalidInputException;
+import service.exceptions.UnauthorizedUserException;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
-    private static MemoryDataAccess dataAccess;
-    private static Service service;
+    private static MemoryAuthDAO authDAO;
+    private static MemoryGameDAO gameDAO;
+    private static MemoryUserDAO userDAO;
+
+    private static AdminService adminService;
+    private static GameService gameService;
+    private static UserService userService;
+
     private static UserData existingUser;
     private static UserData newUser;
 
@@ -26,8 +37,15 @@ public class ServiceTests {
 
     @BeforeAll
     public static void init() {
-        dataAccess = new MemoryDataAccess();
-        service = new Service(dataAccess);
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+        userDAO = new MemoryUserDAO();
+
+        adminService = new AdminService(authDAO, gameDAO, userDAO);
+        AuthService authService = new AuthService(authDAO);
+        gameService = new GameService(authDAO, gameDAO, userDAO, authService);
+        userService = new UserService(authDAO, userDAO, authService);
+
 
         existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
         newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
@@ -35,9 +53,9 @@ public class ServiceTests {
 
     @BeforeEach
     void setUp() throws DataAccessException, InvalidInputException, AlreadyTakenException {
-        service.clearApplication();
+        adminService.clearApplication();
 
-        AuthData authData = service.register(existingUser);
+        AuthData authData = userService.register(existingUser);
         existingAuthToken = authData.authToken();
 
         badAuthToken = "abc123def456";
@@ -48,19 +66,19 @@ public class ServiceTests {
     @Test
     public void registeringWithMissingUserDataThrowsInvalidInputException() {
         var registerRequest = new UserData(newUser.username(), newUser.password(), null);
-        assertThrows(InvalidInputException.class, () -> service.register(registerRequest));
+        assertThrows(InvalidInputException.class, () -> userService.register(registerRequest));
     }
 
     @Test
     public void registeringWithExistingUsernameThrowsUsernameTakenException() {
         var registerRequest = new UserData(existingUser.username(), newUser.password(), newUser.email());
-        assertThrows(AlreadyTakenException.class, () -> service.register(registerRequest));
+        assertThrows(AlreadyTakenException.class, () -> userService.register(registerRequest));
     }
 
     @Test
     public void registeringUserReturnsCorrectAuthenticationData()
             throws DataAccessException, InvalidInputException, AlreadyTakenException {
-        var registerResult = service.register(newUser);
+        var registerResult = userService.register(newUser);
 
         assertEquals(newUser.username(), registerResult.username());
         assertNotNull(registerResult.authToken());
@@ -68,19 +86,19 @@ public class ServiceTests {
 
     @Test
     public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
-        assertThrows(UnauthorizedUserException.class, () -> service.login(newUser));
+        assertThrows(UnauthorizedUserException.class, () -> userService.login(newUser));
     }
 
     @Test
     public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
         var loginRequest = new UserData(existingUser.username(), newUser.password(), null);
 
-        assertThrows(UnauthorizedUserException.class, () -> service.login(loginRequest));
+        assertThrows(UnauthorizedUserException.class, () -> userService.login(loginRequest));
     }
 
     @Test
     public void loggingInReturnsCorrectAuthenticationData() throws UnauthorizedUserException, DataAccessException {
-        var loginResult = service.login(existingUser);
+        var loginResult = userService.login(existingUser);
 
         assertEquals(existingUser.username(), loginResult.username());
         assertNotNull(loginResult.authToken());
@@ -90,20 +108,20 @@ public class ServiceTests {
     public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() {
         assertNotEquals(badAuthToken, existingAuthToken);
 
-        assertThrows(UnauthorizedUserException.class, () -> service.logout(badAuthToken));
+        assertThrows(UnauthorizedUserException.class, () -> userService.logout(badAuthToken));
     }
 
     @Test
     public void loggingOutWithValidAuthTokenDeletesAuthData() throws UnauthorizedUserException, DataAccessException {
-        service.logout(existingAuthToken);
-        assertNull(dataAccess.getAuth(existingAuthToken));
+        userService.logout(existingAuthToken);
+        assertNull(authDAO.getAuth(existingAuthToken));
     }
 
     @Test
     public void listingGamesWithoutValidAuthTokenThrowsUnauthorizedUserException() {
         assertNotEquals(badAuthToken, existingAuthToken);
 
-        assertThrows(UnauthorizedUserException.class, () -> service.listGames(badAuthToken));
+        assertThrows(UnauthorizedUserException.class, () -> gameService.listGames(badAuthToken));
     }
 
     @Test
@@ -114,63 +132,63 @@ public class ServiceTests {
         games.add(new GameData(null, null, null, "game 3", new ChessGame()));
 
         for (GameData game : games) {
-            service.createGame(existingAuthToken, game.gameName());
+            gameService.createGame(existingAuthToken, game.gameName());
         }
 
-        ArrayList<GameData> allGames = service.listGames(existingAuthToken);
+        ArrayList<GameData> allGames = gameService.listGames(existingAuthToken);
         assertEquals(allGames.size(), games.size());
     }
 
     @Test
     public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
-        assertThrows(UnauthorizedUserException.class, () -> service.createGame(badAuthToken, testGameName));
+        assertThrows(UnauthorizedUserException.class, () -> gameService.createGame(badAuthToken, testGameName));
     }
 
     @Test
     public void creatingGameWithValidAuthTokenWorks() throws UnauthorizedUserException, DataAccessException {
-        int gameID = service.createGame(existingAuthToken, testGameName);
-        GameData gameData = dataAccess.getGame(gameID);
+        int gameID = gameService.createGame(existingAuthToken, testGameName);
+        GameData gameData = gameDAO.getGame(gameID);
         assertNotNull(gameData);
     }
 
     @Test
     public void joiningGameWithBadIDThrowsInvalidInputException()
             throws UnauthorizedUserException, DataAccessException {
-        int gameID = service.createGame(existingAuthToken, testGameName);
-        GameData gameData = dataAccess.getGame(gameID);
+        int gameID = gameService.createGame(existingAuthToken, testGameName);
+        GameData gameData = gameDAO.getGame(gameID);
 
         int badGameID = 15;
         assertThrows(InvalidInputException.class,
-                () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
+                () -> gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
     }
 
     @Test
     public void joiningGameWithTakenTeamColorThrowsAlreadyTakenException()
             throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
-        int gameID = service.createGame(existingAuthToken, testGameName);
-        GameData gameData = dataAccess.getGame(gameID);
+        int gameID = gameService.createGame(existingAuthToken, testGameName);
+        GameData gameData = gameDAO.getGame(gameID);
 
-        service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+        gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
         assertThrows(AlreadyTakenException.class,
-                () -> service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
+                () -> gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
     }
 
     @Test
     public void joiningGameWithValidInputsWorks()
             throws UnauthorizedUserException, DataAccessException, InvalidInputException, AlreadyTakenException {
-        int gameID = service.createGame(existingAuthToken, testGameName);
-        GameData gameData = dataAccess.getGame(gameID);
+        int gameID = gameService.createGame(existingAuthToken, testGameName);
+        GameData gameData = gameDAO.getGame(gameID);
 
-        service.register(newUser);
-        String newUserAuthToken = service.login(newUser).authToken();
+        userService.register(newUser);
+        String newUserAuthToken = userService.login(newUser).authToken();
 
 
-        service.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
-        service.joinGame(newUserAuthToken, ChessGame.TeamColor.WHITE, gameID);
+        gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+        gameService.joinGame(newUserAuthToken, ChessGame.TeamColor.WHITE, gameID);
 
         GameData expectedGame = new GameData(gameID, newUser.username(), existingUser.username(), testGameName,
                 gameData.game());
-        assertEquals(expectedGame, dataAccess.getGame(gameID));
+        assertEquals(expectedGame, gameDAO.getGame(gameID));
     }
 
     @Test
@@ -184,11 +202,11 @@ public class ServiceTests {
         ArrayList<AuthData> auths = new ArrayList<>();
 
         for (UserData user : users) {
-            AuthData auth = service.register(user);
+            AuthData auth = userService.register(user);
             auths.add(auth);
 
-            assertNotNull(dataAccess.getUser(user.username()));
-            assertNotNull(dataAccess.getAuth(auth.authToken()));
+            assertNotNull(userDAO.getUser(user.username()));
+            assertNotNull(authDAO.getAuth(auth.authToken()));
         }
 
         ArrayList<GameData> games = new ArrayList<>();
@@ -198,23 +216,23 @@ public class ServiceTests {
 
         ArrayList<Integer> gameIDs = new ArrayList<>();
         for (GameData game : games) {
-            int gameID = service.createGame(existingAuthToken, game.gameName());
+            int gameID = gameService.createGame(existingAuthToken, game.gameName());
             gameIDs.add(gameID);
-            assertNotNull(dataAccess.getGame(gameID));
+            assertNotNull(gameDAO.getGame(gameID));
         }
 
-        service.clearApplication();
+        adminService.clearApplication();
 
         for (UserData user : users) {
-            assertNull(dataAccess.getUser(user.username()));
+            assertNull(userDAO.getUser(user.username()));
         }
 
         for (AuthData auth : auths) {
-            assertNull(dataAccess.getAuth(auth.authToken()));
+            assertNull(authDAO.getAuth(auth.authToken()));
         }
 
         for (int gameID : gameIDs) {
-            assertNull(dataAccess.getGame(gameID));
+            assertNull(gameDAO.getGame(gameID));
         }
     }
 }

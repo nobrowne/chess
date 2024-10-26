@@ -1,11 +1,14 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.monolith.DataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.InvalidInputException;
+import service.exceptions.UnauthorizedUserException;
 
 import java.util.ArrayList;
 import java.util.Objects;

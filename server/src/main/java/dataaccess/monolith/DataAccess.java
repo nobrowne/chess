@@ -1,5 +1,6 @@
-package dataaccess;
+package dataaccess.monolith;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
