@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.auth.AuthDAO;
 import dataaccess.auth.SQLAuthDAO;
 import dataaccess.game.GameDAO;
@@ -27,29 +28,46 @@ import spark.Spark;
 import java.util.Map;
 
 public class Server {
-//    private final AuthDAO authDAO = new MemoryAuthDAO();
-//    private final GameDAO gameDAO = new MemoryGameDAO();
-//    private final UserDAO userDAO = new MemoryUserDAO();
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
+    private UserDAO userDAO;
 
-    private final AuthDAO authDAO = new SQLAuthDAO();
-    private final GameDAO gameDAO = new SQLGameDAO();
-    private final UserDAO userDAO = new SQLUserDAO();
-
-    private final AdminService adminService = new AdminService(authDAO, gameDAO, userDAO);
-    private final AuthService authService = new AuthService(authDAO);
-    private final GameService gameService = new GameService(authDAO, gameDAO, userDAO, authService);
-    private final UserService userService = new UserService(authDAO, userDAO, authService);
-
-    public Server() {
-
-    }
+    private AdminService adminService;
+    private GameService gameService;
+    private UserService userService;
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+            initializeDAOs();
+            initializeServices();
+            setupSpark(desiredPort);
+
+            Spark.awaitInitialization();
+            return Spark.port();
+
+        } catch (DataAccessException ex) {
+            System.err.println("Error during server initialization: " + ex.getMessage());
+            return -1;
+        }
+    }
+
+    private void initializeDAOs() throws DataAccessException {
+        this.authDAO = new SQLAuthDAO();
+        this.gameDAO = new SQLGameDAO();
+        this.userDAO = new SQLUserDAO();
+    }
+
+    private void initializeServices() {
+        this.adminService = new AdminService(authDAO, gameDAO, userDAO);
+        AuthService authService = new AuthService(authDAO);
+        this.gameService = new GameService(authDAO, gameDAO, userDAO, authService);
+        this.userService = new UserService(authDAO, userDAO, authService);
+    }
+
+    private void setupSpark(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
-
-        // Register your endpoints and handle exceptions here.
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
@@ -63,12 +81,6 @@ public class Server {
         Spark.exception(AlreadyTakenException.class, this::exceptionHandler);
         Spark.exception(InvalidInputException.class, this::exceptionHandler);
         Spark.exception(UnauthorizedUserException.class, this::exceptionHandler);
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-
-        Spark.awaitInitialization();
-        return Spark.port();
     }
 
     public void stop() {

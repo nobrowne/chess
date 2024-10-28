@@ -19,7 +19,7 @@ public class DataAccessTests {
     private static UserDAO userDAO;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws DataAccessException {
         authDAO = new SQLAuthDAO(); // new SQLAuthDAO(); new MemoryAuthDAO();
         gameDAO = new SQLGameDAO(); // new SQLGameDAO(); new MemoryGameDAO();
         userDAO = new SQLUserDAO(); // new SQLUserDAO(); new MemoryUserDAO();
