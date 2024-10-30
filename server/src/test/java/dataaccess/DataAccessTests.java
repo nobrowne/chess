@@ -153,4 +153,13 @@ public class DataAccessTests {
     public void gettingNonexistentAuthReturnsNull() throws DataAccessException {
         assertNull(authDAO.getAuth(fakeAuthToken));
     }
+
+    @Test
+    public void clearingAuthsIsSuccessful() throws DataAccessException {
+        authDAO.clear();
+
+        assertNull(authDAO.getAuth(auth1.authToken()));
+        assertNull(authDAO.getAuth(auth2.authToken()));
+        assertNull(authDAO.getAuth(auth3.authToken()));
+    }
 }
