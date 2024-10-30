@@ -28,7 +28,16 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        String statement = "TRUNCATE auth";
 
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     private void configureTable() throws DataAccessException {
@@ -36,8 +45,7 @@ public class SQLAuthDAO implements AuthDAO {
                 CREATE TABLE IF NOT EXISTS auth (
                 authToken VARCHAR(256) NOT NULL,
                 username VARCHAR(256) NOT NULL,
-                PRIMARY KEY (authToken),
-                FOREIGN KEY (username) REFERENCE user(username)
+                PRIMARY KEY (authToken)
                 );
                 """;
 

@@ -1,6 +1,5 @@
 package dataaccess.user;
 
-import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.UserData;
@@ -14,17 +13,59 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        String statement = "SELECT * FROM user WHERE username=?";
+
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, username);
+
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String retrievedUsername = rs.getString("username");
+                    String password = rs.getString("password");
+                    String email = rs.getString("email");
+
+                    return new UserData(retrievedUsername, password, email);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+        }
     }
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        String json = new Gson().toJson(user);
+        String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, user.username());
+            ps.setString(2, user.password());
+            ps.setString(3, user.email());
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
+        String statement = "TRUNCATE user";
 
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     private void configureTable() throws DataAccessException {
@@ -39,10 +80,11 @@ public class SQLUserDAO implements UserDAO {
 
         try (java.sql.Connection conn = DatabaseManager.getConnection();
              java.sql.PreparedStatement preparedStatement = conn.prepareStatement(createStatement)) {
+
             preparedStatement.executeUpdate();
 
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("error: unable to configure database: %s", ex.getMessage()));
         }
     }
 }

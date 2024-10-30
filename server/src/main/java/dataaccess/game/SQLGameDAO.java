@@ -34,20 +34,27 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        String statement = "TRUNCATE game";
 
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     private void configureTable() throws DataAccessException {
         String createStatement = """
                 CREATE TABLE IF NOT EXISTS game (
-                gameID INT NOT NULL,
+                gameID INT AUTO_INCREMENT,
                 whiteUsername VARCHAR(256),
                 blackUsername VARCHAR(256),
                 gameName VARCHAR(256) NOT NULL,
                 game TEXT,
-                PRIMARY KEY (gameID),
-                FOREIGN KEY (whiteUsername) REFERENCE user(username),
-                FOREIGN KEY (blackUsername) REFERENCE user(username)
+                PRIMARY KEY (gameID)
                 )
                 """;
 
