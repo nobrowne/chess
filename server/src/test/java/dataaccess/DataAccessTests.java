@@ -140,4 +140,17 @@ public class DataAccessTests {
 
         assertThrows(DataAccessException.class, () -> authDAO.createAuth(sameAuthTokenAuth));
     }
+
+    @Test
+    public void gettingAuthIsSuccessful() throws DataAccessException {
+        AuthData auth = authDAO.getAuth(auth1.authToken());
+
+        assertEquals(auth1.authToken(), auth.authToken());
+        assertEquals(auth1.username(), auth.username());
+    }
+
+    @Test
+    public void gettingNonexistentAuthReturnsNull() throws DataAccessException {
+        assertNull(authDAO.getAuth(fakeAuthToken));
+    }
 }
