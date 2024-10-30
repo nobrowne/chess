@@ -35,10 +35,8 @@ public class GameService {
     public Integer createGame(String authToken, String gameName) throws DataAccessException, UnauthorizedUserException {
         authService.validateAuthToken(authToken);
 
-        int gameID = generateGameID();
         ChessGame newGame = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, newGame);
-        gameDAO.createGame(gameData);
+        int gameID = gameDAO.createGame(gameName, newGame);
 
         return gameID;
     }

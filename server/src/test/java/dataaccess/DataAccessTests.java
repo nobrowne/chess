@@ -8,7 +8,6 @@ import dataaccess.game.SQLGameDAO;
 import dataaccess.user.SQLUserDAO;
 import dataaccess.user.UserDAO;
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +28,9 @@ public class DataAccessTests {
     private static AuthData auth2;
     private static AuthData auth3;
 
-    private static GameData game1;
-    private static GameData game2;
-    private static GameData game3;
+    private static String game1Name;
+    private static String game2Name;
+    private static String game3Name;
 
     private static String fakeUsername;
     private static String fakeAuthToken;
@@ -55,10 +54,9 @@ public class DataAccessTests {
         auth3 = new AuthData("ghi789", user3.username());
 
         // Initialize the static fields for games
-        game1 = new GameData(1, null, null, "g1", new ChessGame());
-        game2 = new GameData(2, null, null, "g2", new ChessGame());
-        game3 = new GameData(3, null, null, "g3", new ChessGame());
-
+        game1Name = "g1";
+        game2Name = "g2";
+        game3Name = "g3";
         // Example variables for fake data
         fakeUsername = "fakeUser";
         fakeAuthToken = "fakeAuth";
@@ -78,6 +76,10 @@ public class DataAccessTests {
         authDAO.createAuth(auth1);
         authDAO.createAuth(auth2);
         authDAO.createAuth(auth3);
+
+        gameDAO.createGame(game1Name, new ChessGame());
+        gameDAO.createGame(game2Name, new ChessGame());
+        gameDAO.createGame(game3Name, new ChessGame());
     }
 
     @Test
@@ -109,7 +111,7 @@ public class DataAccessTests {
     }
 
     @Test
-    public void gettingNonexistentUserReturnsNull() throws DataAccessException {
+    public void gettingUserWithFakeUsernameReturnsNull() throws DataAccessException {
         assertNull(userDAO.getUser(fakeUsername));
     }
 
@@ -150,7 +152,7 @@ public class DataAccessTests {
     }
 
     @Test
-    public void gettingNonexistentAuthReturnsNull() throws DataAccessException {
+    public void gettingAuthWithFakeAuthTokenReturnsNull() throws DataAccessException {
         assertNull(authDAO.getAuth(fakeAuthToken));
     }
 
@@ -161,5 +163,15 @@ public class DataAccessTests {
         assertNull(authDAO.getAuth(auth1.authToken()));
         assertNull(authDAO.getAuth(auth2.authToken()));
         assertNull(authDAO.getAuth(auth3.authToken()));
+    }
+
+    @Test
+    public void addingGameIsSuccessful() throws DataAccessException {
+        assertNotNull(gameDAO.getGame(1));
+    }
+
+    @Test
+    public void addingGameWithMissingGameIDThrowsDataAccessException() {
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(null, new ChessGame()));
     }
 }
