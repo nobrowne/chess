@@ -128,7 +128,9 @@ public class Server {
 
     public Object createGame(Request req, Response res) throws DataAccessException, UnauthorizedUserException {
         String authToken = req.headers("Authorization");
-        String gameName = req.body();
+        JsonObject body = new Gson().fromJson(req.body(), JsonObject.class);
+        String gameName = body.get("gameName").getAsString();
+
         int result = gameService.createGame(authToken, gameName);
 
         res.status(200);
