@@ -14,8 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DataAccessTests {
     private static AuthDAO authDAO;
@@ -71,14 +70,15 @@ public class DataAccessTests {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
+
+        userDAO.createUser(user1);
+        userDAO.createUser(user2);
+        userDAO.createUser(user3);
     }
 
     @Test
     public void addingUserIsSuccessful() throws DataAccessException {
-        userDAO.createUser(user1);
         UserData user = userDAO.getUser(user1.username());
-
-        System.out.printf(user.toString());
 
         assertEquals(user1.username(), user.username());
     }
@@ -86,15 +86,37 @@ public class DataAccessTests {
     @Test
     public void addingUserWithMissingFieldThrowsDataAccessException() {
         UserData incompleteUser = new UserData(user1.username(), user1.password(), null);
+
         assertThrows(DataAccessException.class, () -> userDAO.createUser(incompleteUser));
     }
 
     @Test
-    public void addingUserWithDuplicateUsernameThrowsDataAccessException() throws DataAccessException {
-        userDAO.createUser(user1);
-
+    public void addingUserWithDuplicateUsernameThrowsDataAccessException() {
         UserData sameUsernameUser = new UserData(user1.username(), "password", "email@email.com");
+
         assertThrows(DataAccessException.class, () -> userDAO.createUser(sameUsernameUser));
     }
 
+    @Test
+    public void gettingUserIsSuccessful() throws DataAccessException {
+        UserData user = userDAO.getUser(user1.username());
+
+        assertEquals(user1.username(), user.username());
+        assertEquals(user1.password(), user.password());
+        assertEquals(user1.email(), user.email());
+    }
+
+    @Test
+    public void gettingNonexistentUserReturnsNull() throws DataAccessException {
+        assertNull(userDAO.getUser(fakeUsername));
+    }
+
+    @Test
+    public void clearingUsersIsSuccessful() throws DataAccessException {
+        userDAO.clear();
+
+        assertNull(userDAO.getUser(user1.username()));
+        assertNull(userDAO.getUser(user2.username()));
+        assertNull(userDAO.getUser(user3.username()));
+    }
 }
