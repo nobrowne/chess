@@ -96,8 +96,27 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData game) {
+    public void updateGame(GameData game) throws DataAccessException {
+        if (getGame(game.gameID()) == null) {
+            throw new DataAccessException("error: specified game does not exist");
+        }
 
+        String statement = "UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?";
+
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, game.whiteUsername());
+            ps.setString(2, game.blackUsername());
+            ps.setString(3, game.gameName());
+            ps.setString(4, serializeGame(game.game()));
+            ps.setInt(5, game.gameID());
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+        }
     }
 
     @Override

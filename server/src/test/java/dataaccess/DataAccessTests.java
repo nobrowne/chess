@@ -210,6 +210,31 @@ public class DataAccessTests {
     }
 
     @Test
+    public void updatingGameIsSuccessful() throws DataAccessException {
+        String whiteUsername = "whitePlayer";
+        ChessGame newGame = new ChessGame();
+
+        GameData gameWithNewWhiteTeamUser = new GameData(1, whiteUsername, null, game1Name, newGame);
+        gameDAO.updateGame(gameWithNewWhiteTeamUser);
+
+        GameData updatedGame = gameDAO.getGame(1);
+
+        assertNull(updatedGame.blackUsername());
+        assertEquals(whiteUsername, updatedGame.whiteUsername());
+        assertEquals(game1Name, updatedGame.gameName());
+    }
+
+    @Test
+    public void updatingGameWithBadGameIDThrowsDataAccessException() {
+        String whiteUsername = "whitePlayer";
+        ChessGame newGame = new ChessGame();
+
+        GameData gameWithBadGameID = new GameData(fakeGameID, whiteUsername, null, game1Name, newGame);
+
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(gameWithBadGameID));
+    }
+
+    @Test
     public void clearingGamesIsSuccessful() throws DataAccessException {
         gameDAO.clear();
         ArrayList<GameData> allGames = gameDAO.listGames();
