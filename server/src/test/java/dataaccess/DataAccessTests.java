@@ -200,9 +200,17 @@ public class DataAccessTests {
 
         assertEquals(3, allGames.size());
     }
-    
+
     @Test
     public void listingGamesWhenTableIsEmptyReturnsEmptyList() throws DataAccessException {
+        gameDAO.clear();
+        ArrayList<GameData> allGames = gameDAO.listGames();
+
+        assertEquals(0, allGames.size());
+    }
+
+    @Test
+    public void clearingGamesIsSuccessful() throws DataAccessException {
         gameDAO.clear();
         ArrayList<GameData> allGames = gameDAO.listGames();
 
