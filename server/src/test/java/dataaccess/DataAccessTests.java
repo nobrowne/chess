@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DataAccessTests {
@@ -190,5 +192,20 @@ public class DataAccessTests {
     @Test
     public void gettingGameWithNonexistentGameIDReturnsNull() throws DataAccessException {
         assertNull(gameDAO.getGame(fakeGameID));
+    }
+
+    @Test
+    public void listingGamesIsSuccessFul() throws DataAccessException {
+        ArrayList<GameData> allGames = gameDAO.listGames();
+
+        assertEquals(3, allGames.size());
+    }
+    
+    @Test
+    public void listingGamesWhenTableIsEmptyReturnsEmptyList() throws DataAccessException {
+        gameDAO.clear();
+        ArrayList<GameData> allGames = gameDAO.listGames();
+
+        assertEquals(0, allGames.size());
     }
 }
