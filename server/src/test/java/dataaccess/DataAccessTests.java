@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DataAccessTests {
     private static AuthDAO authDAO;
@@ -80,6 +81,20 @@ public class DataAccessTests {
         System.out.printf(user.toString());
 
         assertEquals(user1.username(), user.username());
+    }
+
+    @Test
+    public void addingUserWithMissingFieldThrowsDataAccessException() {
+        UserData incompleteUser = new UserData(user1.username(), user1.password(), null);
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(incompleteUser));
+    }
+
+    @Test
+    public void addingUserWithDuplicateUsernameThrowsDataAccessException() throws DataAccessException {
+        userDAO.createUser(user1);
+
+        UserData sameUsernameUser = new UserData(user1.username(), "password", "email@email.com");
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(sameUsernameUser));
     }
 
 }
