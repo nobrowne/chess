@@ -13,17 +13,59 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        return null;
+        String statement = "SELECT * FROM auth WHERE authToken=?";
+
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, authToken);
+
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String retrievedAuthToken = rs.getString("authToken");
+                    String username = rs.getString("username");
+
+                    return new AuthData(retrievedAuthToken, username);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+        }
     }
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
+        String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
 
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, auth.authToken());
+            ps.setString(2, auth.username());
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
+        String statement = "DELETE auth WHERE authToken=?";
 
+        try (java.sql.Connection conn = DatabaseManager.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+            ps.setString(1, authToken);
+
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("error: could not update database: %s", ex.getMessage()));
+        }
     }
 
     @Override

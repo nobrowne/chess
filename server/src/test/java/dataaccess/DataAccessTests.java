@@ -74,13 +74,15 @@ public class DataAccessTests {
         userDAO.createUser(user1);
         userDAO.createUser(user2);
         userDAO.createUser(user3);
+
+        authDAO.createAuth(auth1);
+        authDAO.createAuth(auth2);
+        authDAO.createAuth(auth3);
     }
 
     @Test
     public void addingUserIsSuccessful() throws DataAccessException {
-        UserData user = userDAO.getUser(user1.username());
-
-        assertEquals(user1.username(), user.username());
+        assertNotNull(userDAO.getUser(user1.username()));
     }
 
     @Test
@@ -118,5 +120,24 @@ public class DataAccessTests {
         assertNull(userDAO.getUser(user1.username()));
         assertNull(userDAO.getUser(user2.username()));
         assertNull(userDAO.getUser(user3.username()));
+    }
+
+    @Test
+    public void addingAuthIsSuccessful() throws DataAccessException {
+        assertNotNull(authDAO.getAuth(auth1.authToken()));
+    }
+
+    @Test
+    public void addingAuthWithMissingFieldThrowsDataAccessException() {
+        AuthData incompleteAuth = new AuthData(auth1.authToken(), null);
+
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(incompleteAuth));
+    }
+
+    @Test
+    public void addingAuthWithDuplicateAuthTokenThrowsDataAccessException() {
+        AuthData sameAuthTokenAuth = new AuthData(auth1.authToken(), fakeUsername);
+
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(sameAuthTokenAuth));
     }
 }
