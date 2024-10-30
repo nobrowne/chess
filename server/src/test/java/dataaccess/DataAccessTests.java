@@ -8,6 +8,7 @@ import dataaccess.game.SQLGameDAO;
 import dataaccess.user.SQLUserDAO;
 import dataaccess.user.UserDAO;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -173,5 +174,21 @@ public class DataAccessTests {
     @Test
     public void addingGameWithMissingGameIDThrowsDataAccessException() {
         assertThrows(DataAccessException.class, () -> gameDAO.createGame(null, new ChessGame()));
+    }
+
+    @Test
+    public void gettingGameIsSuccessful() throws DataAccessException {
+        GameData game = gameDAO.getGame(1);
+
+        assertEquals(1, game.gameID());
+        assertNull(game.whiteUsername());
+        assertNull(game.blackUsername());
+        assertEquals(game1Name, game.gameName());
+        assertNotNull(game.game());
+    }
+
+    @Test
+    public void gettingGameWithNonexistentGameIDReturnsNull() throws DataAccessException {
+        assertNull(gameDAO.getGame(fakeGameID));
     }
 }
