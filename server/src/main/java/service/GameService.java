@@ -11,7 +11,6 @@ import service.exceptions.InvalidInputException;
 import service.exceptions.UnauthorizedUserException;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class GameService {
     private final AuthDAO authDAO;
@@ -70,16 +69,5 @@ public class GameService {
             }
             default -> throw new InvalidInputException("error: invalid team color");
         }
-    }
-
-    private Integer generateGameID() throws DataAccessException {
-        Random rand = new Random();
-
-        int gameID;
-        do {
-            gameID = rand.nextInt(1000);
-        } while (gameDAO.getGame(gameID) != null);
-
-        return gameID;
     }
 }
