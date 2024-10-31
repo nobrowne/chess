@@ -5,11 +5,11 @@ import dataaccess.auth.AuthDAO;
 import dataaccess.user.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
 import service.exceptions.UnauthorizedUserException;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
@@ -28,7 +28,9 @@ public class UserService {
         String password = user.password();
         String email = user.email();
 
-        if (username == null || password == null || email == null) {
+        if (username == null || username.isBlank() ||
+            password == null || password.isBlank() ||
+            email == null || email.isBlank()) {
             throw new InvalidInputException("error: username, password, and email must all be filled");
         }
 
@@ -36,7 +38,8 @@ public class UserService {
             throw new AlreadyTakenException("error: username already taken");
         }
 
-        userDAO.createUser(user);
+        String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+        userDAO.createUser(new UserData(username, hashedPassword, email));
 
         String authToken = generateAuthToken();
         AuthData authData = new AuthData(authToken, username);
@@ -54,7 +57,7 @@ public class UserService {
         }
 
         UserData registeredUser = userDAO.getUser(username);
-        if (!Objects.equals(password, registeredUser.password())) {
+        if (!BCrypt.checkpw(password, registeredUser.password())) {
             throw new UnauthorizedUserException("error: invalid password");
         }
 
