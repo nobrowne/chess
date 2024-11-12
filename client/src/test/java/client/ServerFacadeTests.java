@@ -109,15 +109,15 @@ public class ServerFacadeTests {
       gameIDs.add(serverFacade.createGame(gameName, existingAuthToken));
     }
 
-    GameData[] allGames = serverFacade.listGames(existingAuthToken);
-    assertEquals(gameNames.size(), allGames.length);
+    ArrayList<GameData> allGames = serverFacade.listGames(existingAuthToken);
+    assertEquals(gameNames.size(), allGames.size());
   }
-  
+
   @Test
   public void listingGamesWithInvalidAuthTokenThrowsException() {
     String badAuthToken = "badAuthToken";
     assertNotEquals(badAuthToken, existingAuthToken);
-    
+
     assertThrows(ResponseException.class, () -> serverFacade.listGames(badAuthToken));
   }
 

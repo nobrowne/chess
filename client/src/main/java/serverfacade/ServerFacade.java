@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import model.AuthData;
 import model.ExceptionDTO;
 import model.GameData;
@@ -62,10 +63,10 @@ public class ServerFacade {
     return this.makeRequest("DELETE", path, null, Object.class, authToken);
   }
 
-  public GameData[] listGames(String authToken) throws ResponseException {
+  public ArrayList<GameData> listGames(String authToken) throws ResponseException {
     String path = "/game";
 
-    record listGamesResponse(GameData[] games) {}
+    record listGamesResponse(ArrayList<GameData> games) {}
 
     var response = this.makeRequest("GET", path, null, listGamesResponse.class, authToken);
     return response.games;
