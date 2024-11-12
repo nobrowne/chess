@@ -55,6 +55,11 @@ public class ServerFacade {
     return this.makeRequest("POST", path, loginRequest, AuthData.class, null);
   }
 
+  public Object logout(String authToken) throws ResponseException {
+    String path = "/session";
+    return this.makeRequest("DELETE", path, null, Object.class, authToken);
+  }
+
   public void clearApplication() throws ResponseException {
     String path = "/db";
     this.makeRequest("DELETE", path, null, null, null);
@@ -72,7 +77,7 @@ public class ServerFacade {
       http.setRequestProperty("Content-Type", "application/json");
 
       if (authToken != null && !authToken.isEmpty()) {
-        http.setRequestProperty("Authorization:", authToken);
+        http.setRequestProperty("Authorization", authToken);
       }
 
       writeBody(request, http);
