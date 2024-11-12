@@ -93,4 +93,12 @@ public class ServerFacadeTests {
     assertNotEquals(badAuthToken, existingAuthToken);
     assertThrows(ResponseException.class, () -> serverFacade.logout(badAuthToken));
   }
+
+  @Test
+  public void successfulGameCreation() throws ResponseException {
+    String gameName = "best game ever";
+
+    var createGameResponse = serverFacade.createGame(gameName, existingAuthToken);
+    assertTrue(createGameResponse > 0);
+  }
 }
