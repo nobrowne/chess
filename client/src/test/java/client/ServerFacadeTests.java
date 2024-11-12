@@ -1,5 +1,7 @@
 package client;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
@@ -43,7 +45,7 @@ public class ServerFacadeTests {
 
   @Test
   public void successfulRegistration() throws ResponseException {
-    AuthData authData = serverFacade.register(newUser);
-    System.out.printf(authData.toString());
+    var registerResult = serverFacade.register(newUser);
+    assertEquals(newUser.username(), registerResult.username());
   }
 }
