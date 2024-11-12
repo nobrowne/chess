@@ -101,4 +101,13 @@ public class ServerFacadeTests {
     var createGameResponse = serverFacade.createGame(gameName, existingAuthToken);
     assertTrue(createGameResponse > 0);
   }
+  
+  @Test
+  public void creatingGameWithInvalidAuthTokenThrowsException() {
+    String gameName = "best game ever";
+    String badAuthToken = "badAuthToken";
+    
+    assertThrows(
+            ResponseException.class, () -> serverFacade.createGame(gameName, badAuthToken));
+  }
 }
