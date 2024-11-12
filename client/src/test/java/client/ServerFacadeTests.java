@@ -3,7 +3,9 @@ package client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import exception.ResponseException;
+import java.util.ArrayList;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -95,19 +97,43 @@ public class ServerFacadeTests {
   }
 
   @Test
+  public void successfulListGames() throws ResponseException {
+    ArrayList<String> gameNames = new ArrayList<>();
+    gameNames.add("game1");
+    gameNames.add("game2");
+    gameNames.add("game3");
+
+    ArrayList<Integer> gameIDs = new ArrayList<>();
+
+    for (String gameName : gameNames) {
+      gameIDs.add(serverFacade.createGame(gameName, existingAuthToken));
+    }
+
+    GameData[] allGames = serverFacade.listGames(existingAuthToken);
+    assertEquals(gameNames.size(), allGames.length);
+  }
+  
+  @Test
+  public void listingGamesWithInvalidAuthTokenThrowsException() {
+    String badAuthToken = "badAuthToken";
+    assertNotEquals(badAuthToken, existingAuthToken);
+    
+    assertThrows(ResponseException.class, () -> serverFacade.listGames(badAuthToken));
+  }
+
+  @Test
   public void successfulGameCreation() throws ResponseException {
     String gameName = "best game ever";
 
     var createGameResponse = serverFacade.createGame(gameName, existingAuthToken);
     assertTrue(createGameResponse > 0);
   }
-  
+
   @Test
   public void creatingGameWithInvalidAuthTokenThrowsException() {
     String gameName = "best game ever";
     String badAuthToken = "badAuthToken";
-    
-    assertThrows(
-            ResponseException.class, () -> serverFacade.createGame(gameName, badAuthToken));
+
+    assertThrows(ResponseException.class, () -> serverFacade.createGame(gameName, badAuthToken));
   }
 }

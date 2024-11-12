@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URL;
 import model.AuthData;
 import model.ExceptionDTO;
+import model.GameData;
 import model.UserData;
 
 public class ServerFacade {
@@ -59,6 +60,15 @@ public class ServerFacade {
   public Object logout(String authToken) throws ResponseException {
     String path = "/session";
     return this.makeRequest("DELETE", path, null, Object.class, authToken);
+  }
+
+  public GameData[] listGames(String authToken) throws ResponseException {
+    String path = "/game";
+
+    record listGamesResponse(GameData[] games) {}
+
+    var response = this.makeRequest("GET", path, null, listGamesResponse.class, authToken);
+    return response.games;
   }
 
   public int createGame(String gameName, String authToken) throws ResponseException {
