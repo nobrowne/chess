@@ -46,6 +46,15 @@ public class ServerFacade {
     return this.makeRequest("POST", path, user, AuthData.class, null);
   }
 
+  public AuthData login(String username, String password) throws ResponseException {
+    String path = "/session";
+
+    record LoginRequest(String username, String password) {}
+    var loginRequest = new LoginRequest(username, password);
+
+    return this.makeRequest("POST", path, loginRequest, AuthData.class, null);
+  }
+
   public void clearApplication() throws ResponseException {
     String path = "/db";
     this.makeRequest("DELETE", path, null, null, null);

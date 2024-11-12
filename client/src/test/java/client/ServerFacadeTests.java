@@ -8,6 +8,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
+import service.exceptions.UnauthorizedUserException;
 
 public class ServerFacadeTests {
 
@@ -60,5 +61,25 @@ public class ServerFacadeTests {
   public void registeringWithMissingUserDataThrowsException() {
     var registerRequest = new UserData(newUser.username(), newUser.password(), null);
     assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
+  }
+
+  @Test
+  public void successfulLogin() throws ResponseException {
+    var loginResult = serverFacade.login(existingUser.username(), existingUser.password());
+    assertEquals(existingUser.username(), loginResult.username());
+    assertTrue(loginResult.authToken().length() > 10);
+  }
+
+  @Test
+  public void loggingInWithoutRegisteredAccountThrowsException() {
+    assertThrows(
+        ResponseException.class, () -> serverFacade.login(newUser.username(), newUser.password()));
+  }
+
+  @Test
+  public void loggingInWithIncorrectPasswordThrowsException() {
+    assertThrows(
+        ResponseException.class,
+        () -> serverFacade.login(existingUser.username(), newUser.password()));
   }
 }
