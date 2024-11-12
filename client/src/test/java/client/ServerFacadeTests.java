@@ -8,7 +8,6 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
-import service.exceptions.UnauthorizedUserException;
 
 public class ServerFacadeTests {
 

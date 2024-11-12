@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import model.AuthData;
+import model.ExceptionDTO;
 import model.UserData;
 
 public class ServerFacade {
@@ -84,6 +85,8 @@ public class ServerFacade {
       http.connect();
       throwIfNotSuccessful(http);
       return readBody(http, responseClass);
+    } catch (ResponseException ex) {
+      throw ex;
     } catch (Exception ex) {
       throw new ResponseException(500, ex.getMessage());
     }
@@ -91,8 +94,15 @@ public class ServerFacade {
 
   private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
     var status = http.getResponseCode();
-    if (!isSuccessful(status)) {
-      throw new ResponseException(status, "failure: " + status);
+    if (isSuccessful(status)) {
+      return;
+    }
+    try (InputStream respError = http.getErrorStream()) {
+      if (respError != null) {
+        InputStreamReader reader = new InputStreamReader(respError);
+        ExceptionDTO exDTO = new Gson().fromJson(reader, ExceptionDTO.class);
+        throw new ResponseException(status, exDTO.message());
+      }
     }
   }
 

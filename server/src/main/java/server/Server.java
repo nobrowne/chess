@@ -14,6 +14,7 @@ import dataaccess.user.SQLUserDAO;
 import dataaccess.user.UserDAO;
 import exception.ResponseException;
 import java.util.Map;
+import model.ExceptionDTO;
 import model.UserData;
 import service.AdminService;
 import service.AuthService;
@@ -89,7 +90,7 @@ public class Server {
 
   private void exceptionHandler(ResponseException ex, Request req, Response res) {
     res.status(ex.statusCode());
-    res.body(new Gson().toJson(Map.of("message", ex.getMessage())));
+    res.body(new Gson().toJson(new ExceptionDTO(ex.getMessage())));
   }
 
   public Object register(Request req, Response res)
