@@ -48,4 +48,17 @@ public class ServerFacadeTests {
     var registerResult = serverFacade.register(newUser);
     assertEquals(newUser.username(), registerResult.username());
   }
+
+  @Test
+  public void registeringWithExistingUsernameThrowsException() {
+    var registerRequest =
+        new UserData(existingUser.username(), newUser.password(), newUser.email());
+    assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
+  }
+
+  @Test
+  public void registeringWithMissingUserDataThrowsException() {
+    var registerRequest = new UserData(newUser.username(), newUser.password(), null);
+    assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
+  }
 }
