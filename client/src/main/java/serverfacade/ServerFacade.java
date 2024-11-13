@@ -85,6 +85,15 @@ public class ServerFacade {
     return response.gameID();
   }
 
+  public void joinGame(String playerColor, int gameID, String authToken) throws ResponseException {
+    String path = "/game";
+
+    record JoinGameRequest(String playerColor, int gameID) {}
+    var joinGameRequest = new JoinGameRequest(playerColor, gameID);
+
+    this.makeRequest("PUT", path, joinGameRequest, null, authToken);
+  }
+
   public void clearApplication() throws ResponseException {
     String path = "/db";
     this.makeRequest("DELETE", path, null, null, null);

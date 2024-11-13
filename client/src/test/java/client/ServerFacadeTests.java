@@ -136,4 +136,26 @@ public class ServerFacadeTests {
 
     assertThrows(ResponseException.class, () -> serverFacade.createGame(gameName, badAuthToken));
   }
+
+  @Test
+  public void successfulJoinGame() throws ResponseException {
+    String gameName = "best game ever";
+    int gameID = serverFacade.createGame(gameName, existingAuthToken);
+
+    serverFacade.joinGame("white", gameID, existingAuthToken);
+
+    var games = serverFacade.listGames(existingAuthToken);
+    GameData game1 = games.getFirst();
+
+    assertNotNull(game1.whiteUsername());
+  }
+
+  @Test
+  public void joiningGameWithBadTeamColorThrowsException() throws ResponseException {
+    String gameName = "best game ever";
+    int gameID = serverFacade.createGame(gameName, existingAuthToken);
+
+    assertThrows(
+        ResponseException.class, () -> serverFacade.joinGame("green", gameID, existingAuthToken));
+  }
 }

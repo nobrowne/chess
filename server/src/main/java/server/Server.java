@@ -153,9 +153,15 @@ public class Server {
 
     JsonElement playerColorElement = body.get("playerColor");
     if (playerColorElement == null || playerColorElement.getAsString().isEmpty()) {
-      throw new InvalidInputException("error: missing or invalid playerColor");
+      throw new InvalidInputException("error: missing playerColor");
     }
-    ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(playerColorElement.getAsString());
+
+    ChessGame.TeamColor teamColor;
+    try {
+      teamColor = ChessGame.TeamColor.valueOf(playerColorElement.getAsString().toUpperCase());
+    } catch (IllegalStateException ex) {
+      throw new InvalidInputException("error: invalid playerColor");
+    }
 
     JsonElement gameIDElement = body.get("gameID");
     if (gameIDElement == null) {
