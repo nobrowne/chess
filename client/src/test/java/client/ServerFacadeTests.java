@@ -103,10 +103,8 @@ public class ServerFacadeTests {
     gameNames.add("game2");
     gameNames.add("game3");
 
-    ArrayList<Integer> gameIDs = new ArrayList<>();
-
     for (String gameName : gameNames) {
-      gameIDs.add(serverFacade.createGame(gameName, existingAuthToken));
+      serverFacade.createGame(gameName, existingAuthToken);
     }
 
     ArrayList<GameData> allGames = serverFacade.listGames(existingAuthToken);

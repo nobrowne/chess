@@ -58,9 +58,9 @@ public class ServerFacade {
     return this.makeRequest("POST", path, loginRequest, AuthData.class, null);
   }
 
-  public Object logout(String authToken) throws ResponseException {
+  public void logout(String authToken) throws ResponseException {
     String path = "/session";
-    return this.makeRequest("DELETE", path, null, Object.class, authToken);
+    this.makeRequest("DELETE", path, null, null, authToken);
   }
 
   public ArrayList<GameData> listGames(String authToken) throws ResponseException {
