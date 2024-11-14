@@ -10,7 +10,6 @@ public class ChessClient {
   private final ServerFacade server;
   private final String serverUrl;
   private final State state = State.SIGNEDOUT;
-  private String username;
   private String authToken;
 
   public ChessClient(String serverUrl) {
@@ -36,7 +35,7 @@ public class ChessClient {
 
   public String register(String... params) throws ResponseException {
     if (params.length == 3) {
-      username = params[0];
+      String username = params[0];
       String password = params[1];
       String email = params[2];
       UserData user = new UserData(username, password, email);
