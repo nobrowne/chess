@@ -50,12 +50,37 @@ public class ChessClient {
         "At least one of the required inputs is missing. Please provide username, password, and email");
   }
 
-  public String login(String... params) {
-    return null;
-    // print the help statement for SIGNEDIN
+  public String login(String... params) throws ResponseException {
+    if (params.length == 2) {
+      String username = params[0];
+      String password = params[1];
+
+      AuthData authData = server.login(username, password);
+      state = State.SIGNEDIN;
+      return help();
+    }
+    throw new ResponseException(
+        400,
+        "At least one of the required inputs is missing. Please provide username and password");
   }
 
   public String help() {
-    return null;
+    if (state == State.SIGNEDOUT) {
+      return """
+        - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+        - login <USERNAME> <PASSWORD>: play chess
+        - quit: shut down the application
+        - help: see possible commands
+      """;
+    }
+    return """
+      - create <GAME NAME>: create a new game
+      - list: list all games
+      - join <GAME ID> <WHITE|BLACK>: join a game as the white or black team
+      - observe: join a game as a non-player observer
+      - logout: leave the application
+      - quit: shut down the application
+      - help: see possible commands
+    """;
   }
 }
