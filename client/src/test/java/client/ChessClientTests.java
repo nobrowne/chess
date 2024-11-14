@@ -75,4 +75,40 @@ public class ChessClientTests {
 
     assertEquals("error: username already taken", registrationMessage);
   }
+
+  @Test
+  public void successfulLogin() throws ResponseException {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertFalse(loginMessage.contains("error"));
+    assertFalse(loginMessage.contains("missing"));
+  }
+
+  @Test
+  public void loggingInWithoutRegisteredUsername() {
+    String loginInfo = String.format("login %s %s", newUser.username(), newUser.password());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals("error: user has not registered an account yet", loginMessage);
+  }
+
+  @Test
+  public void loggingInWithMissingInfo() {
+    String loginInfo = String.format("login %s", newUser.username());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals(
+        "At least one of the required inputs is missing. Please provide username and password",
+        loginMessage);
+  }
+
+  @Test
+  public void loggingInWithIncorrectPassword() {
+    String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals("error: invalid password", loginMessage);
+  }
 }

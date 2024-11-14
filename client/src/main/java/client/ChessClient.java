@@ -57,7 +57,9 @@ public class ChessClient {
 
       AuthData authData = server.login(username, password);
       state = State.SIGNEDIN;
-      return help();
+      authToken = authData.authToken();
+
+      return String.format("You have logged in as %s%n", username) + help();
     }
     throw new ResponseException(
         400,
