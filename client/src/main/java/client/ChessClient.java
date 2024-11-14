@@ -9,7 +9,7 @@ import serverfacade.ServerFacade;
 public class ChessClient {
   private final ServerFacade server;
   private final String serverUrl;
-  private final State state = State.SIGNEDOUT;
+  private State state = State.SIGNEDOUT;
   private String authToken;
 
   public ChessClient(String serverUrl) {
