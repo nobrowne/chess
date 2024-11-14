@@ -62,7 +62,8 @@ public class ChessClientTests {
     String registrationMessage = chessClient.eval(registrationInfo);
 
     assertEquals(
-        "username, password, or email are missing. Please provide all three", registrationMessage);
+        "At least one of the required inputs is missing. Please provide username, password, and email",
+        registrationMessage);
   }
 
   @Test

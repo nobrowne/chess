@@ -47,7 +47,8 @@ public class ChessClient {
       return String.format("You are registered as %s", username);
     }
     throw new ResponseException(
-        400, "username, password, or email are missing. Please provide all three");
+        400,
+        "At least one of the required inputs is missing. Please provide username, password, and email");
   }
 
   public String login(String... params) {
