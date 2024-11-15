@@ -70,22 +70,7 @@ public class ServiceTests {
   }
 
   @Test
-  public void registeringWithMissingUserDataThrowsInvalidInputException() {
-    var registerRequest = new RegisterRequest(newUser.username(), newUser.password(), null);
-
-    assertThrows(InvalidInputException.class, () -> userService.register(registerRequest));
-  }
-
-  @Test
-  public void registeringWithExistingUsernameThrowsUsernameTakenException() {
-    var registerRequest =
-        new RegisterRequest(existingUser.username(), newUser.password(), newUser.email());
-
-    assertThrows(AlreadyTakenException.class, () -> userService.register(registerRequest));
-  }
-
-  @Test
-  public void registeringUserReturnsCorrectAuthenticationData()
+  public void successfulRegistration()
       throws DataAccessException, InvalidInputException, AlreadyTakenException {
     var registerRequest =
         new RegisterRequest(newUser.username(), newUser.password(), newUser.email());
@@ -94,6 +79,21 @@ public class ServiceTests {
 
     assertEquals(newUser.username(), registerResult.username());
     assertNotNull(registerResult.authToken());
+  }
+
+  @Test
+  public void registeringWithMissingUserDataThrowsInvalidInputException() {
+    var registerRequest = new RegisterRequest(newUser.username(), newUser.password(), null);
+
+    assertThrows(InvalidInputException.class, () -> userService.register(registerRequest));
+  }
+
+  @Test
+  public void registeringWithExistingUsernameThrowsAlreadyTakenException() {
+    var registerRequest =
+        new RegisterRequest(existingUser.username(), newUser.password(), newUser.email());
+
+    assertThrows(AlreadyTakenException.class, () -> userService.register(registerRequest));
   }
 
   @Test
@@ -121,29 +121,25 @@ public class ServiceTests {
   }
 
   @Test
-  public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() {
-    assertNotEquals(badAuthToken, existingAuthToken);
-
-    assertThrows(UnauthorizedUserException.class, () -> userService.logout(badAuthToken));
-  }
-
-  @Test
-  public void loggingOutWithValidAuthTokenDeletesAuthData()
-      throws UnauthorizedUserException, DataAccessException {
+  public void successfulLogout() throws UnauthorizedUserException, DataAccessException {
     userService.logout(existingAuthToken);
     assertNull(authDAO.getAuth(existingAuthToken));
   }
 
   @Test
-  public void listingGamesWithoutValidAuthTokenThrowsUnauthorizedUserException() {
+  public void loggingOutWithInvalidAuthTokenThrowsUnauthorizedUserException() {
     assertNotEquals(badAuthToken, existingAuthToken);
+    assertThrows(UnauthorizedUserException.class, () -> userService.logout(badAuthToken));
+  }
 
+  @Test
+  public void listingGamesWithInvalidAuthTokenThrowsUnauthorizedUserException() {
+    assertNotEquals(badAuthToken, existingAuthToken);
     assertThrows(UnauthorizedUserException.class, () -> gameService.listGames(badAuthToken));
   }
 
   @Test
-  public void listingGamesWithValidAuthTokenWorks()
-      throws UnauthorizedUserException, DataAccessException {
+  public void successfulListGames() throws UnauthorizedUserException, DataAccessException {
     ArrayList<GameData> games = new ArrayList<>();
     games.add(new GameData(null, null, null, "game 1", new ChessGame()));
     games.add(new GameData(null, null, null, "game 2", new ChessGame()));
@@ -158,18 +154,35 @@ public class ServiceTests {
   }
 
   @Test
+  public void successfulCreateGame() throws UnauthorizedUserException, DataAccessException {
+    int gameID = gameService.createGame(existingAuthToken, testGameName);
+
+    GameData gameData = gameDAO.getGame(gameID);
+
+    assertNotNull(gameData);
+  }
+
+  @Test
   public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
     assertThrows(
         UnauthorizedUserException.class, () -> gameService.createGame(badAuthToken, testGameName));
   }
 
   @Test
-  public void creatingGameWithValidAuthTokenWorks()
-      throws UnauthorizedUserException, DataAccessException {
+  public void successfulJoinGame()
+      throws UnauthorizedUserException,
+          DataAccessException,
+          InvalidInputException,
+          AlreadyTakenException {
     int gameID = gameService.createGame(existingAuthToken, testGameName);
-    GameData gameData = gameDAO.getGame(gameID);
 
-    assertNotNull(gameData);
+    gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+
+    GameData gameData = gameDAO.getGame(gameID);
+    GameData expectedGame =
+        new GameData(gameID, null, existingUser.username(), testGameName, gameData.game());
+
+    assertEquals(expectedGame, gameDAO.getGame(gameID));
   }
 
   @Test
@@ -197,24 +210,7 @@ public class ServiceTests {
   }
 
   @Test
-  public void joiningGameWithValidInputsWorks()
-      throws UnauthorizedUserException,
-          DataAccessException,
-          InvalidInputException,
-          AlreadyTakenException {
-    int gameID = gameService.createGame(existingAuthToken, testGameName);
-    GameData gameData = gameDAO.getGame(gameID);
-
-    gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
-
-    GameData expectedGame =
-        new GameData(gameID, null, existingUser.username(), testGameName, gameData.game());
-
-    assertEquals(expectedGame, gameDAO.getGame(gameID));
-  }
-
-  @Test
-  public void clearingApplicationDeletesAllDataObjects()
+  public void successfulClearApplication()
       throws InvalidInputException,
           AlreadyTakenException,
           DataAccessException,

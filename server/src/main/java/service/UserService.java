@@ -82,6 +82,7 @@ public class UserService {
 
   private String generateAuthToken() throws DataAccessException {
     String authToken;
+
     do {
       authToken = UUID.randomUUID().toString();
     } while (authDAO.getAuth(authToken) != null);

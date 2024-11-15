@@ -119,6 +119,7 @@ public class Server {
   public Object logout(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
     String authToken = req.headers("Authorization");
+
     userService.logout(authToken);
 
     res.status(200);
