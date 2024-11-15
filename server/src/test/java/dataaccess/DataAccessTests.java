@@ -51,9 +51,9 @@ public class DataAccessTests {
     user3 = new UserData("u3", "p3", "e3");
 
     // Initialize the static fields for auths
-    auth1 = new AuthData("abc123", user1.username());
-    auth2 = new AuthData("def456", user2.username());
-    auth3 = new AuthData("ghi789", user3.username());
+    auth1 = new AuthData(user1.username(), "abc123");
+    auth2 = new AuthData(user2.username(), "def456");
+    auth3 = new AuthData(user3.username(), "ghi789");
 
     // Initialize the static fields for games
     game1Name = "g1";
@@ -133,14 +133,14 @@ public class DataAccessTests {
 
   @Test
   public void addingAuthWithMissingFieldThrowsDataAccessException() {
-    AuthData incompleteAuth = new AuthData(auth1.authToken(), null);
+    AuthData incompleteAuth = new AuthData(null, auth1.authToken());
 
     assertThrows(DataAccessException.class, () -> authDAO.createAuth(incompleteAuth));
   }
 
   @Test
   public void addingAuthWithDuplicateAuthTokenThrowsDataAccessException() {
-    AuthData sameAuthTokenAuth = new AuthData(auth1.authToken(), fakeUsername);
+    AuthData sameAuthTokenAuth = new AuthData(fakeUsername, auth1.authToken());
 
     assertThrows(DataAccessException.class, () -> authDAO.createAuth(sameAuthTokenAuth));
   }

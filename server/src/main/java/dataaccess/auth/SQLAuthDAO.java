@@ -25,7 +25,7 @@ public class SQLAuthDAO implements AuthDAO {
           String retrievedAuthToken = rs.getString("authToken");
           String username = rs.getString("username");
 
-          return new AuthData(retrievedAuthToken, username);
+          return new AuthData(username, retrievedAuthToken);
         } else {
           return null;
         }

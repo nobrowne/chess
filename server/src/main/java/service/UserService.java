@@ -7,6 +7,8 @@ import java.util.UUID;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import request.RegisterRequest;
+import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
 import service.exceptions.UnauthorizedUserException;
@@ -22,11 +24,11 @@ public class UserService {
     this.authService = authService;
   }
 
-  public AuthData register(UserData user)
+  public RegisterResult register(RegisterRequest registerRequest)
       throws DataAccessException, InvalidInputException, AlreadyTakenException {
-    String username = user.username();
-    String password = user.password();
-    String email = user.email();
+    String username = registerRequest.username();
+    String password = registerRequest.password();
+    String email = registerRequest.email();
 
     if (username == null
         || username.isBlank()
@@ -41,14 +43,13 @@ public class UserService {
       throw new AlreadyTakenException("error: username already taken");
     }
 
-    String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
     userDAO.createUser(new UserData(username, hashedPassword, email));
 
     String authToken = generateAuthToken();
-    AuthData authData = new AuthData(authToken, username);
-    authDAO.createAuth(authData);
+    authDAO.createAuth(new AuthData(username, authToken));
 
-    return authData;
+    return new RegisterResult(username, authToken);
   }
 
   public AuthData login(UserData user) throws DataAccessException, UnauthorizedUserException {
@@ -67,7 +68,7 @@ public class UserService {
     }
 
     String authToken = generateAuthToken();
-    AuthData authData = new AuthData(authToken, username);
+    AuthData authData = new AuthData(username, authToken);
     authDAO.createAuth(authData);
 
     return authData;

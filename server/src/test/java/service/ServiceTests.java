@@ -14,6 +14,8 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.RegisterRequest;
+import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
 import service.exceptions.UnauthorizedUserException;
@@ -30,8 +32,9 @@ public class ServiceTests {
   private static UserData existingUser;
   private static UserData newUser;
 
-  private String badAuthToken;
-  private String testGameName;
+  private static String badAuthToken;
+  private static String testGameName;
+
   private String existingAuthToken;
 
   @BeforeAll
@@ -46,38 +49,47 @@ public class ServiceTests {
     userService = new UserService(authDAO, userDAO, authService);
 
     existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
-    newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
+    newUser = new UserData("NewUser", "newUserPassword", "newUser@mail.com");
+
+    badAuthToken = "badAuthToken";
+
+    testGameName = "TestGameName";
   }
 
   @BeforeEach
   void setUp() throws DataAccessException, InvalidInputException, AlreadyTakenException {
     adminService.clearApplication();
 
-    AuthData authData = userService.register(existingUser);
+    var registerRequest =
+        new RegisterRequest(existingUser.username(), existingUser.password(), existingUser.email());
+    RegisterResult registerResult = userService.register(registerRequest);
+
+    AuthData authData = new AuthData(registerResult.username(), registerResult.authToken());
     existingAuthToken = authData.authToken();
-
-    badAuthToken = "abc123def456";
-
-    testGameName = "TestGame";
   }
 
   @Test
   public void registeringWithMissingUserDataThrowsInvalidInputException() {
-    var registerRequest = new UserData(newUser.username(), newUser.password(), null);
+    var registerRequest = new RegisterRequest(newUser.username(), newUser.password(), null);
+
     assertThrows(InvalidInputException.class, () -> userService.register(registerRequest));
   }
 
   @Test
   public void registeringWithExistingUsernameThrowsUsernameTakenException() {
     var registerRequest =
-        new UserData(existingUser.username(), newUser.password(), newUser.email());
+        new RegisterRequest(existingUser.username(), newUser.password(), newUser.email());
+
     assertThrows(AlreadyTakenException.class, () -> userService.register(registerRequest));
   }
 
   @Test
   public void registeringUserReturnsCorrectAuthenticationData()
       throws DataAccessException, InvalidInputException, AlreadyTakenException {
-    var registerResult = userService.register(newUser);
+    var registerRequest =
+        new RegisterRequest(newUser.username(), newUser.password(), newUser.email());
+
+    var registerResult = userService.register(registerRequest);
 
     assertEquals(newUser.username(), registerResult.username());
     assertNotNull(registerResult.authToken());
@@ -191,13 +203,8 @@ public class ServiceTests {
 
     gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
 
-    userService.register(newUser);
-    String newUserAuthToken = userService.login(newUser).authToken();
-    gameService.joinGame(newUserAuthToken, ChessGame.TeamColor.WHITE, gameID);
-
     GameData expectedGame =
-        new GameData(
-            gameID, newUser.username(), existingUser.username(), testGameName, gameData.game());
+        new GameData(gameID, null, existingUser.username(), testGameName, gameData.game());
 
     assertEquals(expectedGame, gameDAO.getGame(gameID));
   }
@@ -216,7 +223,10 @@ public class ServiceTests {
     ArrayList<AuthData> auths = new ArrayList<>();
 
     for (UserData user : users) {
-      AuthData auth = userService.register(user);
+      var registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+
+      RegisterResult registerResult = userService.register(registerRequest);
+      AuthData auth = new AuthData(registerResult.username(), registerResult.authToken());
       auths.add(auth);
 
       assertNotNull(userDAO.getUser(user.username()));

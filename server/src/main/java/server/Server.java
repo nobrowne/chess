@@ -16,6 +16,8 @@ import exception.ResponseException;
 import java.util.Map;
 import model.ExceptionDTO;
 import model.UserData;
+import request.RegisterRequest;
+import result.RegisterResult;
 import service.AdminService;
 import service.AuthService;
 import service.GameService;
@@ -95,19 +97,21 @@ public class Server {
 
   public Object register(Request req, Response res)
       throws DataAccessException, InvalidInputException, AlreadyTakenException {
-    var user = new Gson().fromJson(req.body(), UserData.class);
-    var result = userService.register(user);
+    RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
 
+    RegisterResult result = userService.register(registerRequest);
     res.status(200);
+
     return new Gson().toJson(result);
   }
 
   public Object login(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
     var user = new Gson().fromJson(req.body(), UserData.class);
-    var result = userService.login(user);
 
+    var result = userService.login(user);
     res.status(200);
+
     return new Gson().toJson(result);
   }
 
@@ -117,6 +121,7 @@ public class Server {
     userService.logout(authToken);
 
     res.status(200);
+
     return "{}";
   }
 
@@ -125,8 +130,8 @@ public class Server {
     String authToken = req.headers("Authorization");
 
     var result = gameService.listGames(authToken);
-
     res.status(200);
+
     return new Gson().toJson(Map.of("games", result));
   }
 
@@ -137,8 +142,8 @@ public class Server {
     String gameName = body.get("gameName").getAsString();
 
     int result = gameService.createGame(authToken, gameName);
-
     res.status(200);
+
     return new Gson().toJson(Map.of("gameID", result));
   }
 
@@ -172,14 +177,15 @@ public class Server {
     gameService.joinGame(authToken, teamColor, gameID);
 
     res.status(200);
+
     return "{}";
   }
 
   public Object clearApplication(Request req, Response res) throws DataAccessException {
-
     adminService.clearApplication();
 
     res.status(200);
+
     return "{}";
   }
 }
