@@ -35,45 +35,48 @@ public class ChessClient {
   }
 
   public String register(String... params) throws ResponseException {
-    if (params.length == 3) {
-      String username = params[0];
-      String password = params[1];
-      String email = params[2];
-
-      RegisterRequest request = new RegisterRequest(username, password, email);
-
-      RegisterResult result = server.register(request);
-      authToken = result.authToken();
-
-      return String.format("You are registered as %s", username);
+    if (params.length < 3) {
+      throw new ResponseException(400, "error: username, password, and email must all be filled");
     }
-    throw new ResponseException(400, "error: username, password, and email must all be filled");
+
+    String username = params[0];
+    String password = params[1];
+    String email = params[2];
+
+    RegisterRequest request = new RegisterRequest(username, password, email);
+
+    RegisterResult result = server.register(request);
+    authToken = result.authToken();
+
+    return String.format("You are registered as %s", username);
   }
 
   public String login(String... params) throws ResponseException {
-    if (params.length == 2) {
-      String username = params[0];
-      String password = params[1];
-
-      LoginRequest request = new LoginRequest(username, password);
-
-      LoginResult result = server.login(request);
-      state = State.SIGNEDIN;
-      authToken = result.authToken();
-
-      return String.format("You have logged in as %s%n", username) + help();
+    if (params.length < 2) {
+      throw new ResponseException(400, "error: username and password must be filled");
     }
-    throw new ResponseException(400, "error: username and password must be filled");
+
+    String username = params[0];
+    String password = params[1];
+
+    LoginRequest request = new LoginRequest(username, password);
+
+    LoginResult result = server.login(request);
+    state = State.SIGNEDIN;
+    authToken = result.authToken();
+
+    return String.format("You have logged in as %s%n", username) + help();
   }
 
   public String logout() throws ResponseException {
-    if (state == State.SIGNEDIN) {
-      server.logout(authToken);
-      state = State.SIGNEDOUT;
-
-      return "You have logged out";
+    if (state != State.SIGNEDIN) {
+      throw new ResponseException(400, "error: cannot log out if not logged in");
     }
-    throw new ResponseException(400, "error: cannot log out if not logged in or if not registered");
+
+    server.logout(authToken);
+    state = State.SIGNEDOUT;
+
+    return "You have logged out";
   }
 
   public String help() {
@@ -85,6 +88,7 @@ public class ChessClient {
         - help: see possible commands
       """;
     }
+
     return """
       - create <GAME NAME>: create a new game
       - list: list all games

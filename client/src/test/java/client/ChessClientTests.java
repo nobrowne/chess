@@ -157,6 +157,6 @@ public class ChessClientTests {
   public void loggingOutWithoutBeingLoggedIn() {
     String logoutMessage = chessClient.eval("logout because I'm bored");
 
-    assertEquals("error: cannot log out if not logged in or if not registered", logoutMessage);
+    assertEquals("error: cannot log out if not logged in", logoutMessage);
   }
 }
