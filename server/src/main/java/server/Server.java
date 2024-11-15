@@ -17,6 +17,7 @@ import java.util.Map;
 import model.ExceptionDTO;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
 import service.AdminService;
@@ -131,10 +132,10 @@ public class Server {
       throws DataAccessException, UnauthorizedUserException {
     String authToken = req.headers("Authorization");
 
-    var result = gameService.listGames(authToken);
+    ListGamesResult result = gameService.listGames(authToken);
     res.status(200);
 
-    return new Gson().toJson(Map.of("games", result));
+    return new Gson().toJson(result);
   }
 
   public Object createGame(Request req, Response res)

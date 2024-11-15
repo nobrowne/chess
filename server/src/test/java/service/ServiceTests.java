@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListGamesResult;
 import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
@@ -149,8 +150,8 @@ public class ServiceTests {
       gameService.createGame(existingAuthToken, game.gameName());
     }
 
-    ArrayList<GameData> allGames = gameService.listGames(existingAuthToken);
-    assertEquals(allGames.size(), games.size());
+    ListGamesResult listGamesResult = gameService.listGames(existingAuthToken);
+    assertEquals(listGamesResult.games().size(), games.size());
   }
 
   @Test

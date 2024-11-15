@@ -4,8 +4,8 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.auth.AuthDAO;
 import dataaccess.game.GameDAO;
-import java.util.ArrayList;
 import model.GameData;
+import result.ListGamesResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
 import service.exceptions.UnauthorizedUserException;
@@ -21,11 +21,11 @@ public class GameService {
     this.authService = authService;
   }
 
-  public ArrayList<GameData> listGames(String authToken)
+  public ListGamesResult listGames(String authToken)
       throws DataAccessException, UnauthorizedUserException {
     authService.validateAuthToken(authToken);
 
-    return gameDAO.listGames();
+    return new ListGamesResult(gameDAO.listGames());
   }
 
   public Integer createGame(String authToken, String gameName)
