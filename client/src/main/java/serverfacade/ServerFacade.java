@@ -12,9 +12,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import model.ExceptionDTO;
 import model.GameData;
+import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
 import result.LoginResult;
 import result.RegisterResult;
 
@@ -71,20 +73,14 @@ public class ServerFacade {
     return response.games;
   }
 
-  public int createGame(String gameName, String authToken) throws ResponseException {
+  public CreateGameResult createGame(CreateGameRequest createGameRequest, String authToken)
+      throws ResponseException {
     String path = "/game";
 
-    record CreateGameRequest(String gameName) {}
-    var createGameRequest = new CreateGameRequest(gameName);
-
-    record CreateGameResponse(int gameID) {}
-    var response =
-        this.makeRequest("POST", path, createGameRequest, CreateGameResponse.class, authToken);
-
-    return response.gameID();
+    return this.makeRequest("POST", path, createGameRequest, CreateGameResult.class, authToken);
   }
 
-  public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws ResponseException {
+  public void joinGame(JoinGameRequest joinGameRequest, String authToken) throws ResponseException {
     String path = "/game";
 
     this.makeRequest("PUT", path, joinGameRequest, null, authToken);

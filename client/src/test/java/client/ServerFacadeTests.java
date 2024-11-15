@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
@@ -47,7 +48,7 @@ public class ServerFacadeTests {
 
     var registerRequest =
         new RegisterRequest(existingUser.username(), existingUser.password(), existingUser.email());
-    
+
     RegisterResult registerResult = serverFacade.register(registerRequest);
     existingAuthToken = registerResult.authToken();
   }
@@ -56,9 +57,9 @@ public class ServerFacadeTests {
   public void successfulRegistration() throws ResponseException {
     var registerRequest =
         new RegisterRequest(newUser.username(), newUser.password(), newUser.email());
-    
+
     var registerResult = serverFacade.register(registerRequest);
-    
+
     assertEquals(newUser.username(), registerResult.username());
   }
 
@@ -66,14 +67,14 @@ public class ServerFacadeTests {
   public void registeringWithExistingUsernameThrowsException() {
     var registerRequest =
         new RegisterRequest(existingUser.username(), newUser.password(), newUser.email());
-    
+
     assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
   }
 
   @Test
   public void registeringWithMissingUserDataThrowsException() {
     var registerRequest = new RegisterRequest(newUser.username(), newUser.password(), null);
-    
+
     assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
   }
 
@@ -120,7 +121,8 @@ public class ServerFacadeTests {
     gameNames.add("game3");
 
     for (String gameName : gameNames) {
-      serverFacade.createGame(gameName, existingAuthToken);
+      var createGameRequest = new CreateGameRequest(gameName);
+      serverFacade.createGame(createGameRequest, existingAuthToken);
     }
 
     ArrayList<GameData> allGames = serverFacade.listGames(existingAuthToken);
@@ -139,8 +141,11 @@ public class ServerFacadeTests {
   public void successfulGameCreation() throws ResponseException {
     String gameName = "best game ever";
 
-    var createGameResponse = serverFacade.createGame(gameName, existingAuthToken);
-    assertTrue(createGameResponse > 0);
+    var createGameRequest = new CreateGameRequest(gameName);
+
+    var createGameResponse = serverFacade.createGame(createGameRequest, existingAuthToken);
+
+    assertTrue(createGameResponse.gameID() > 0);
   }
 
   @Test
@@ -148,16 +153,22 @@ public class ServerFacadeTests {
     String gameName = "best game ever";
     String badAuthToken = "badAuthToken";
 
-    assertThrows(ResponseException.class, () -> serverFacade.createGame(gameName, badAuthToken));
+    var createGameRequest = new CreateGameRequest(gameName);
+
+    assertThrows(
+        ResponseException.class, () -> serverFacade.createGame(createGameRequest, badAuthToken));
   }
 
   @Test
   public void successfulJoinGame() throws ResponseException {
     String gameName = "best game ever";
-    int gameID = serverFacade.createGame(gameName, existingAuthToken);
 
-    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
-    serverFacade.joinGame(existingAuthToken, joinGameRequest);
+    var createGameRequest = new CreateGameRequest(gameName);
+
+    var createGameResult = serverFacade.createGame(createGameRequest, existingAuthToken);
+
+    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, createGameResult.gameID());
+    serverFacade.joinGame(joinGameRequest, existingAuthToken);
 
     var games = serverFacade.listGames(existingAuthToken);
     GameData game1 = games.getFirst();
@@ -168,11 +179,14 @@ public class ServerFacadeTests {
   @Test
   public void joiningGameWithBadTeamColorThrowsException() throws ResponseException {
     String gameName = "best game ever";
-    int gameID = serverFacade.createGame(gameName, existingAuthToken);
 
-    var joinGameRequest = new JoinGameRequest(null, gameID);
+    var createGameRequest = new CreateGameRequest(gameName);
+
+    var createGameResult = serverFacade.createGame(createGameRequest, existingAuthToken);
+
+    var joinGameRequest = new JoinGameRequest(null, createGameResult.gameID());
 
     assertThrows(
-        ResponseException.class, () -> serverFacade.joinGame(existingAuthToken, joinGameRequest));
+        ResponseException.class, () -> serverFacade.joinGame(joinGameRequest, existingAuthToken));
   }
 }

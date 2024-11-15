@@ -159,4 +159,43 @@ public class ChessClientTests {
 
     assertEquals("error: cannot log out if not logged in", logoutMessage);
   }
+
+  @Test
+  public void successfulCreateGame() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+
+    chessClient.eval(loginInfo);
+
+    String gameName = "what a fun game";
+
+    String createGameInfo = String.format("create %s", gameName);
+
+    String createGameMessage = chessClient.eval(createGameInfo);
+
+    assertEquals("You have created a new game called " + gameName, createGameMessage);
+  }
+
+  @Test
+  public void creatingGameWithNoName() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+
+    chessClient.eval(loginInfo);
+
+    String createGameMessage = chessClient.eval("create");
+
+    assertEquals("error: game name must be filled", createGameMessage);
+  }
+
+  @Test
+  public void creatingGameWithoutLoggingIn() {
+    String gameName = "what a fun game";
+
+    String createGameInfo = String.format("create %s", gameName);
+
+    String createGameMessage = chessClient.eval(createGameInfo);
+
+    assertEquals("error: cannot create game if not logged in", createGameMessage);
+  }
 }

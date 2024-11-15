@@ -2,8 +2,11 @@ package client;
 
 import exception.ResponseException;
 import java.util.Arrays;
+
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
 import result.LoginResult;
 import result.RegisterResult;
 import serverfacade.ServerFacade;
@@ -26,6 +29,7 @@ public class ChessClient {
         case "register" -> register(params);
         case "login" -> login(params);
         case "logout" -> logout();
+        case "create" -> createGame(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -77,6 +81,24 @@ public class ChessClient {
     state = State.SIGNEDOUT;
 
     return "You have logged out";
+  }
+
+  public String createGame(String... params) throws ResponseException {
+    if (state != State.SIGNEDIN) {
+      throw new ResponseException(400, "error: cannot create game if not logged in");
+    }
+
+    if (params.length < 1) {
+      throw new ResponseException(400, "error: game name must be filled");
+    }
+
+    String gameName = String.join(" ", params);
+
+    CreateGameRequest request = new CreateGameRequest(gameName);
+
+    server.createGame(request, authToken);
+
+    return String.format("You have created a new game called %s", gameName);
   }
 
   public String help() {
