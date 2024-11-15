@@ -14,6 +14,9 @@ import model.AuthData;
 import model.ExceptionDTO;
 import model.GameData;
 import model.UserData;
+import request.JoinGameRequest;
+import request.LoginRequest;
+import result.LoginResult;
 
 public class ServerFacade {
   private final String serverURL;
@@ -49,13 +52,9 @@ public class ServerFacade {
     return this.makeRequest("POST", path, user, AuthData.class, null);
   }
 
-  public AuthData login(String username, String password) throws ResponseException {
+  public LoginResult login(LoginRequest loginRequest) throws ResponseException {
     String path = "/session";
-
-    record LoginRequest(String username, String password) {}
-    var loginRequest = new LoginRequest(username, password);
-
-    return this.makeRequest("POST", path, loginRequest, AuthData.class, null);
+    return this.makeRequest("POST", path, loginRequest, LoginResult.class, null);
   }
 
   public void logout(String authToken) throws ResponseException {

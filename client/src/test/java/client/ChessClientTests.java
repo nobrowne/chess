@@ -99,9 +99,7 @@ public class ChessClientTests {
     String loginInfo = String.format("login %s", newUser.username());
     String loginMessage = chessClient.eval(loginInfo);
 
-    assertEquals(
-        "At least one of the required inputs is missing. Please provide username and password",
-        loginMessage);
+    assertEquals("error: username and password must be filled", loginMessage);
   }
 
   @Test

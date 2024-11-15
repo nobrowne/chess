@@ -55,9 +55,13 @@ public class UserService {
   }
 
   public LoginResult login(LoginRequest loginRequest)
-      throws DataAccessException, UnauthorizedUserException {
+      throws DataAccessException, UnauthorizedUserException, InvalidInputException {
     String username = loginRequest.username();
     String password = loginRequest.password();
+
+    if (username == null || username.isBlank() || password == null || password.isBlank()) {
+      throw new InvalidInputException("error: username and password must be filled");
+    }
 
     UserData user = userDAO.getUser(username);
 

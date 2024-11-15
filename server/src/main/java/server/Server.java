@@ -107,7 +107,7 @@ public class Server {
   }
 
   public Object login(Request req, Response res)
-      throws DataAccessException, UnauthorizedUserException {
+      throws DataAccessException, UnauthorizedUserException, InvalidInputException {
     LoginRequest request = new Gson().fromJson(req.body(), LoginRequest.class);
 
     LoginResult result = userService.login(request);

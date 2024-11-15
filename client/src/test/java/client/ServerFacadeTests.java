@@ -66,22 +66,25 @@ public class ServerFacadeTests {
 
   @Test
   public void successfulLogin() throws ResponseException {
-    var loginResult = serverFacade.login(existingUser.username(), existingUser.password());
+    var loginRequest = new LoginRequest(existingUser.username(), existingUser.password());
+    var loginResult = serverFacade.login(loginRequest);
+
     assertEquals(existingUser.username(), loginResult.username());
     assertTrue(loginResult.authToken().length() > 10);
   }
 
   @Test
   public void loggingInWithoutRegisteredAccountThrowsException() {
-    assertThrows(
-        ResponseException.class, () -> serverFacade.login(newUser.username(), newUser.password()));
+    var loginRequest = new LoginRequest(newUser.username(), newUser.password());
+
+    assertThrows(ResponseException.class, () -> serverFacade.login(loginRequest));
   }
 
   @Test
   public void loggingInWithIncorrectPasswordThrowsException() {
-    assertThrows(
-        ResponseException.class,
-        () -> serverFacade.login(existingUser.username(), newUser.password()));
+    var loginRequest = new LoginRequest(existingUser.username(), newUser.password());
+
+    assertThrows(ResponseException.class, () -> serverFacade.login(loginRequest));
   }
 
   @Test

@@ -4,6 +4,8 @@ import exception.ResponseException;
 import java.util.Arrays;
 import model.AuthData;
 import model.UserData;
+import request.LoginRequest;
+import result.LoginResult;
 import serverfacade.ServerFacade;
 
 public class ChessClient {
@@ -55,15 +57,15 @@ public class ChessClient {
       String username = params[0];
       String password = params[1];
 
-      AuthData authData = server.login(username, password);
+      LoginRequest request = new LoginRequest(username, password);
+
+      LoginResult result = server.login(request);
       state = State.SIGNEDIN;
-      authToken = authData.authToken();
+      authToken = result.authToken();
 
       return String.format("You have logged in as %s%n", username) + help();
     }
-    throw new ResponseException(
-        400,
-        "At least one of the required inputs is missing. Please provide username and password");
+    throw new ResponseException(400, "error: username and password must be filled");
   }
 
   public String help() {
