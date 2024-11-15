@@ -1,9 +1,6 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.auth.AuthDAO;
@@ -15,6 +12,7 @@ import dataaccess.user.UserDAO;
 import exception.ResponseException;
 import model.ExceptionDTO;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
@@ -157,27 +155,9 @@ public class Server {
           AlreadyTakenException {
     String authToken = req.headers("Authorization");
 
-    JsonObject body = new Gson().fromJson(req.body(), JsonObject.class);
+    JoinGameRequest joinGameRequest = new Gson().fromJson(req.body(), JoinGameRequest.class);
 
-    JsonElement playerColorElement = body.get("playerColor");
-    if (playerColorElement == null || playerColorElement.getAsString().isEmpty()) {
-      throw new InvalidInputException("error: missing playerColor");
-    }
-
-    ChessGame.TeamColor teamColor;
-    try {
-      teamColor = ChessGame.TeamColor.valueOf(playerColorElement.getAsString().toUpperCase());
-    } catch (IllegalStateException ex) {
-      throw new InvalidInputException("error: invalid playerColor");
-    }
-
-    JsonElement gameIDElement = body.get("gameID");
-    if (gameIDElement == null) {
-      throw new InvalidInputException("error: invalid gameID");
-    }
-    int gameID = gameIDElement.getAsInt();
-
-    gameService.joinGame(authToken, teamColor, gameID);
+    gameService.joinGame(authToken, joinGameRequest);
 
     res.status(200);
 

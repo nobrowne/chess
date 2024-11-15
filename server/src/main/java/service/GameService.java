@@ -6,6 +6,7 @@ import dataaccess.auth.AuthDAO;
 import dataaccess.game.GameDAO;
 import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import result.CreateGameResult;
 import result.ListGamesResult;
 import service.exceptions.AlreadyTakenException;
@@ -39,20 +40,22 @@ public class GameService {
     return new CreateGameResult(gameDAO.createGame(createGameRequest.gameName(), newGame));
   }
 
-  public void joinGame(String authToken, ChessGame.TeamColor teamColor, int gameID)
+  public void joinGame(String authToken, JoinGameRequest joinGameRequest)
       throws DataAccessException,
           UnauthorizedUserException,
           InvalidInputException,
           AlreadyTakenException {
     authService.validateAuthToken(authToken);
 
-    GameData game = gameDAO.getGame(gameID);
+    GameData game = gameDAO.getGame(joinGameRequest.gameID());
 
     if (game == null) {
       throw new InvalidInputException("error: invalid gameID");
     }
 
     String username = authDAO.getAuth(authToken).username();
+
+    ChessGame.TeamColor teamColor = joinGameRequest.playerColor();
 
     switch (teamColor) {
       case WHITE -> {

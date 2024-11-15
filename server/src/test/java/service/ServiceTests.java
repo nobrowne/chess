@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
@@ -189,7 +190,9 @@ public class ServiceTests {
 
     int gameID = createGameResult.gameID();
 
-    gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+
+    gameService.joinGame(existingAuthToken, joinGameRequest);
 
     GameData gameData = gameDAO.getGame(gameID);
     GameData expectedGame =
@@ -202,9 +205,11 @@ public class ServiceTests {
   public void joiningGameWithBadIDThrowsInvalidInputException() {
     int badGameID = 15;
 
+    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, badGameID);
+
     assertThrows(
         InvalidInputException.class,
-        () -> gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, badGameID));
+        () -> gameService.joinGame(existingAuthToken, joinGameRequest));
   }
 
   @Test
@@ -219,11 +224,12 @@ public class ServiceTests {
 
     int gameID = createGameResult.gameID();
 
-    gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
+    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+    gameService.joinGame(existingAuthToken, joinGameRequest);
 
     assertThrows(
         AlreadyTakenException.class,
-        () -> gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID));
+        () -> gameService.joinGame(existingAuthToken, joinGameRequest));
   }
 
   @Test
