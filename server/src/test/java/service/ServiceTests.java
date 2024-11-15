@@ -14,6 +14,7 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.LoginRequest;
 import request.RegisterRequest;
 import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
@@ -96,24 +97,27 @@ public class ServiceTests {
   }
 
   @Test
-  public void loggingInWithoutRegisteredAccountThrowsUserNotRegisteredException() {
-    assertThrows(UnauthorizedUserException.class, () -> userService.login(newUser));
+  public void successfulLogin() throws UnauthorizedUserException, DataAccessException {
+    var loginRequest = new LoginRequest(existingUser.username(), existingUser.password());
+
+    var loginResult = userService.login(loginRequest);
+
+    assertEquals(existingUser.username(), loginResult.username());
+    assertNotNull(loginResult.authToken());
   }
 
   @Test
-  public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
-    var loginRequest = new UserData(existingUser.username(), newUser.password(), null);
+  public void loggingInWithoutRegisteredAccountThrowsUnauthorizedUserException() {
+    var loginRequest = new LoginRequest(newUser.username(), newUser.password());
 
     assertThrows(UnauthorizedUserException.class, () -> userService.login(loginRequest));
   }
 
   @Test
-  public void loggingInReturnsCorrectAuthenticationData()
-      throws UnauthorizedUserException, DataAccessException {
-    var loginResult = userService.login(existingUser);
+  public void loggingInWithIncorrectPasswordThrowsUnauthorizedUserException() {
+    var loginRequest = new LoginRequest(existingUser.username(), newUser.password());
 
-    assertEquals(existingUser.username(), loginResult.username());
-    assertNotNull(loginResult.authToken());
+    assertThrows(UnauthorizedUserException.class, () -> userService.login(loginRequest));
   }
 
   @Test

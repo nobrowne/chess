@@ -7,7 +7,9 @@ import java.util.UUID;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
@@ -52,26 +54,25 @@ public class UserService {
     return new RegisterResult(username, authToken);
   }
 
-  public AuthData login(UserData user) throws DataAccessException, UnauthorizedUserException {
-    String username = user.username();
-    String password = user.password();
+  public LoginResult login(LoginRequest loginRequest)
+      throws DataAccessException, UnauthorizedUserException {
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-    if (userDAO.getUser(username) == null) {
+    UserData user = userDAO.getUser(username);
+
+    if (user == null) {
       throw new UnauthorizedUserException("error: user has not registered an account yet");
     }
 
-    UserData registeredUser = userDAO.getUser(username);
-    boolean isCorrectPassword = BCrypt.checkpw(password, registeredUser.password());
-
-    if (!isCorrectPassword) {
+    if (!BCrypt.checkpw(password, user.password())) {
       throw new UnauthorizedUserException("error: invalid password");
     }
 
     String authToken = generateAuthToken();
-    AuthData authData = new AuthData(username, authToken);
-    authDAO.createAuth(authData);
+    authDAO.createAuth(new AuthData(username, authToken));
 
-    return authData;
+    return new LoginResult(username, authToken);
   }
 
   public void logout(String authToken) throws DataAccessException, UnauthorizedUserException {

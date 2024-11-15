@@ -15,8 +15,9 @@ import dataaccess.user.UserDAO;
 import exception.ResponseException;
 import java.util.Map;
 import model.ExceptionDTO;
-import model.UserData;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import service.AdminService;
 import service.AuthService;
@@ -107,9 +108,9 @@ public class Server {
 
   public Object login(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
-    var user = new Gson().fromJson(req.body(), UserData.class);
+    LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
 
-    var result = userService.login(user);
+    LoginResult result = userService.login(loginRequest);
     res.status(200);
 
     return new Gson().toJson(result);
