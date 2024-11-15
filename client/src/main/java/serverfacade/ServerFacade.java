@@ -50,45 +50,35 @@ public class ServerFacade {
   }
 
   public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
-    String path = "/user";
-    return this.makeRequest("POST", path, registerRequest, RegisterResult.class, null);
+    return this.makeRequest("POST", "/user", registerRequest, RegisterResult.class, null);
   }
 
   public LoginResult login(LoginRequest loginRequest) throws ResponseException {
-    String path = "/session";
-    return this.makeRequest("POST", path, loginRequest, LoginResult.class, null);
+    return this.makeRequest("POST", "/session", loginRequest, LoginResult.class, null);
   }
 
   public void logout(String authToken) throws ResponseException {
-    String path = "/session";
-    this.makeRequest("DELETE", path, null, null, authToken);
+    this.makeRequest("DELETE", "/session", null, null, authToken);
   }
 
   public ArrayList<GameData> listGames(String authToken) throws ResponseException {
-    String path = "/game";
-
     record listGamesResponse(ArrayList<GameData> games) {}
 
-    var response = this.makeRequest("GET", path, null, listGamesResponse.class, authToken);
+    var response = this.makeRequest("GET", "/game", null, listGamesResponse.class, authToken);
     return response.games;
   }
 
   public CreateGameResult createGame(CreateGameRequest createGameRequest, String authToken)
       throws ResponseException {
-    String path = "/game";
-
-    return this.makeRequest("POST", path, createGameRequest, CreateGameResult.class, authToken);
+    return this.makeRequest("POST", "/game", createGameRequest, CreateGameResult.class, authToken);
   }
 
   public void joinGame(JoinGameRequest joinGameRequest, String authToken) throws ResponseException {
-    String path = "/game";
-
-    this.makeRequest("PUT", path, joinGameRequest, null, authToken);
+    this.makeRequest("PUT", "/game", joinGameRequest, null, authToken);
   }
 
   public void clearApplication() throws ResponseException {
-    String path = "/db";
-    this.makeRequest("DELETE", path, null, null, null);
+    this.makeRequest("DELETE", "/db", null, null, null);
   }
 
   private <T> T makeRequest(

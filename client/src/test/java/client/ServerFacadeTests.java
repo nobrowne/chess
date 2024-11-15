@@ -48,7 +48,6 @@ public class ServerFacadeTests {
 
     var registerRequest =
         new RegisterRequest(existingUser.username(), existingUser.password(), existingUser.email());
-
     RegisterResult registerResult = serverFacade.register(registerRequest);
     existingAuthToken = registerResult.authToken();
   }
@@ -57,7 +56,6 @@ public class ServerFacadeTests {
   public void successfulRegistration() throws ResponseException {
     var registerRequest =
         new RegisterRequest(newUser.username(), newUser.password(), newUser.email());
-
     var registerResult = serverFacade.register(registerRequest);
 
     assertEquals(newUser.username(), registerResult.username());
@@ -109,7 +107,7 @@ public class ServerFacadeTests {
   @Test
   public void loggingOutWithInvalidAuthTokenThrowsException() {
     String badAuthToken = "badAuthToken";
-    assertNotEquals(badAuthToken, existingAuthToken);
+
     assertThrows(ResponseException.class, () -> serverFacade.logout(badAuthToken));
   }
 
@@ -132,7 +130,6 @@ public class ServerFacadeTests {
   @Test
   public void listingGamesWithInvalidAuthTokenThrowsException() {
     String badAuthToken = "badAuthToken";
-    assertNotEquals(badAuthToken, existingAuthToken);
 
     assertThrows(ResponseException.class, () -> serverFacade.listGames(badAuthToken));
   }
@@ -140,9 +137,7 @@ public class ServerFacadeTests {
   @Test
   public void successfulGameCreation() throws ResponseException {
     String gameName = "best game ever";
-
     var createGameRequest = new CreateGameRequest(gameName);
-
     var createGameResponse = serverFacade.createGame(createGameRequest, existingAuthToken);
 
     assertTrue(createGameResponse.gameID() > 0);
@@ -152,7 +147,6 @@ public class ServerFacadeTests {
   public void creatingGameWithInvalidAuthTokenThrowsException() {
     String gameName = "best game ever";
     String badAuthToken = "badAuthToken";
-
     var createGameRequest = new CreateGameRequest(gameName);
 
     assertThrows(
@@ -162,9 +156,7 @@ public class ServerFacadeTests {
   @Test
   public void successfulJoinGame() throws ResponseException {
     String gameName = "best game ever";
-
     var createGameRequest = new CreateGameRequest(gameName);
-
     var createGameResult = serverFacade.createGame(createGameRequest, existingAuthToken);
 
     var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, createGameResult.gameID());
@@ -179,9 +171,7 @@ public class ServerFacadeTests {
   @Test
   public void joiningGameWithBadTeamColorThrowsException() throws ResponseException {
     String gameName = "best game ever";
-
     var createGameRequest = new CreateGameRequest(gameName);
-
     var createGameResult = serverFacade.createGame(createGameRequest, existingAuthToken);
 
     var joinGameRequest = new JoinGameRequest(null, createGameResult.gameID());

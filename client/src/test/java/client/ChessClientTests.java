@@ -50,7 +50,6 @@ public class ChessClientTests {
   public void successfulRegistration() {
     String registrationInfo =
         String.format("register %s %s %s", newUser.username(), newUser.password(), newUser.email());
-
     String registrationMessage = chessClient.eval(registrationInfo);
 
     assertEquals("You are registered as " + newUser.username(), registrationMessage);
@@ -60,7 +59,6 @@ public class ChessClientTests {
   public void registeringWithMissingInfo() {
     String registrationInfo =
         String.format("register %s %s", newUser.username(), newUser.password());
-
     String registrationMessage = chessClient.eval(registrationInfo);
 
     assertEquals("error: username, password, and email must all be filled", registrationMessage);
@@ -71,7 +69,6 @@ public class ChessClientTests {
     String registrationInfo =
         String.format(
             "register %s %s %s", existingUser.username(), newUser.password(), newUser.email());
-
     String registrationMessage = chessClient.eval(registrationInfo);
 
     assertEquals("error: username already taken", registrationMessage);
@@ -81,7 +78,6 @@ public class ChessClientTests {
   public void successfulLogin() throws ResponseException {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
-
     String loginMessage = chessClient.eval(loginInfo);
 
     assertFalse(loginMessage.contains("error"));
@@ -91,7 +87,6 @@ public class ChessClientTests {
   @Test
   public void loggingInWithoutRegisteredUsername() {
     String loginInfo = String.format("login %s %s", newUser.username(), newUser.password());
-
     String loginMessage = chessClient.eval(loginInfo);
 
     assertEquals("error: user has not registered an account yet", loginMessage);
@@ -100,7 +95,6 @@ public class ChessClientTests {
   @Test
   public void loggingInWithMissingInfo() {
     String loginInfo = String.format("login %s", newUser.username());
-
     String loginMessage = chessClient.eval(loginInfo);
 
     assertEquals("error: username and password must be filled", loginMessage);
@@ -109,7 +103,6 @@ public class ChessClientTests {
   @Test
   public void loggingInWithIncorrectPassword() {
     String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
-
     String loginMessage = chessClient.eval(loginInfo);
 
     assertEquals("error: invalid password", loginMessage);
@@ -119,7 +112,6 @@ public class ChessClientTests {
   public void successfulLogout() {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
-
     chessClient.eval(loginInfo);
 
     chessClient.eval("logout");
@@ -138,7 +130,6 @@ public class ChessClientTests {
   public void successfulLogoutExtraParameters() {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
-
     chessClient.eval(loginInfo);
 
     chessClient.eval("logout because I'm bored");
@@ -164,13 +155,10 @@ public class ChessClientTests {
   public void successfulCreateGame() {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
-
     chessClient.eval(loginInfo);
 
     String gameName = "what a fun game";
-
     String createGameInfo = String.format("create %s", gameName);
-
     String createGameMessage = chessClient.eval(createGameInfo);
 
     assertEquals("You have created a new game called " + gameName, createGameMessage);
@@ -180,9 +168,7 @@ public class ChessClientTests {
   public void creatingGameWithNoName() {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
-
     chessClient.eval(loginInfo);
-
     String createGameMessage = chessClient.eval("create");
 
     assertEquals("error: game name must be filled", createGameMessage);
@@ -191,9 +177,7 @@ public class ChessClientTests {
   @Test
   public void creatingGameWithoutLoggingIn() {
     String gameName = "what a fun game";
-
     String createGameInfo = String.format("create %s", gameName);
-
     String createGameMessage = chessClient.eval(createGameInfo);
 
     assertEquals("error: cannot create game if not logged in", createGameMessage);

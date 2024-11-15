@@ -2,11 +2,9 @@ package client;
 
 import exception.ResponseException;
 import java.util.Arrays;
-
 import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import result.CreateGameResult;
 import result.LoginResult;
 import result.RegisterResult;
 import serverfacade.ServerFacade;
@@ -25,6 +23,7 @@ public class ChessClient {
       var tokens = input.toLowerCase().split(" ");
       var command = (tokens.length > 0) ? tokens[0] : "help";
       var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
       return switch (command) {
         case "register" -> register(params);
         case "login" -> login(params);
@@ -46,10 +45,9 @@ public class ChessClient {
     String username = params[0];
     String password = params[1];
     String email = params[2];
-
     RegisterRequest request = new RegisterRequest(username, password, email);
-
     RegisterResult result = server.register(request);
+
     authToken = result.authToken();
 
     return String.format("You are registered as %s", username);
@@ -62,10 +60,9 @@ public class ChessClient {
 
     String username = params[0];
     String password = params[1];
-
     LoginRequest request = new LoginRequest(username, password);
-
     LoginResult result = server.login(request);
+
     state = State.SIGNEDIN;
     authToken = result.authToken();
 
@@ -87,15 +84,12 @@ public class ChessClient {
     if (state != State.SIGNEDIN) {
       throw new ResponseException(400, "error: cannot create game if not logged in");
     }
-
     if (params.length < 1) {
       throw new ResponseException(400, "error: game name must be filled");
     }
 
     String gameName = String.join(" ", params);
-
     CreateGameRequest request = new CreateGameRequest(gameName);
-
     server.createGame(request, authToken);
 
     return String.format("You have created a new game called %s", gameName);
