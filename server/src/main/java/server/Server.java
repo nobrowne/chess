@@ -98,9 +98,9 @@ public class Server {
 
   public Object register(Request req, Response res)
       throws DataAccessException, InvalidInputException, AlreadyTakenException {
-    RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
+    RegisterRequest request = new Gson().fromJson(req.body(), RegisterRequest.class);
 
-    RegisterResult result = userService.register(registerRequest);
+    RegisterResult result = userService.register(request);
     res.status(200);
 
     return new Gson().toJson(result);
@@ -108,9 +108,9 @@ public class Server {
 
   public Object login(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
-    LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
+    LoginRequest request = new Gson().fromJson(req.body(), LoginRequest.class);
 
-    LoginResult result = userService.login(loginRequest);
+    LoginResult result = userService.login(request);
     res.status(200);
 
     return new Gson().toJson(result);
@@ -140,9 +140,9 @@ public class Server {
   public Object createGame(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
     String authToken = req.headers("Authorization");
-    CreateGameRequest createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
+    CreateGameRequest request = new Gson().fromJson(req.body(), CreateGameRequest.class);
 
-    CreateGameResult result = gameService.createGame(authToken, createGamesRequest);
+    CreateGameResult result = gameService.createGame(authToken, request);
     res.status(200);
 
     return new Gson().toJson(result);
@@ -154,10 +154,9 @@ public class Server {
           InvalidInputException,
           AlreadyTakenException {
     String authToken = req.headers("Authorization");
+    JoinGameRequest request = new Gson().fromJson(req.body(), JoinGameRequest.class);
 
-    JoinGameRequest joinGameRequest = new Gson().fromJson(req.body(), JoinGameRequest.class);
-
-    gameService.joinGame(authToken, joinGameRequest);
+    gameService.joinGame(authToken, request);
 
     res.status(200);
 
