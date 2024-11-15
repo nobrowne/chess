@@ -25,6 +25,7 @@ public class ChessClient {
       return switch (command) {
         case "register" -> register(params);
         case "login" -> login(params);
+        case "logout" -> logout();
         case "quit" -> "quit";
         default -> help();
       };
@@ -63,6 +64,16 @@ public class ChessClient {
       return String.format("You have logged in as %s%n", username) + help();
     }
     throw new ResponseException(400, "error: username and password must be filled");
+  }
+
+  public String logout() throws ResponseException {
+    if (state == State.SIGNEDIN) {
+      server.logout(authToken);
+      state = State.SIGNEDOUT;
+
+      return "You have logged out";
+    }
+    throw new ResponseException(400, "error: cannot log out if not logged in or if not registered");
   }
 
   public String help() {

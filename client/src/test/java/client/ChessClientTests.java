@@ -114,4 +114,49 @@ public class ChessClientTests {
 
     assertEquals("error: invalid password", loginMessage);
   }
+
+  @Test
+  public void successfulLogout() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+
+    chessClient.eval(loginInfo);
+
+    chessClient.eval("logout");
+
+    assertEquals(
+        chessClient.help(),
+        """
+        - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+        - login <USERNAME> <PASSWORD>: play chess
+        - quit: shut down the application
+        - help: see possible commands
+      """);
+  }
+
+  @Test
+  public void successfulLogoutExtraParameters() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+
+    chessClient.eval(loginInfo);
+
+    chessClient.eval("logout because I'm bored");
+
+    assertEquals(
+        chessClient.help(),
+        """
+            - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+            - login <USERNAME> <PASSWORD>: play chess
+            - quit: shut down the application
+            - help: see possible commands
+          """);
+  }
+
+  @Test
+  public void loggingOutWithoutBeingLoggedIn() {
+    String logoutMessage = chessClient.eval("logout because I'm bored");
+
+    assertEquals("error: cannot log out if not logged in or if not registered", logoutMessage);
+  }
 }
