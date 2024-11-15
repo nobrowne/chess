@@ -10,13 +10,13 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import model.AuthData;
 import model.ExceptionDTO;
 import model.GameData;
-import model.UserData;
 import request.JoinGameRequest;
 import request.LoginRequest;
+import request.RegisterRequest;
 import result.LoginResult;
+import result.RegisterResult;
 
 public class ServerFacade {
   private final String serverURL;
@@ -47,9 +47,9 @@ public class ServerFacade {
     return response;
   }
 
-  public AuthData register(UserData user) throws ResponseException {
+  public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
     String path = "/user";
-    return this.makeRequest("POST", path, user, AuthData.class, null);
+    return this.makeRequest("POST", path, registerRequest, RegisterResult.class, null);
   }
 
   public LoginResult login(LoginRequest loginRequest) throws ResponseException {

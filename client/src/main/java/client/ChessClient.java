@@ -2,21 +2,19 @@ package client;
 
 import exception.ResponseException;
 import java.util.Arrays;
-import model.AuthData;
-import model.UserData;
 import request.LoginRequest;
+import request.RegisterRequest;
 import result.LoginResult;
+import result.RegisterResult;
 import serverfacade.ServerFacade;
 
 public class ChessClient {
   private final ServerFacade server;
-  private final String serverUrl;
   private State state = State.SIGNEDOUT;
   private String authToken;
 
   public ChessClient(String serverUrl) {
     server = new ServerFacade(serverUrl);
-    this.serverUrl = serverUrl;
   }
 
   public String eval(String input) {
@@ -40,16 +38,15 @@ public class ChessClient {
       String username = params[0];
       String password = params[1];
       String email = params[2];
-      UserData user = new UserData(username, password, email);
 
-      AuthData authData = server.register(user);
-      authToken = authData.authToken();
+      RegisterRequest request = new RegisterRequest(username, password, email);
+
+      RegisterResult result = server.register(request);
+      authToken = result.authToken();
 
       return String.format("You are registered as %s", username);
     }
-    throw new ResponseException(
-        400,
-        "At least one of the required inputs is missing. Please provide username, password, and email");
+    throw new ResponseException(400, "error: username, password, and email must all be filled");
   }
 
   public String login(String... params) throws ResponseException {

@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import chess.ChessGame;
 import exception.ResponseException;
 import java.util.ArrayList;
-import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.JoinGameRequest;
 import request.LoginRequest;
+import request.RegisterRequest;
+import result.RegisterResult;
 import server.Server;
 import serverfacade.ServerFacade;
 
@@ -44,26 +45,35 @@ public class ServerFacadeTests {
   public void setUp() throws ResponseException {
     serverFacade.clearApplication();
 
-    AuthData authData = serverFacade.register(existingUser);
-    existingAuthToken = authData.authToken();
+    var registerRequest =
+        new RegisterRequest(existingUser.username(), existingUser.password(), existingUser.email());
+    
+    RegisterResult registerResult = serverFacade.register(registerRequest);
+    existingAuthToken = registerResult.authToken();
   }
 
   @Test
   public void successfulRegistration() throws ResponseException {
-    var registerResult = serverFacade.register(newUser);
+    var registerRequest =
+        new RegisterRequest(newUser.username(), newUser.password(), newUser.email());
+    
+    var registerResult = serverFacade.register(registerRequest);
+    
     assertEquals(newUser.username(), registerResult.username());
   }
 
   @Test
   public void registeringWithExistingUsernameThrowsException() {
     var registerRequest =
-        new UserData(existingUser.username(), newUser.password(), newUser.email());
+        new RegisterRequest(existingUser.username(), newUser.password(), newUser.email());
+    
     assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
   }
 
   @Test
   public void registeringWithMissingUserDataThrowsException() {
-    var registerRequest = new UserData(newUser.username(), newUser.password(), null);
+    var registerRequest = new RegisterRequest(newUser.username(), newUser.password(), null);
+    
     assertThrows(ResponseException.class, () -> serverFacade.register(registerRequest));
   }
 

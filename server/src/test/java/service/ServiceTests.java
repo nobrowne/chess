@@ -101,7 +101,8 @@ public class ServiceTests {
   }
 
   @Test
-  public void successfulLogin() throws UnauthorizedUserException, DataAccessException {
+  public void successfulLogin()
+      throws UnauthorizedUserException, DataAccessException, InvalidInputException {
     var loginRequest = new LoginRequest(existingUser.username(), existingUser.password());
 
     var loginResult = userService.login(loginRequest);
