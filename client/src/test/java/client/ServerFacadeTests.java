@@ -2,12 +2,15 @@ package client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import java.util.ArrayList;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.JoinGameRequest;
+import request.LoginRequest;
 import server.Server;
 import serverfacade.ServerFacade;
 
@@ -143,7 +146,8 @@ public class ServerFacadeTests {
     String gameName = "best game ever";
     int gameID = serverFacade.createGame(gameName, existingAuthToken);
 
-    serverFacade.joinGame("white", gameID, existingAuthToken);
+    var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+    serverFacade.joinGame(existingAuthToken, joinGameRequest);
 
     var games = serverFacade.listGames(existingAuthToken);
     GameData game1 = games.getFirst();
@@ -156,7 +160,9 @@ public class ServerFacadeTests {
     String gameName = "best game ever";
     int gameID = serverFacade.createGame(gameName, existingAuthToken);
 
+    var joinGameRequest = new JoinGameRequest(null, gameID);
+
     assertThrows(
-        ResponseException.class, () -> serverFacade.joinGame("green", gameID, existingAuthToken));
+        ResponseException.class, () -> serverFacade.joinGame(existingAuthToken, joinGameRequest));
   }
 }
