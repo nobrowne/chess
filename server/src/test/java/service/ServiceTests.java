@@ -14,8 +14,10 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
 import result.ListGamesResult;
 import result.RegisterResult;
 import service.exceptions.AlreadyTakenException;
@@ -147,7 +149,8 @@ public class ServiceTests {
     games.add(new GameData(null, null, null, "game 3", new ChessGame()));
 
     for (GameData game : games) {
-      gameService.createGame(existingAuthToken, game.gameName());
+      var createGameRequest = new CreateGameRequest(game.gameName());
+      gameService.createGame(existingAuthToken, createGameRequest);
     }
 
     ListGamesResult listGamesResult = gameService.listGames(existingAuthToken);
@@ -156,17 +159,22 @@ public class ServiceTests {
 
   @Test
   public void successfulCreateGame() throws UnauthorizedUserException, DataAccessException {
-    int gameID = gameService.createGame(existingAuthToken, testGameName);
+    var createGameRequest = new CreateGameRequest(testGameName);
+    CreateGameResult createGameResult =
+        gameService.createGame(existingAuthToken, createGameRequest);
 
-    GameData gameData = gameDAO.getGame(gameID);
+    GameData gameData = gameDAO.getGame(createGameResult.gameID());
 
     assertNotNull(gameData);
   }
 
   @Test
   public void creatingGameWithInvalidAuthTokenThrowsUnauthorizedUserException() {
+    var createGameRequest = new CreateGameRequest(testGameName);
+
     assertThrows(
-        UnauthorizedUserException.class, () -> gameService.createGame(badAuthToken, testGameName));
+        UnauthorizedUserException.class,
+        () -> gameService.createGame(badAuthToken, createGameRequest));
   }
 
   @Test
@@ -175,7 +183,11 @@ public class ServiceTests {
           DataAccessException,
           InvalidInputException,
           AlreadyTakenException {
-    int gameID = gameService.createGame(existingAuthToken, testGameName);
+    var createGameRequest = new CreateGameRequest(testGameName);
+    CreateGameResult createGameResult =
+        gameService.createGame(existingAuthToken, createGameRequest);
+
+    int gameID = createGameResult.gameID();
 
     gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
 
@@ -201,7 +213,11 @@ public class ServiceTests {
           DataAccessException,
           InvalidInputException,
           AlreadyTakenException {
-    int gameID = gameService.createGame(existingAuthToken, testGameName);
+    var createGameRequest = new CreateGameRequest(testGameName);
+    CreateGameResult createGameResult =
+        gameService.createGame(existingAuthToken, createGameRequest);
+
+    int gameID = createGameResult.gameID();
 
     gameService.joinGame(existingAuthToken, ChessGame.TeamColor.BLACK, gameID);
 
@@ -241,11 +257,13 @@ public class ServiceTests {
 
     ArrayList<Integer> gameIDs = new ArrayList<>();
     for (GameData game : games) {
-      int gameID = gameService.createGame(existingAuthToken, game.gameName());
+      var createGameRequest = new CreateGameRequest(game.gameName());
+      CreateGameResult createGameResult =
+          gameService.createGame(existingAuthToken, createGameRequest);
 
-      gameIDs.add(gameID);
+      gameIDs.add(createGameResult.gameID());
 
-      assertNotNull(gameDAO.getGame(gameID));
+      assertNotNull(gameDAO.getGame(createGameResult.gameID()));
     }
 
     adminService.clearApplication();

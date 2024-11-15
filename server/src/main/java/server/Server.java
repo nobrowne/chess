@@ -13,10 +13,11 @@ import dataaccess.game.SQLGameDAO;
 import dataaccess.user.SQLUserDAO;
 import dataaccess.user.UserDAO;
 import exception.ResponseException;
-import java.util.Map;
 import model.ExceptionDTO;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
 import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
@@ -141,13 +142,12 @@ public class Server {
   public Object createGame(Request req, Response res)
       throws DataAccessException, UnauthorizedUserException {
     String authToken = req.headers("Authorization");
-    JsonObject body = new Gson().fromJson(req.body(), JsonObject.class);
-    String gameName = body.get("gameName").getAsString();
+    CreateGameRequest createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
 
-    int result = gameService.createGame(authToken, gameName);
+    CreateGameResult result = gameService.createGame(authToken, createGamesRequest);
     res.status(200);
 
-    return new Gson().toJson(Map.of("gameID", result));
+    return new Gson().toJson(result);
   }
 
   public Object joinGame(Request req, Response res)

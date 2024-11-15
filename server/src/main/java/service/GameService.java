@@ -5,6 +5,8 @@ import dataaccess.DataAccessException;
 import dataaccess.auth.AuthDAO;
 import dataaccess.game.GameDAO;
 import model.GameData;
+import request.CreateGameRequest;
+import result.CreateGameResult;
 import result.ListGamesResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.InvalidInputException;
@@ -28,13 +30,13 @@ public class GameService {
     return new ListGamesResult(gameDAO.listGames());
   }
 
-  public Integer createGame(String authToken, String gameName)
+  public CreateGameResult createGame(String authToken, CreateGameRequest createGameRequest)
       throws DataAccessException, UnauthorizedUserException {
     authService.validateAuthToken(authToken);
 
     ChessGame newGame = new ChessGame();
 
-    return gameDAO.createGame(gameName, newGame);
+    return new CreateGameResult(gameDAO.createGame(createGameRequest.gameName(), newGame));
   }
 
   public void joinGame(String authToken, ChessGame.TeamColor teamColor, int gameID)
