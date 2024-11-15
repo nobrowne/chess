@@ -50,20 +50,20 @@ public class GameService {
     GameData game = gameDAO.getGame(joinGameRequest.gameID());
 
     if (game == null) {
-      throw new InvalidInputException("error: invalid gameID");
+      throw new InvalidInputException("Error: invalid gameID");
     }
 
     String username = authDAO.getAuth(authToken).username();
 
     ChessGame.TeamColor teamColor = joinGameRequest.playerColor();
     if (teamColor == null) {
-      throw new InvalidInputException("error: invalid team color");
+      throw new InvalidInputException("Error: invalid team color");
     }
 
     switch (teamColor) {
       case WHITE -> {
         if (game.whiteUsername() != null) {
-          throw new AlreadyTakenException("error: white team already taken");
+          throw new AlreadyTakenException("Error: white team already taken");
         }
         gameDAO.updateGame(
             new GameData(
@@ -71,13 +71,13 @@ public class GameService {
       }
       case BLACK -> {
         if (game.blackUsername() != null) {
-          throw new AlreadyTakenException("error: black team already taken");
+          throw new AlreadyTakenException("Error: black team already taken");
         }
         gameDAO.updateGame(
             new GameData(
                 game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
       }
-      default -> throw new InvalidInputException("error: invalid team color");
+      default -> throw new InvalidInputException("Error: invalid team color");
     }
   }
 }

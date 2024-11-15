@@ -39,7 +39,7 @@ public class SQLGameDAO implements GameDAO {
         }
       }
     } catch (SQLException ex) {
-      throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
     }
   }
 
@@ -61,7 +61,7 @@ public class SQLGameDAO implements GameDAO {
         }
       }
     } catch (SQLException ex) {
-      throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
     }
 
     return gamesList;
@@ -93,14 +93,14 @@ public class SQLGameDAO implements GameDAO {
 
     } catch (SQLException ex) {
       throw new DataAccessException(
-          String.format("error: could not update database: %s", ex.getMessage()));
+          String.format("Error: could not update database: %s", ex.getMessage()));
     }
   }
 
   @Override
   public void updateGame(GameData game) throws DataAccessException {
     if (getGame(game.gameID()) == null) {
-      throw new DataAccessException("error: specified game does not exist");
+      throw new DataAccessException("Error: specified game does not exist");
     }
 
     String statement =
@@ -118,7 +118,7 @@ public class SQLGameDAO implements GameDAO {
       ps.executeUpdate();
 
     } catch (SQLException ex) {
-      throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
     }
   }
 
@@ -133,7 +133,7 @@ public class SQLGameDAO implements GameDAO {
 
     } catch (SQLException ex) {
       throw new DataAccessException(
-          String.format("error: could not update database: %s", ex.getMessage()));
+          String.format("Error: could not update database: %s", ex.getMessage()));
     }
   }
 

@@ -38,11 +38,11 @@ public class UserService {
         || password.isBlank()
         || email == null
         || email.isBlank()) {
-      throw new InvalidInputException("error: username, password, and email must all be filled");
+      throw new InvalidInputException("Error: username, password, and email must all be filled");
     }
 
     if (userDAO.getUser(username) != null) {
-      throw new AlreadyTakenException("error: username already taken");
+      throw new AlreadyTakenException("Error: username already taken");
     }
 
     String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -60,17 +60,17 @@ public class UserService {
     String password = loginRequest.password();
 
     if (username == null || username.isBlank() || password == null || password.isBlank()) {
-      throw new InvalidInputException("error: username and password must be filled");
+      throw new InvalidInputException("Error: username and password must be filled");
     }
 
     UserData user = userDAO.getUser(username);
 
     if (user == null) {
-      throw new UnauthorizedUserException("error: user has not registered an account yet");
+      throw new UnauthorizedUserException("Error: user has not registered an account yet");
     }
 
     if (!BCrypt.checkpw(password, user.password())) {
-      throw new UnauthorizedUserException("error: invalid password");
+      throw new UnauthorizedUserException("Error: invalid password");
     }
 
     String authToken = generateAuthToken();

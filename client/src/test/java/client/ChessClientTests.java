@@ -62,7 +62,7 @@ public class ChessClientTests {
         String.format("register %s %s", newUser.username(), newUser.password());
     String registrationMessage = chessClient.eval(registrationInfo);
 
-    assertEquals("error: username, password, and email must all be filled", registrationMessage);
+    assertEquals("Error: username, password, and email must all be filled", registrationMessage);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class ChessClientTests {
             "register %s %s %s", existingUser.username(), newUser.password(), newUser.email());
     String registrationMessage = chessClient.eval(registrationInfo);
 
-    assertEquals("error: username already taken", registrationMessage);
+    assertEquals("Error: username already taken", registrationMessage);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ChessClientTests {
         String.format("login %s %s", existingUser.username(), existingUser.password());
     String loginMessage = chessClient.eval(loginInfo);
 
-    assertFalse(loginMessage.contains("error"));
+    assertFalse(loginMessage.contains("Error"));
     assertFalse(loginMessage.contains("missing"));
   }
 
@@ -90,7 +90,7 @@ public class ChessClientTests {
     String loginInfo = String.format("login %s %s", newUser.username(), newUser.password());
     String loginMessage = chessClient.eval(loginInfo);
 
-    assertEquals("error: user has not registered an account yet", loginMessage);
+    assertEquals("Error: user has not registered an account yet", loginMessage);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class ChessClientTests {
     String loginInfo = String.format("login %s", newUser.username());
     String loginMessage = chessClient.eval(loginInfo);
 
-    assertEquals("error: username and password must be filled", loginMessage);
+    assertEquals("Error: username and password must be filled", loginMessage);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class ChessClientTests {
     String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
     String loginMessage = chessClient.eval(loginInfo);
 
-    assertEquals("error: invalid password", loginMessage);
+    assertEquals("Error: invalid password", loginMessage);
   }
 
   @Test
@@ -149,7 +149,7 @@ public class ChessClientTests {
   public void loggingOutWithoutBeingLoggedIn() {
     String logoutMessage = chessClient.eval("logout because I'm bored");
 
-    assertEquals("error: cannot log out if not logged in", logoutMessage);
+    assertEquals("Error: cannot log out if not logged in", logoutMessage);
   }
 
   @Test
@@ -172,7 +172,7 @@ public class ChessClientTests {
     chessClient.eval(loginInfo);
     String createGameMessage = chessClient.eval("create");
 
-    assertEquals("error: game name must be filled", createGameMessage);
+    assertEquals("Error: game name must be filled", createGameMessage);
   }
 
   @Test
@@ -181,7 +181,7 @@ public class ChessClientTests {
     String createGameInfo = String.format("create %s", gameName);
     String createGameMessage = chessClient.eval(createGameInfo);
 
-    assertEquals("error: cannot create game if not logged in", createGameMessage);
+    assertEquals("Error: cannot create game if not logged in", createGameMessage);
   }
 
   @Test
@@ -202,13 +202,13 @@ public class ChessClientTests {
 
     String listGamesMessage = chessClient.eval("list");
 
-    assertFalse(listGamesMessage.contains("error"));
+    assertFalse(listGamesMessage.contains("Error"));
     assertFalse(listGamesMessage.contains("create <GAME NAME>: create a new game"));
   }
 
   @Test
   public void listingGamesWithoutLoggingIn() {
     String listGamesMessage = chessClient.eval("list");
-    assertEquals("error: cannot list games if not logged in", listGamesMessage);
+    assertEquals("Error: cannot list games if not logged in", listGamesMessage);
   }
 }

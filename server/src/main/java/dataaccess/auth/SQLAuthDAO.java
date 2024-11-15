@@ -31,7 +31,7 @@ public class SQLAuthDAO implements AuthDAO {
         }
       }
     } catch (SQLException ex) {
-      throw new DataAccessException(String.format("error: %s", ex.getMessage()));
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
     }
   }
 
@@ -49,7 +49,7 @@ public class SQLAuthDAO implements AuthDAO {
 
     } catch (SQLException ex) {
       throw new DataAccessException(
-          String.format("error: could not update database: %s", ex.getMessage()));
+          String.format("Error: could not update database: %s", ex.getMessage()));
     }
   }
 
@@ -66,7 +66,7 @@ public class SQLAuthDAO implements AuthDAO {
 
     } catch (SQLException ex) {
       throw new DataAccessException(
-          String.format("error: could not update database: %s", ex.getMessage()));
+          String.format("Error: could not update database: %s", ex.getMessage()));
     }
   }
 
@@ -81,7 +81,7 @@ public class SQLAuthDAO implements AuthDAO {
 
     } catch (SQLException ex) {
       throw new DataAccessException(
-          String.format("error: could not update database: %s", ex.getMessage()));
+          String.format("Error: could not update database: %s", ex.getMessage()));
     }
   }
 

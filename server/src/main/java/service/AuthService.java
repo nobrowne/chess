@@ -14,7 +14,7 @@ public class AuthService {
   public void validateAuthToken(String authToken)
       throws DataAccessException, UnauthorizedUserException {
     if (authDAO.getAuth(authToken) == null) {
-      throw new UnauthorizedUserException("error: unauthorized user");
+      throw new UnauthorizedUserException("Error: unauthorized user");
     }
   }
 }

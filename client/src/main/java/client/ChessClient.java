@@ -44,7 +44,7 @@ public class ChessClient {
 
   public String register(String... params) throws ResponseException {
     if (params.length < 3) {
-      throw new ResponseException(400, "error: username, password, and email must all be filled");
+      throw new ResponseException(400, "Error: username, password, and email must all be filled");
     }
 
     String username = params[0];
@@ -60,7 +60,7 @@ public class ChessClient {
 
   public String login(String... params) throws ResponseException {
     if (params.length < 2) {
-      throw new ResponseException(400, "error: username and password must be filled");
+      throw new ResponseException(400, "Error: username and password must be filled");
     }
 
     String username = params[0];
@@ -76,7 +76,7 @@ public class ChessClient {
 
   public String logout() throws ResponseException {
     if (state != State.SIGNEDIN) {
-      throw new ResponseException(400, "error: cannot log out if not logged in");
+      throw new ResponseException(400, "Error: cannot log out if not logged in");
     }
 
     server.logout(authToken);
@@ -87,10 +87,10 @@ public class ChessClient {
 
   public String createGame(String... params) throws ResponseException {
     if (state != State.SIGNEDIN) {
-      throw new ResponseException(400, "error: cannot create game if not logged in");
+      throw new ResponseException(400, "Error: cannot create game if not logged in");
     }
     if (params.length < 1) {
-      throw new ResponseException(400, "error: game name must be filled");
+      throw new ResponseException(400, "Error: game name must be filled");
     }
 
     String gameName = String.join(" ", params);
@@ -102,7 +102,7 @@ public class ChessClient {
 
   public String listGames() throws ResponseException {
     if (state != State.SIGNEDIN) {
-      throw new ResponseException(400, "error: cannot list games if not logged in");
+      throw new ResponseException(400, "Error: cannot list games if not logged in");
     }
 
     ListGamesResult result = server.listGames(authToken);
