@@ -9,14 +9,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import model.ExceptionDTO;
-import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
+import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
 
@@ -61,11 +60,8 @@ public class ServerFacade {
     this.makeRequest("DELETE", "/session", null, null, authToken);
   }
 
-  public ArrayList<GameData> listGames(String authToken) throws ResponseException {
-    record listGamesResponse(ArrayList<GameData> games) {}
-
-    var response = this.makeRequest("GET", "/game", null, listGamesResponse.class, authToken);
-    return response.games;
+  public ListGamesResult listGames(String authToken) throws ResponseException {
+    return this.makeRequest("GET", "/game", null, ListGamesResult.class, authToken);
   }
 
   public CreateGameResult createGame(CreateGameRequest createGameRequest, String authToken)

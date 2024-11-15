@@ -3,6 +3,7 @@ package client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import exception.ResponseException;
+import java.util.ArrayList;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -181,5 +182,33 @@ public class ChessClientTests {
     String createGameMessage = chessClient.eval(createGameInfo);
 
     assertEquals("error: cannot create game if not logged in", createGameMessage);
+  }
+
+  @Test
+  public void successfulListGames() throws ResponseException {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    ArrayList<String> gameNames = new ArrayList<>();
+    gameNames.add("game1");
+    gameNames.add("game2");
+    gameNames.add("game3");
+
+    for (String gameName : gameNames) {
+      String createGameInfo = String.format("create %s", gameName);
+      chessClient.eval(createGameInfo);
+    }
+
+    String listGamesMessage = chessClient.eval("list");
+
+    assertFalse(listGamesMessage.contains("error"));
+    assertFalse(listGamesMessage.contains("create <GAME NAME>: create a new game"));
+  }
+
+  @Test
+  public void listingGamesWithoutLoggingIn() {
+    String listGamesMessage = chessClient.eval("list");
+    assertEquals("error: cannot list games if not logged in", listGamesMessage);
   }
 }

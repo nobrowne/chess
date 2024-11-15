@@ -1,10 +1,14 @@
 package client;
 
 import exception.ResponseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import model.GameData;
 import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
 import serverfacade.ServerFacade;
@@ -29,6 +33,7 @@ public class ChessClient {
         case "login" -> login(params);
         case "logout" -> logout();
         case "create" -> createGame(params);
+        case "list" -> listGames();
         case "quit" -> "quit";
         default -> help();
       };
@@ -95,6 +100,16 @@ public class ChessClient {
     return String.format("You have created a new game called %s", gameName);
   }
 
+  public String listGames() throws ResponseException {
+    if (state != State.SIGNEDIN) {
+      throw new ResponseException(400, "error: cannot list games if not logged in");
+    }
+
+    ListGamesResult result = server.listGames(authToken);
+
+    return formatGamesList(result);
+  }
+
   public String help() {
     if (state == State.SIGNEDOUT) {
       return """
@@ -114,5 +129,30 @@ public class ChessClient {
       - quit: shut down the application
       - help: see possible commands
     """;
+  }
+
+  public String formatGamesList(ListGamesResult result) {
+    ArrayList<GameData> games = result.games();
+    games.sort(Comparator.comparing(GameData::gameID));
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Available Games:\n");
+    sb.append(
+        String.format(
+            "%-10s %-20s %-15s %-15s%n", "Game ID", "Game Name", "White Player", "Black Player"));
+    sb.append("=".repeat(60)).append("\n");
+
+    for (GameData gameData : games) {
+      sb.append(
+          String.format(
+              "%-10d %-20s %-15s %-15s%n",
+              gameData.gameID(),
+              gameData.gameName(),
+              gameData.whiteUsername() != null ? gameData.whiteUsername() : "TBD",
+              gameData.blackUsername() != null ? gameData.blackUsername() : "TBD"));
+    }
+
+    return sb.toString();
   }
 }

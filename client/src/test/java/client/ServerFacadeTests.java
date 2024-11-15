@@ -12,6 +12,7 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListGamesResult;
 import result.RegisterResult;
 import server.Server;
 import serverfacade.ServerFacade;
@@ -123,8 +124,8 @@ public class ServerFacadeTests {
       serverFacade.createGame(createGameRequest, existingAuthToken);
     }
 
-    ArrayList<GameData> allGames = serverFacade.listGames(existingAuthToken);
-    assertEquals(gameNames.size(), allGames.size());
+    ListGamesResult allGames = serverFacade.listGames(existingAuthToken);
+    assertEquals(gameNames.size(), allGames.games().size());
   }
 
   @Test
@@ -162,8 +163,8 @@ public class ServerFacadeTests {
     var joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, createGameResult.gameID());
     serverFacade.joinGame(joinGameRequest, existingAuthToken);
 
-    var games = serverFacade.listGames(existingAuthToken);
-    GameData game1 = games.getFirst();
+    var listGamesResult = serverFacade.listGames(existingAuthToken);
+    GameData game1 = listGamesResult.games().getFirst();
 
     assertNotNull(game1.whiteUsername());
   }
