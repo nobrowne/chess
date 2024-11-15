@@ -56,6 +56,9 @@ public class GameService {
     String username = authDAO.getAuth(authToken).username();
 
     ChessGame.TeamColor teamColor = joinGameRequest.playerColor();
+    if (teamColor == null) {
+      throw new InvalidInputException("error: invalid team color");
+    }
 
     switch (teamColor) {
       case WHITE -> {
