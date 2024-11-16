@@ -1,11 +1,13 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.ListGamesResult;
@@ -34,6 +36,7 @@ public class ChessClient {
         case "logout" -> logout();
         case "create" -> createGame(params);
         case "list" -> listGames();
+        case "join" -> joinGame(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -110,6 +113,34 @@ public class ChessClient {
     return formatGamesList(result);
   }
 
+  public String joinGame(String... params) throws ResponseException {
+    if (state != State.SIGNEDIN) {
+      throw new ResponseException(400, "Error: cannot join games if not logged in");
+    }
+    if (params.length < 2) {
+      throw new ResponseException(400, "Error: team color and gameID must be filled");
+    }
+
+    ChessGame.TeamColor teamColor;
+    try {
+      teamColor = ChessGame.TeamColor.valueOf(params[0].toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseException(400, "Error: team color must be 'WHITE' or 'BLACK'");
+    }
+
+    int gameID;
+    try {
+      gameID = Integer.parseInt(params[1]);
+    } catch (NumberFormatException e) {
+      throw new ResponseException(400, "Error: gameID must be a valid integer");
+    }
+
+    JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
+    server.joinGame(request, authToken);
+
+    return String.format("You have joined game %d", gameID);
+  }
+
   public String help() {
     if (state == State.SIGNEDOUT) {
       return """
@@ -123,7 +154,7 @@ public class ChessClient {
     return """
       - create <GAME NAME>: create a new game
       - list: list all games
-      - join <GAME ID> <WHITE|BLACK>: join a game as the white or black team
+      - join <WHITE|BLACK> <GAME ID>: join a game as the white or black team
       - observe: join a game as a non-player observer
       - logout: leave the application
       - quit: shut down the application

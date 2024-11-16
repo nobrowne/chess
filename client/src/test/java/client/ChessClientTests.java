@@ -185,7 +185,7 @@ public class ChessClientTests {
   }
 
   @Test
-  public void successfulListGames() throws ResponseException {
+  public void successfulListGames() {
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
     chessClient.eval(loginInfo);
@@ -210,5 +210,63 @@ public class ChessClientTests {
   public void listingGamesWithoutLoggingIn() {
     String listGamesMessage = chessClient.eval("list");
     assertEquals("Error: cannot list games if not logged in", listGamesMessage);
+  }
+
+  @Test
+  public void successfulJoinGame() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    chessClient.eval(createGameInfo);
+
+    String playerColor = "white";
+    int gameID = 1;
+    String joinGameMessage = chessClient.eval("join" + " " + playerColor + " " + gameID);
+
+    assertEquals("You have joined game " + gameID, joinGameMessage);
+  }
+
+  @Test
+  public void joiningGameWithoutLoggingIn() {
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    chessClient.eval(createGameInfo);
+
+    String joinGameMessage = chessClient.eval("join white 1");
+
+    assertEquals("Error: cannot join games if not logged in", joinGameMessage);
+  }
+
+  @Test
+  public void joiningGameWithMissingInfo() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    chessClient.eval(createGameInfo);
+
+    String joinGameMessage = chessClient.eval("join 1");
+
+    assertEquals("Error: team color and gameID must be filled", joinGameMessage);
+  }
+
+  @Test
+  public void joiningGameWithInvalidTeamColor() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    chessClient.eval(createGameInfo);
+
+    String joinGameMessage = chessClient.eval("join green 1");
+
+    assertEquals("Error: team color must be 'WHITE' or 'BLACK'", joinGameMessage);
   }
 }
