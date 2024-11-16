@@ -119,6 +119,7 @@ public class ChessClient {
     if (params.length < 2) {
       throw new ResponseException(400, "Error: team color and gameID must be filled");
     }
+    // TODO: add check to see if game exists to both join and observe
 
     ChessGame.TeamColor teamColor;
     try {
