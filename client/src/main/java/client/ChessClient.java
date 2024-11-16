@@ -2,9 +2,7 @@ package client;
 
 import chess.ChessGame;
 import exception.ResponseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -37,6 +35,7 @@ public class ChessClient {
         case "create" -> createGame(params);
         case "list" -> listGames();
         case "join" -> joinGame(params);
+        case "observe" -> observeGame(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -128,7 +127,7 @@ public class ChessClient {
       throw new ResponseException(400, "Error: team color must be 'WHITE' or 'BLACK'");
     }
 
-    int gameID;
+    int gameID; // TODO: make a mapping between real IDs and client-friendly IDs
     try {
       gameID = Integer.parseInt(params[1]);
     } catch (NumberFormatException e) {
@@ -139,6 +138,19 @@ public class ChessClient {
     server.joinGame(request, authToken);
 
     return String.format("You have joined game %d", gameID);
+  }
+
+  public String observeGame(String... params) throws ResponseException {
+    if (state != State.SIGNEDIN) {
+      throw new ResponseException(400, "Error: cannot observe games if not logged in");
+    }
+    if (params.length < 1) {
+      throw new ResponseException(400, "Error: gameID must be filled");
+    }
+
+    int gameID = Integer.parseInt(params[0]);
+
+    return String.format("You have chosen to observe game %d", gameID);
   }
 
   public String help() {
@@ -178,7 +190,7 @@ public class ChessClient {
       sb.append(
           String.format(
               "%-10d %-20s %-15s %-15s%n",
-              gameData.gameID(),
+              gameData.gameID(), // TODO: change it to the client-friendly ID
               gameData.gameName(),
               gameData.whiteUsername() != null ? gameData.whiteUsername() : "TBD",
               gameData.blackUsername() != null ? gameData.blackUsername() : "TBD"));
