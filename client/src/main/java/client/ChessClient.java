@@ -119,7 +119,6 @@ public class ChessClient {
     if (params.length < 2) {
       throw new ResponseException(400, "Error: team color and gameID must be filled");
     }
-    // TODO: add check to see if game exists to both join and observe
 
     ChessGame.TeamColor teamColor;
     try {
@@ -133,6 +132,10 @@ public class ChessClient {
       gameID = Integer.parseInt(params[1]);
     } catch (NumberFormatException e) {
       throw new ResponseException(400, "Error: gameID must be a valid integer");
+    }
+
+    if (!isValidGameID(gameID)) {
+      throw new ResponseException(400, "Error: invalid gameID");
     }
 
     JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
@@ -150,6 +153,8 @@ public class ChessClient {
     }
 
     int gameID = Integer.parseInt(params[0]);
+
+    GameData game = getGame(gameID);
 
     return String.format("You have chosen to observe game %d", gameID);
   }
@@ -173,6 +178,27 @@ public class ChessClient {
       - quit: shut down the application
       - help: see possible commands
     """;
+  }
+
+  public GameData getGame(int gameID) throws ResponseException {
+    ListGamesResult result = server.listGames(authToken);
+
+    for (GameData game : result.games()) {
+      if (game.gameID() == gameID) {
+        return game;
+      }
+    }
+
+    throw new ResponseException(400, "Error: invalid gameID");
+  }
+
+  public boolean isValidGameID(int gameID) {
+    try {
+      getGame(gameID);
+      return true;
+    } catch (ResponseException ex) {
+      return false;
+    }
   }
 
   public String formatGamesList(ListGamesResult result) {
