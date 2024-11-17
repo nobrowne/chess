@@ -15,6 +15,8 @@ import serverfacade.ServerFacade;
 
 public class ChessClient {
   private final ServerFacade server;
+  private final Map<Integer, Integer> externalToInternalGameIDs = new HashMap<>();
+  private final Map<Integer, Integer> internalToExternalGameIDs = new HashMap<>();
   private State state = State.SIGNEDOUT;
   private String authToken;
 
@@ -99,6 +101,9 @@ public class ChessClient {
     CreateGameRequest request = new CreateGameRequest(gameName);
     server.createGame(request, authToken);
 
+    ListGamesResult listGamesResult = server.listGames(authToken);
+    updateGameIdMappings(listGamesResult);
+
     return String.format("You have created a new game called %s", gameName);
   }
 
@@ -108,6 +113,7 @@ public class ChessClient {
     }
 
     ListGamesResult result = server.listGames(authToken);
+    updateGameIdMappings(result);
 
     return formatGamesList(result);
   }
@@ -127,21 +133,22 @@ public class ChessClient {
       throw new ResponseException(400, "Error: team color must be 'WHITE' or 'BLACK'");
     }
 
-    int gameID; // TODO: make a mapping between real IDs and client-friendly IDs
+    int externalGameID;
     try {
-      gameID = Integer.parseInt(params[1]);
+      externalGameID = Integer.parseInt(params[1]);
     } catch (NumberFormatException e) {
       throw new ResponseException(400, "Error: gameID must be a valid integer");
     }
 
-    if (!isValidGameID(gameID)) {
+    int internalGameID = getInternalGameID(externalGameID);
+    if (isNotValidGameID(internalGameID)) {
       throw new ResponseException(400, "Error: invalid gameID");
     }
 
-    JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
+    JoinGameRequest request = new JoinGameRequest(teamColor, internalGameID);
     server.joinGame(request, authToken);
 
-    return String.format("You have joined game %d", gameID);
+    return String.format("You have joined game %d", externalGameID);
   }
 
   public String observeGame(String... params) throws ResponseException {
@@ -152,11 +159,21 @@ public class ChessClient {
       throw new ResponseException(400, "Error: gameID must be filled");
     }
 
-    int gameID = Integer.parseInt(params[0]);
+    int externalGameID;
+    try {
+      externalGameID = Integer.parseInt(params[1]);
+    } catch (NumberFormatException e) {
+      throw new ResponseException(400, "Error: gameID must be a valid integer");
+    }
 
-    GameData game = getGame(gameID);
+    int internalGameID = getInternalGameID(externalGameID);
+    if (isNotValidGameID(internalGameID)) {
+      throw new ResponseException(400, "Error: invalid gameID");
+    }
 
-    return String.format("You have chosen to observe game %d", gameID);
+    GameData game = getGame(internalGameID);
+
+    return String.format("You have chosen to observe game %d", externalGameID);
   }
 
   public String help() {
@@ -180,6 +197,27 @@ public class ChessClient {
     """;
   }
 
+  public void updateGameIdMappings(ListGamesResult listGamesResult) {
+    ArrayList<GameData> games = listGamesResult.games();
+    Collections.shuffle(games);
+
+    for (int i = 0; i < games.size(); i++) {
+      int internalGameID = games.get(i).gameID();
+      int externalGameID = i + 1;
+
+      internalToExternalGameIDs.put(internalGameID, externalGameID);
+      externalToInternalGameIDs.put(externalGameID, internalGameID);
+    }
+  }
+
+  public int getInternalGameID(int externalID) {
+    return externalToInternalGameIDs.get(externalID);
+  }
+
+  public int getExternalGameID(int internalID) {
+    return internalToExternalGameIDs.get(internalID);
+  }
+
   public GameData getGame(int gameID) throws ResponseException {
     ListGamesResult result = server.listGames(authToken);
 
@@ -192,18 +230,17 @@ public class ChessClient {
     throw new ResponseException(400, "Error: invalid gameID");
   }
 
-  public boolean isValidGameID(int gameID) {
+  public boolean isNotValidGameID(int gameID) {
     try {
       getGame(gameID);
-      return true;
-    } catch (ResponseException ex) {
       return false;
+    } catch (ResponseException ex) {
+      return true;
     }
   }
 
   public String formatGamesList(ListGamesResult result) {
     ArrayList<GameData> games = result.games();
-    games.sort(Comparator.comparing(GameData::gameID));
 
     StringBuilder sb = new StringBuilder();
 
@@ -217,7 +254,7 @@ public class ChessClient {
       sb.append(
           String.format(
               "%-10d %-20s %-15s %-15s%n",
-              gameData.gameID(), // TODO: change it to the client-friendly ID
+              getExternalGameID(gameData.gameID()),
               gameData.gameName(),
               gameData.whiteUsername() != null ? gameData.whiteUsername() : "TBD",
               gameData.blackUsername() != null ? gameData.blackUsername() : "TBD"));
