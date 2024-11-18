@@ -40,7 +40,9 @@ public class ChessClientTests {
   @BeforeEach
   public void setUp() throws ResponseException {
     serverFacade.clearApplication();
+  }
 
+  public void register() {
     chessClient.eval(
         String.format(
             "register %s %s %s",
@@ -69,7 +71,11 @@ public class ChessClientTests {
         String.format("register %s %s %s", newUser.username(), newUser.password(), newUser.email());
     String registrationMessage = chessClient.eval(registrationInfo);
 
-    assertEquals("You are registered as " + newUser.username(), registrationMessage);
+    assertEquals(
+        "You are registered as " + newUser.username() + "\n" + chessClient.help(),
+        registrationMessage);
+
+    logout();
   }
 
   @Test
@@ -83,16 +89,22 @@ public class ChessClientTests {
 
   @Test
   public void registeringWithTakenUsername() {
+    register();
+
     String registrationInfo =
         String.format(
             "register %s %s %s", existingUser.username(), newUser.password(), newUser.email());
     String registrationMessage = chessClient.eval(registrationInfo);
 
     assertEquals("Error: username already taken", registrationMessage);
+
+    logout();
   }
 
   @Test
   public void successfulLogin() throws ResponseException {
+    register();
+
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
     String loginMessage = chessClient.eval(loginInfo);
@@ -113,6 +125,9 @@ public class ChessClientTests {
 
   @Test
   public void loggingInWithMissingInfo() {
+    register();
+    logout();
+
     String loginInfo = String.format("login %s", newUser.username());
     String loginMessage = chessClient.eval(loginInfo);
 
@@ -121,10 +136,14 @@ public class ChessClientTests {
 
   @Test
   public void loggingInWithIncorrectPassword() {
+    register();
+
     String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
     String loginMessage = chessClient.eval(loginInfo);
 
     assertEquals("Error: invalid password", loginMessage);
+
+    logout();
   }
 
   @Test
@@ -172,6 +191,7 @@ public class ChessClientTests {
 
   @Test
   public void successfulCreateGame() {
+    register();
     login();
 
     String gameName = "what a fun game";
@@ -185,6 +205,7 @@ public class ChessClientTests {
 
   @Test
   public void creatingGameWithNoName() {
+    register();
     login();
 
     String createGameMessage = chessClient.eval("create");
@@ -205,6 +226,7 @@ public class ChessClientTests {
 
   @Test
   public void successfulListGames() {
+    register();
     login();
 
     ArrayList<String> gameNames = new ArrayList<>();
@@ -233,6 +255,7 @@ public class ChessClientTests {
 
   @Test
   public void successfulJoinGame() {
+    register();
     login();
     createTestGame();
 
@@ -247,6 +270,7 @@ public class ChessClientTests {
 
   @Test
   public void joiningGameWithoutLoggingIn() {
+    register();
     login();
     createTestGame();
     logout();
@@ -258,6 +282,7 @@ public class ChessClientTests {
 
   @Test
   public void joiningGameWithMissingInfo() {
+    register();
     login();
     createTestGame();
 
@@ -270,6 +295,7 @@ public class ChessClientTests {
 
   @Test
   public void joiningGameWithInvalidTeamColor() {
+    register();
     login();
     createTestGame();
 
@@ -282,6 +308,7 @@ public class ChessClientTests {
 
   @Test
   public void joiningGameWithInvalidGameID() {
+    register();
     login();
     createTestGame();
 
@@ -294,6 +321,7 @@ public class ChessClientTests {
 
   @Test
   public void successfulObserveGame() throws ResponseException {
+    register();
     login();
     createTestGame();
 
@@ -308,6 +336,7 @@ public class ChessClientTests {
 
   @Test
   public void observingGameWithInvalidGameID() {
+    register();
     login();
     createTestGame();
 

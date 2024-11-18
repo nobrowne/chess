@@ -57,9 +57,10 @@ public class ChessClient {
     RegisterRequest request = new RegisterRequest(username, password, email);
     RegisterResult result = server.register(request);
 
+    state = State.SIGNEDIN;
     authToken = result.authToken();
 
-    return String.format("You are registered as %s", username);
+    return String.format("You are registered as %s%n", username) + help();
   }
 
   public String login(String... params) throws ResponseException {
