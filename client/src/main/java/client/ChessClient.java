@@ -161,7 +161,7 @@ public class ChessClient {
 
     int externalGameID;
     try {
-      externalGameID = Integer.parseInt(params[1]);
+      externalGameID = Integer.parseInt(params[0]);
     } catch (NumberFormatException e) {
       throw new ResponseException(400, "Error: gameID must be a valid integer");
     }
@@ -210,8 +210,12 @@ public class ChessClient {
     }
   }
 
-  public int getInternalGameID(int externalID) {
-    return externalToInternalGameIDs.get(externalID);
+  public int getInternalGameID(int externalID) throws ResponseException {
+    try {
+      return externalToInternalGameIDs.get(externalID);
+    } catch (NullPointerException ex) {
+      throw new ResponseException(400, "Error: invalid gameID");
+    }
   }
 
   public int getExternalGameID(int internalID) {
