@@ -176,7 +176,7 @@ public class ChessClient {
     GameData gameData = getGame(internalGameID);
     formatBoards(gameData);
 
-    return String.format("You have chosen to observe game %d%n", externalGameID);
+    return String.format("You have chosen to observe game %d", externalGameID);
   }
 
   public String help() {
