@@ -150,6 +150,9 @@ public class ChessClient {
     JoinGameRequest request = new JoinGameRequest(teamColor, internalGameID);
     server.joinGame(request, authToken);
 
+    GameData gameData = getGame(internalGameID);
+    formatBoards(gameData);
+
     return String.format("You have joined game %d", externalGameID);
   }
 
