@@ -41,9 +41,9 @@ public class DataAccessTests {
   @BeforeAll
   public static void init() throws DataAccessException {
     // Initialize DAO objects
-    authDAO = new SQLAuthDAO(); // new SQLAuthDAO(); new MemoryAuthDAO();
-    gameDAO = new SQLGameDAO(); // new SQLGameDAO(); new MemoryGameDAO();
-    userDAO = new SQLUserDAO(); // new SQLUserDAO(); new MemoryUserDAO();
+    authDAO = new SQLAuthDAO();
+    gameDAO = new SQLGameDAO();
+    userDAO = new SQLUserDAO();
 
     // Initialize the static fields for users
     user1 = new UserData("u1", "p1", "e1");
