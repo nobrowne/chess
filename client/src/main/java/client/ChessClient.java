@@ -12,6 +12,7 @@ import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
 import serverfacade.ServerFacade;
+import ui.BoardDrawer;
 
 public class ChessClient {
   private final ServerFacade server;
@@ -172,9 +173,10 @@ public class ChessClient {
       throw new ResponseException(400, "Error: invalid gameID");
     }
 
-    GameData game = getGame(internalGameID);
+    GameData gameData = getGame(internalGameID);
+    formatBoards(gameData);
 
-    return String.format("You have chosen to observe game %d", externalGameID);
+    return String.format("You have chosen to observe game %d%n", externalGameID);
   }
 
   public String help() {
@@ -266,5 +268,12 @@ public class ChessClient {
     }
 
     return sb.toString();
+  }
+
+  public void formatBoards(GameData gameData) {
+    ChessGame game = gameData.game();
+    BoardDrawer.drawBoard(game, true);
+    BoardDrawer.drawDividerLine();
+    BoardDrawer.drawBoard(game, false);
   }
 }
