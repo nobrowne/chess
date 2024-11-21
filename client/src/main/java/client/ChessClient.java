@@ -276,7 +276,7 @@ public class ChessClient {
   public void formatBoards(GameData gameData) {
     ChessGame game = gameData.game();
     BoardDrawer.drawBoard(game, true);
-    BoardDrawer.drawDividerLine();
-    BoardDrawer.drawBoard(game, false);
+    //    BoardDrawer.drawDividerLine();
+    //    BoardDrawer.drawBoard(game, false);
   }
 }

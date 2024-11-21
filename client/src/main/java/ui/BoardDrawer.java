@@ -12,27 +12,31 @@ import java.nio.charset.StandardCharsets;
 public class BoardDrawer {
   private static final PrintStream OUT = new PrintStream(System.out, true, StandardCharsets.UTF_8);
   private static final String EMPTY_SQUARE = "   ";
-  private static final String BORDER_BG_COLOR = SET_BG_COLOR_MAGENTA;
+  private static final String BORDER_BG_COLOR = SET_BG_COLOR_BLUE;
+  private static final String EMPTY_BORDER_SQUARE = BORDER_BG_COLOR + EMPTY_SQUARE + RESET_BG_COLOR;
   private static final String BORDER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
 
-  public static void drawBoard(ChessGame game, boolean isBlackPerspective) {
+  // TODO: make current spot yellow, available spots orange, and kill spots red
+
+  public static void drawBoard(ChessGame game, boolean isWhitePerspective) {
     ChessBoard board = game.getBoard();
 
-    drawColLetters(isBlackPerspective);
+    drawHorizontalBorder(isWhitePerspective);
 
-    for (int row = 0; row < 8; row++) {
-      int rowFromPerspective = isBlackPerspective ? row + 1 : 8 - row;
-      drawRow(board, row, rowFromPerspective, isBlackPerspective);
+    for (int arrayRow = 0; arrayRow < 8; arrayRow++) {
+      int displayRow = isWhitePerspective ? 8 - arrayRow : arrayRow + 1;
+      //      int displayRow = isWhitePerspective ? 8 - arrayRow : arrayRow + 1;
+      drawRow(board, arrayRow, displayRow, isWhitePerspective);
     }
 
-    drawColLetters(isBlackPerspective);
+    drawHorizontalBorder(isWhitePerspective);
   }
 
-  private static void drawColLetters(boolean isBlackPerspective) {
-    OUT.print(BORDER_BG_COLOR + EMPTY_SQUARE + RESET_BG_COLOR);
+  private static void drawHorizontalBorder(boolean isWhitePerspective) {
+    OUT.print(EMPTY_BORDER_SQUARE);
 
     for (int col = 0; col < 8; col++) {
-      char colLetter = (char) ('a' + (isBlackPerspective ? 7 - col : col));
+      char colLetter = (char) ('a' + (isWhitePerspective ? col : 7 - col));
       OUT.print(
           BORDER_BG_COLOR
               + BORDER_TEXT_COLOR
@@ -43,44 +47,46 @@ public class BoardDrawer {
               + RESET_TEXT_COLOR);
     }
 
-    OUT.print(BORDER_BG_COLOR + EMPTY_SQUARE + RESET_BG_COLOR);
+    OUT.print(EMPTY_BORDER_SQUARE);
 
     OUT.println();
   }
 
-  private static void drawRowNumber(int rowNumber) {
+  private static void drawRowNumber(int displayRow) {
     OUT.print(
         BORDER_BG_COLOR
             + BORDER_TEXT_COLOR
             + " "
-            + rowNumber
+            + displayRow
             + " "
             + RESET_BG_COLOR
             + RESET_TEXT_COLOR);
   }
 
   private static void drawRow(
-      ChessBoard board, int row, int rowNumber, boolean isBlackPerspective) {
+      ChessBoard board, int arrayRow, int displayRow, boolean isWhitePerspective) {
 
-    drawRowNumber(rowNumber);
+    drawRowNumber(displayRow);
 
-    for (int col = 0; col < 8; col++) {
-      drawSquare(board, row, col, isBlackPerspective);
+    for (int arrayCol = 0; arrayCol < 8; arrayCol++) {
+      drawSquare(board, arrayRow, arrayCol, isWhitePerspective);
     }
 
-    drawRowNumber(rowNumber);
+    drawRowNumber(displayRow);
 
     OUT.println();
   }
 
-  private static void drawSquare(ChessBoard board, int row, int col, boolean isBlackPerspective) {
-    int colFromPerspective = isBlackPerspective ? 7 - col : col;
-    int rowFromPerspective = isBlackPerspective ? 7 - row : row;
-    String squareColor = getSquareColor(colFromPerspective, rowFromPerspective);
+  private static void drawSquare(
+      ChessBoard board, int arrayRow, int arrayCol, boolean isWhitePerspective) {
+    int displayRow = isWhitePerspective ? 8 - arrayRow : arrayRow + 1;
+    int displayCol = isWhitePerspective ? arrayCol + 1 : 8 - arrayCol;
 
-    ChessPiece piece =
-        board.getPiece(new ChessPosition(rowFromPerspective + 1, colFromPerspective + 1));
+    String squareColor = getSquareColor(arrayRow, arrayCol);
+
+    ChessPiece piece = board.getPiece(new ChessPosition(displayRow, displayCol));
     String pieceSymbol = getPieceSymbol(piece);
+
     OUT.print(squareColor + pieceSymbol + RESET_BG_COLOR);
   }
 
@@ -88,8 +94,8 @@ public class BoardDrawer {
     OUT.println();
   }
 
-  private static String getSquareColor(int col, int row) {
-    return (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+  private static String getSquareColor(int row, int col) {
+    return (row + col) % 2 == 0 ? SET_BG_COLOR_GRAY : SET_BG_COLOR_DARK_BLUE;
   }
 
   private static String getPieceSymbol(ChessPiece piece) {
@@ -99,9 +105,9 @@ public class BoardDrawer {
 
     String colorCode =
         piece.getTeamColor() == ChessGame.TeamColor.BLACK
-            ? SET_TEXT_COLOR_WHITE
-            : SET_TEXT_COLOR_BLACK;
+            ? SET_TEXT_COLOR_PURPLE
+            : SET_TEXT_COLOR_GREEN;
 
-    return colorCode + " " + piece.toString().toUpperCase() + " ";
+    return SET_TEXT_BOLD + colorCode + " " + piece.toString().toUpperCase() + " ";
   }
 }
