@@ -25,7 +25,6 @@ public class BoardDrawer {
 
     for (int arrayRow = 0; arrayRow < 8; arrayRow++) {
       int displayRow = isWhitePerspective ? 8 - arrayRow : arrayRow + 1;
-      //      int displayRow = isWhitePerspective ? 8 - arrayRow : arrayRow + 1;
       drawRow(board, arrayRow, displayRow, isWhitePerspective);
     }
 
@@ -94,8 +93,8 @@ public class BoardDrawer {
     OUT.println();
   }
 
-  private static String getSquareColor(int row, int col) {
-    return (row + col) % 2 == 0 ? SET_BG_COLOR_GRAY : SET_BG_COLOR_DARK_BLUE;
+  private static String getSquareColor(int arrayRow, int arrayCol) {
+    return (arrayRow + arrayCol) % 2 == 0 ? SET_BG_COLOR_GRAY : SET_BG_COLOR_DARK_BLUE;
   }
 
   private static String getPieceSymbol(ChessPiece piece) {
@@ -104,9 +103,9 @@ public class BoardDrawer {
     }
 
     String colorCode =
-        piece.getTeamColor() == ChessGame.TeamColor.BLACK
-            ? SET_TEXT_COLOR_PURPLE
-            : SET_TEXT_COLOR_GREEN;
+        piece.getTeamColor() == ChessGame.TeamColor.WHITE
+            ? SET_TEXT_COLOR_GREEN
+            : SET_TEXT_COLOR_PURPLE;
 
     return SET_TEXT_BOLD + colorCode + " " + piece.toString().toUpperCase() + " ";
   }
