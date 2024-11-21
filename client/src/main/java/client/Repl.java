@@ -10,17 +10,16 @@ public class Repl {
   }
 
   public void run() {
-    System.out.println("Welcome to Ghetto Chess");
-    System.out.print(client.help());
+    System.out.println("Welcome to Ghetto Chess. Type 'help' to get started");
 
     Scanner scanner = new Scanner(System.in);
     String result = "";
     while (!result.equals("quit")) {
       printPrompt();
-      String line = scanner.nextLine();
+      String input = scanner.nextLine();
 
       try {
-        result = client.eval(line);
+        result = client.eval(input);
         System.out.print(result);
       } catch (Throwable ex) {
         String message = ex.toString();
@@ -31,6 +30,6 @@ public class Repl {
   }
 
   private void printPrompt() {
-    System.out.print("\n\n" + ">>> ");
+    System.out.print("\n" + ">>> ");
   }
 }
