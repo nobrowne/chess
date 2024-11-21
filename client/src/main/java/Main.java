@@ -1,4 +1,3 @@
-import chess.*;
 import client.Repl;
 
 public class Main {

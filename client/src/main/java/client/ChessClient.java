@@ -39,7 +39,7 @@ public class ChessClient {
         case "list" -> listGames();
         case "join" -> joinGame(params);
         case "observe" -> observeGame(params);
-        case "quit" -> "quit";
+        case "quit" -> quit();
         default -> help();
       };
     } catch (ResponseException ex) {
@@ -198,9 +198,15 @@ public class ChessClient {
       - join <WHITE|BLACK> <GAME ID>: join a game as the white or black team
       - observe: join a game as a non-player observer
       - logout: leave the application
-      - quit: shut down the application
       - help: see possible commands
     """;
+  }
+
+  public String quit() throws ResponseException {
+    if (state == State.SIGNEDIN) {
+      throw new ResponseException(400, "Error: cannot quit unless logged out");
+    }
+    return "quit";
   }
 
   public void updateGameIdMappings(ListGamesResult listGamesResult) {
