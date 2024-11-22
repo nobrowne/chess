@@ -2,6 +2,7 @@ package client;
 
 import exception.ResponseException;
 import java.util.Arrays;
+import request.CreateGameRequest;
 import serverfacade.ServerFacade;
 
 public class PostLoginClient implements ClientInterface {
@@ -22,7 +23,7 @@ public class PostLoginClient implements ClientInterface {
 
       return switch (command) {
         case "logout" -> logout();
-        //        case "create" -> createGame(params);
+        case "create" -> createGame(params);
         //        case "list" -> listGames();
         //        case "join" -> joinGame(params);
         //        case "observe" -> observeGame(params);
@@ -41,6 +42,21 @@ public class PostLoginClient implements ClientInterface {
     chessClient.setCurrentClient(new PreLoginClient(chessClient, serverFacade));
 
     return "You have logged out";
+  }
+
+  public String createGame(String... params) throws ResponseException {
+    if (params.length < 1) {
+      throw new ResponseException(400, "Error: game name must be filled");
+    }
+
+    String gameName = String.join(" ", params);
+    CreateGameRequest request = new CreateGameRequest(gameName);
+    String authToken = chessClient.getAuthToken();
+    serverFacade.createGame(request, authToken);
+
+    chessClient.updateGameIdMappings();
+
+    return String.format("You have created a new game called %s", gameName);
   }
 
   @Override

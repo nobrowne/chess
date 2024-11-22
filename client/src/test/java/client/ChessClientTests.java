@@ -12,6 +12,7 @@ import server.Server;
 import serverfacade.ServerFacade;
 
 public class ChessClientTests {
+  private static String preLoginHelpMessage;
   private static ChessClient chessClient;
   private static ServerFacade serverFacade;
   private static Server server;
@@ -29,6 +30,15 @@ public class ChessClientTests {
 
     newUser = new UserData("user1", "password", "email@email.com");
     existingUser = new UserData("existingUser", "password", "email@email.com");
+
+    preLoginHelpMessage =
+        """
+              Until you log in, here are your options:
+
+              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+              - login <USERNAME> <PASSWORD>: play chess
+              - quit: shut down the application
+              - help: see possible commands""";
   }
 
   @AfterAll
@@ -48,12 +58,6 @@ public class ChessClientTests {
             existingUser.username(), existingUser.password(), existingUser.email()));
   }
 
-  //  public void login() {
-  //    String loginInfo =
-  //        String.format("login %s %s", existingUser.username(), existingUser.password());
-  //    chessClient.eval(loginInfo);
-  //  }
-  //
   public void logout() {
     chessClient.eval("logout");
   }
@@ -102,6 +106,7 @@ public class ChessClientTests {
   @Test
   public void successfulLogin() throws ResponseException {
     register();
+    logout();
 
     String loginInfo =
         String.format("login %s %s", existingUser.username(), existingUser.password());
@@ -147,96 +152,68 @@ public class ChessClientTests {
 
   @Test
   public void successfulLogout() {
-    String loginInfo =
-        String.format("login %s %s", existingUser.username(), existingUser.password());
-    chessClient.eval(loginInfo);
+    register();
 
-    logout();
+    String logoutMessage = chessClient.eval("logout because I'm bored");
 
-    assertEquals(
-        chessClient.eval("help"),
-        """
-              Until you log in, here are your options:
-
-              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-              - login <USERNAME> <PASSWORD>: play chess
-              - quit: shut down the application
-              - help: see possible commands""");
+    assertEquals("You have logged out", logoutMessage);
   }
 
   @Test
   public void successfulLogoutExtraParameters() {
-    String loginInfo =
-        String.format("login %s %s", existingUser.username(), existingUser.password());
-    chessClient.eval(loginInfo);
+    register();
 
-    chessClient.eval("logout because I'm bored");
+    String logoutMessage = chessClient.eval("logout because I'm bored");
 
-    assertEquals(
-        """
-                Until you log in, here are your options:
-
-                - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-                - login <USERNAME> <PASSWORD>: play chess
-                - quit: shut down the application
-                - help: see possible commands""",
-        chessClient.eval("help"));
+    assertEquals("You have logged out", logoutMessage);
   }
 
   @Test
   public void loggingOutWithoutBeingLoggedIn() {
+    register();
+    logout();
+
     String logoutMessage = chessClient.eval("logout because I'm bored");
 
-    assertEquals(
-        """
-                Until you log in, here are your options:
-
-                - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-                - login <USERNAME> <PASSWORD>: play chess
-                - quit: shut down the application
-                - help: see possible commands""",
-        logoutMessage);
+    assertEquals(preLoginHelpMessage, logoutMessage);
   }
-  //
-  //  @Test
-  //  public void successfulCreateGame() {
-  //    register();
-  //    login();
-  //
-  //    String gameName = "what a fun game";
-  //    String createGameInfo = String.format("create %s", gameName);
-  //    String createGameMessage = chessClient.eval(createGameInfo);
-  //
-  //    assertEquals("You have created a new game called " + gameName, createGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void creatingGameWithNoName() {
-  //    register();
-  //    login();
-  //
-  //    String createGameMessage = chessClient.eval("create");
-  //
-  //    assertEquals("Error: game name must be filled", createGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void creatingGameWithoutLoggingIn() {
-  //    String gameName = "what a fun game";
-  //    String createGameInfo = String.format("create %s", gameName);
-  //    String createGameMessage = chessClient.eval(createGameInfo);
-  //
-  //    assertEquals("Error: cannot create game if not logged in", createGameMessage);
-  //  }
+
+  @Test
+  public void successfulCreateGame() {
+    register();
+
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    String createGameMessage = chessClient.eval(createGameInfo);
+
+    assertEquals("You have created a new game called " + gameName, createGameMessage);
+
+    logout();
+  }
+
+  @Test
+  public void creatingGameWithNoName() {
+    register();
+
+    String createGameMessage = chessClient.eval("create");
+
+    assertEquals("Error: game name must be filled", createGameMessage);
+
+    logout();
+  }
+
+  @Test
+  public void creatingGameWithoutLoggingIn() {
+    String gameName = "what a fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    String createGameMessage = chessClient.eval(createGameInfo);
+
+    assertEquals(preLoginHelpMessage, createGameMessage);
+  }
   //
   //  @Test
   //  public void successfulListGames() {
   //    register();
-  //    login();
   //
   //    ArrayList<String> gameNames = new ArrayList<>();
   //    gameNames.add("game1");
@@ -265,7 +242,6 @@ public class ChessClientTests {
   //  @Test
   //  public void successfulJoinGame() {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    String playerColor = "white";
@@ -280,7 +256,6 @@ public class ChessClientTests {
   //  @Test
   //  public void joiningGameWithoutLoggingIn() {
   //    register();
-  //    login();
   //    createTestGame();
   //    logout();
   //
@@ -292,7 +267,6 @@ public class ChessClientTests {
   //  @Test
   //  public void joiningGameWithMissingInfo() {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    String joinGameMessage = chessClient.eval("join 1");
@@ -305,7 +279,6 @@ public class ChessClientTests {
   //  @Test
   //  public void joiningGameWithInvalidTeamColor() {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    String joinGameMessage = chessClient.eval("join green 1");
@@ -318,7 +291,6 @@ public class ChessClientTests {
   //  @Test
   //  public void joiningGameWithInvalidGameID() {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    String joinGameMessage = chessClient.eval("join white 7");
@@ -331,7 +303,6 @@ public class ChessClientTests {
   //  @Test
   //  public void successfulObserveGame() throws ResponseException {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    int externalGameID = 1;
@@ -346,7 +317,6 @@ public class ChessClientTests {
   //  @Test
   //  public void observingGameWithInvalidGameID() {
   //    register();
-  //    login();
   //    createTestGame();
   //
   //    int gameID = 7;
