@@ -48,7 +48,7 @@ public class PreLoginClient implements ClientInterface {
     chessClient.setState(State.SIGNEDIN);
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
 
-    return String.format("You are registered as %s%n", username);
+    return String.format("You are registered as %s", username);
   }
 
   @Override

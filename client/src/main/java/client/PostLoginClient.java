@@ -1,5 +1,7 @@
 package client;
 
+import exception.ResponseException;
+import java.util.Arrays;
 import serverfacade.ServerFacade;
 
 public class PostLoginClient implements ClientInterface {
@@ -13,7 +15,32 @@ public class PostLoginClient implements ClientInterface {
 
   @Override
   public String eval(String input) {
-    return "";
+    try {
+      var tokens = input.toLowerCase().split(" ");
+      var command = (tokens.length > 0) ? tokens[0] : "help";
+      var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
+      return switch (command) {
+        case "logout" -> logout();
+        //        case "create" -> createGame(params);
+        //        case "list" -> listGames();
+        //        case "join" -> joinGame(params);
+        //        case "observe" -> observeGame(params);
+        default -> help();
+      };
+    } catch (ResponseException ex) {
+      return ex.getMessage();
+    }
+  }
+
+  public String logout() throws ResponseException {
+    String authToken = chessClient.getAuthToken();
+    serverFacade.logout(authToken);
+
+    chessClient.setState(State.SIGNEDOUT);
+    chessClient.setCurrentClient(new PreLoginClient(chessClient, serverFacade));
+
+    return "You have logged out";
   }
 
   @Override
