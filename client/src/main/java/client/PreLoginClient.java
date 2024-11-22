@@ -27,7 +27,7 @@ public class PreLoginClient implements ClientInterface {
       return switch (command) {
         case "register" -> register(params);
         case "login" -> login(params);
-        case "quit" -> quit();
+        case "quit" -> "quit";
         default -> help();
       };
     } catch (ResponseException ex) {
@@ -67,20 +67,17 @@ public class PreLoginClient implements ClientInterface {
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
     chessClient.setState(State.SIGNEDIN);
 
-    return String.format("You have logged in as %s%n", username);
-  }
-
-  public String quit() {
-    return "quit";
+    return String.format("You have logged in as %s", username);
   }
 
   @Override
   public String help() {
     return """
-            - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-            - login <USERNAME> <PASSWORD>: play chess
-            - quit: shut down the application
-            - help: see possible commands
-          """;
+          Until you log in, here are your options:
+
+          - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+          - login <USERNAME> <PASSWORD>: play chess
+          - quit: shut down the application
+          - help: see possible commands""";
   }
 }

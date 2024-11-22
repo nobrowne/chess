@@ -156,11 +156,12 @@ public class ChessClientTests {
     assertEquals(
         chessClient.eval("help"),
         """
-          - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-          - login <USERNAME> <PASSWORD>: play chess
-          - quit: shut down the application
-          - help: see possible commands
-        """);
+              Until you log in, here are your options:
+
+              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+              - login <USERNAME> <PASSWORD>: play chess
+              - quit: shut down the application
+              - help: see possible commands""");
   }
 
   @Test
@@ -173,11 +174,12 @@ public class ChessClientTests {
 
     assertEquals(
         """
-              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-              - login <USERNAME> <PASSWORD>: play chess
-              - quit: shut down the application
-              - help: see possible commands
-            """,
+                Until you log in, here are your options:
+
+                - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+                - login <USERNAME> <PASSWORD>: play chess
+                - quit: shut down the application
+                - help: see possible commands""",
         chessClient.eval("help"));
   }
 
@@ -187,11 +189,12 @@ public class ChessClientTests {
 
     assertEquals(
         """
-              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-              - login <USERNAME> <PASSWORD>: play chess
-              - quit: shut down the application
-              - help: see possible commands
-            """,
+                Until you log in, here are your options:
+
+                - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+                - login <USERNAME> <PASSWORD>: play chess
+                - quit: shut down the application
+                - help: see possible commands""",
         logoutMessage);
   }
   //

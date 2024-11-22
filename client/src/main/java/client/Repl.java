@@ -20,13 +20,16 @@ public class Repl {
 
       try {
         result = client.eval(input);
-        System.out.print(result);
+        if (result.equals("quit")) {
+          System.out.print("");
+        } else {
+          System.out.println(result);
+        }
       } catch (Throwable ex) {
         String message = ex.toString();
         System.out.print(message);
       }
     }
-    System.out.println();
   }
 
   private void printPrompt() {

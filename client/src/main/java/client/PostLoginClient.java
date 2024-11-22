@@ -46,12 +46,14 @@ public class PostLoginClient implements ClientInterface {
   @Override
   public String help() {
     return """
-          - create <GAME NAME>: create a new game
-          - list: list all games
-          - join <WHITE|BLACK> <GAME ID>: join a game as the white or black team
-          - observe: join a game as a non-player observer
-          - logout: leave the application
-          - help: see possible commands
+        Until you join or observe a game, here are your options:
+
+        - create <GAME NAME>: create a new game
+        - list: list all games
+        - join <WHITE|BLACK> <GAME ID>: join a game as the white or black team
+        - observe: join a game as a non-player observer
+        - logout: leave the application
+        - help: see possible commands
         """;
   }
 }
