@@ -31,7 +31,7 @@ public class PostLoginClient implements ClientInterface {
         case "create" -> createGame(params);
         case "list" -> listGames();
         case "join" -> joinGame(params);
-        //        case "observe" -> observeGame(params);
+        case "observe" -> observeGame(params);
         default -> help();
       };
     } catch (ResponseException ex) {
@@ -93,6 +93,25 @@ public class PostLoginClient implements ClientInterface {
     // formatBoards(gameData);
 
     return String.format("You have joined game %d", externalGameID);
+  }
+
+  public String observeGame(String... params) throws ResponseException {
+    if (params.length < 1) {
+      throw new ResponseException(400, "Error: gameID must be filled");
+    }
+
+    int externalGameID = parseExternalGameID(params[0]);
+    validateInternalGameID(externalGameID);
+    // int internalGameID = validateInternalGameID(externalGameID);
+
+    // We'll see how this changes with websocket. I'm not sure whether this block should be here
+    // GameData gameData = chessClient.getGame(internalGameID);
+    // formatBoards(gameData);
+
+    chessClient.setCurrentClient(new InGameClient(chessClient, serverFacade));
+    chessClient.setState(State.OBSERVING);
+
+    return String.format("You have chosen to observe game %d", externalGameID);
   }
 
   @Override

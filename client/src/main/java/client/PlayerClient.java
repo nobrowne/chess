@@ -33,13 +33,6 @@ public class PlayerClient extends InGameClient {
     return null;
   }
 
-  private String leaveGame() {
-    chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
-    chessClient.setState(State.SIGNEDIN);
-
-    return "You have left the game";
-  }
-
   @Override
   public String help() {
     return """

@@ -271,78 +271,79 @@ public class ChessClientTests {
     leaveGame();
     logout();
   }
-  //
-  //  @Test
-  //  public void joiningGameWithoutLoggingIn() {
-  //    register();
-  //    createTestGame();
-  //    logout();
-  //
-  //    String joinGameMessage = chessClient.eval("join white 1");
-  //
-  //    assertEquals("Error: cannot join games if not logged in", joinGameMessage);
-  //  }
-  //
-  //  @Test
-  //  public void joiningGameWithMissingInfo() {
-  //    register();
-  //    createTestGame();
-  //
-  //    String joinGameMessage = chessClient.eval("join 1");
-  //
-  //    assertEquals("Error: team color and gameID must be filled", joinGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void joiningGameWithInvalidTeamColor() {
-  //    register();
-  //    createTestGame();
-  //
-  //    String joinGameMessage = chessClient.eval("join green 1");
-  //
-  //    assertEquals("Error: team color must be 'WHITE' or 'BLACK'", joinGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void joiningGameWithInvalidGameID() {
-  //    register();
-  //    createTestGame();
-  //
-  //    String joinGameMessage = chessClient.eval("join white 7");
-  //
-  //    assertEquals("Error: invalid gameID", joinGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void successfulObserveGame() throws ResponseException {
-  //    register();
-  //    createTestGame();
-  //
-  //    int externalGameID = 1;
-  //    String observeGameMessage = chessClient.eval(String.format("observe %d", externalGameID));
-  //
-  //    int internalGameID = chessClient.getInternalGameID(externalGameID);
-  //    assertEquals("You have chosen to observe game " + internalGameID, observeGameMessage);
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void observingGameWithInvalidGameID() {
-  //    register();
-  //    createTestGame();
-  //
-  //    int gameID = 7;
-  //    String observeGameMessage = chessClient.eval(String.format("observe %d", gameID));
-  //
-  //    assertEquals("Error: invalid gameID", observeGameMessage);
-  //
-  //    logout();
-  //  }
+
+  @Test
+  public void joiningGameWithoutLoggingIn() {
+    register();
+    createTestGame();
+    logout();
+
+    String joinGameMessage = chessClient.eval("join white 1");
+
+    assertEquals(preLoginHelpMessage, joinGameMessage);
+  }
+
+  @Test
+  public void joiningGameWithMissingInfo() {
+    register();
+    createTestGame();
+
+    String joinGameMessage = chessClient.eval("join 1");
+
+    assertEquals("Error: team color and gameID must be filled", joinGameMessage);
+
+    logout();
+  }
+
+  @Test
+  public void joiningGameWithInvalidTeamColor() {
+    register();
+    createTestGame();
+
+    String joinGameMessage = chessClient.eval("join green 1");
+
+    assertEquals("Error: team color must be 'WHITE' or 'BLACK'", joinGameMessage);
+
+    logout();
+  }
+
+  @Test
+  public void joiningGameWithInvalidGameID() {
+    register();
+    createTestGame();
+
+    String joinGameMessage = chessClient.eval("join white 7");
+
+    assertEquals("Error: invalid gameID", joinGameMessage);
+
+    logout();
+  }
+
+  @Test
+  public void successfulObserveGame() throws ResponseException {
+    register();
+    createTestGame();
+
+    int externalGameID = 1;
+    String observeGameMessage = chessClient.eval(String.format("observe %d", externalGameID));
+
+    int internalGameID = chessClient.getInternalGameID(externalGameID);
+    assertEquals("You have chosen to observe game " + internalGameID, observeGameMessage);
+
+    leaveGame();
+    logout();
+  }
+
+  @Test
+  public void observingGameWithInvalidGameID() {
+    register();
+    createTestGame();
+
+    int gameID = 7;
+    String observeGameMessage = chessClient.eval(String.format("observe %d", gameID));
+
+    assertEquals("Error: invalid gameID", observeGameMessage);
+
+    logout();
+  }
 }

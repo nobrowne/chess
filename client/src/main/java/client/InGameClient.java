@@ -1,7 +1,6 @@
 package client;
 
 import exception.ResponseException;
-import java.util.Arrays;
 import serverfacade.ServerFacade;
 
 public class InGameClient implements ClientInterface {
@@ -18,12 +17,11 @@ public class InGameClient implements ClientInterface {
     try {
       var tokens = input.toLowerCase().split(" ");
       var command = (tokens.length > 0) ? tokens[0] : "help";
-      var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
       return switch (command) {
         case "highlight" -> highlightLegalMoves();
-        //        case "redraw" -> redrawBoard(params);
-        //        case "leave" -> leaveGame();
+        // case "redraw" -> redrawBoard();
+        case "leave" -> leaveGame();
         default -> help();
       };
     } catch (ResponseException ex) {
@@ -33,6 +31,13 @@ public class InGameClient implements ClientInterface {
 
   protected String highlightLegalMoves() throws ResponseException {
     throw new ResponseException(400, "wow, not implemented");
+  }
+
+  protected String leaveGame() {
+    chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
+    chessClient.setState(State.SIGNEDIN);
+
+    return "You have left the game";
   }
 
   @Override
