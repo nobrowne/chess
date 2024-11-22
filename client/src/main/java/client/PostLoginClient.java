@@ -39,7 +39,7 @@ public class PostLoginClient implements ClientInterface {
     }
   }
 
-  public String logout() throws ResponseException {
+  private String logout() throws ResponseException {
     String authToken = chessClient.getAuthToken();
     serverFacade.logout(authToken);
 
@@ -49,7 +49,7 @@ public class PostLoginClient implements ClientInterface {
     return "You have logged out";
   }
 
-  public String createGame(String... params) throws ResponseException {
+  private String createGame(String... params) throws ResponseException {
     if (params.length < 1) {
       throw new ResponseException(400, "Error: game name must be filled");
     }
@@ -64,7 +64,7 @@ public class PostLoginClient implements ClientInterface {
     return String.format("You have created a new game called %s", gameName);
   }
 
-  public String listGames() throws ResponseException {
+  private String listGames() throws ResponseException {
     String authToken = chessClient.getAuthToken();
     ListGamesResult result = serverFacade.listGames(authToken);
     chessClient.updateGameIdMappings();
@@ -72,7 +72,7 @@ public class PostLoginClient implements ClientInterface {
     return formatListOfGames(result);
   }
 
-  public String joinGame(String... params) throws ResponseException {
+  private String joinGame(String... params) throws ResponseException {
     if (params.length < 2) {
       throw new ResponseException(400, "Error: team color and gameID must be filled");
     }

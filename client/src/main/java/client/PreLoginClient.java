@@ -35,7 +35,7 @@ public class PreLoginClient implements ClientInterface {
     }
   }
 
-  public String register(String... params) throws ResponseException {
+  private String register(String... params) throws ResponseException {
     if (params.length < 3) {
       throw new ResponseException(400, "Error: username, password, and email must all be filled");
     }
@@ -53,7 +53,7 @@ public class PreLoginClient implements ClientInterface {
     return String.format("You are registered as %s", username);
   }
 
-  public String login(String... params) throws ResponseException {
+  private String login(String... params) throws ResponseException {
     if (params.length < 2) {
       throw new ResponseException(400, "Error: username and password must be filled");
     }
