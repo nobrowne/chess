@@ -99,50 +99,51 @@ public class ChessClientTests {
     logout();
   }
 
-  //  @Test
-  //  public void successfulLogin() throws ResponseException {
-  //    register();
-  //
-  //    String loginInfo =
-  //        String.format("login %s %s", existingUser.username(), existingUser.password());
-  //    String loginMessage = chessClient.eval(loginInfo);
-  //
-  //    assertFalse(loginMessage.contains("Error"));
-  //    assertFalse(loginMessage.contains("missing"));
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void loggingInWithoutRegisteredUsername() {
-  //    String loginInfo = String.format("login %s %s", newUser.username(), newUser.password());
-  //    String loginMessage = chessClient.eval(loginInfo);
-  //
-  //    assertEquals("Error: user has not registered an account yet", loginMessage);
-  //  }
-  //
-  //  @Test
-  //  public void loggingInWithMissingInfo() {
-  //    register();
-  //    logout();
-  //
-  //    String loginInfo = String.format("login %s", newUser.username());
-  //    String loginMessage = chessClient.eval(loginInfo);
-  //
-  //    assertEquals("Error: username and password must be filled", loginMessage);
-  //  }
-  //
-  //  @Test
-  //  public void loggingInWithIncorrectPassword() {
-  //    register();
-  //
-  //    String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
-  //    String loginMessage = chessClient.eval(loginInfo);
-  //
-  //    assertEquals("Error: invalid password", loginMessage);
-  //
-  //    logout();
-  //  }
+  @Test
+  public void successfulLogin() throws ResponseException {
+    register();
+
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertFalse(loginMessage.contains("Error"));
+    assertFalse(loginMessage.contains("missing"));
+
+    logout();
+  }
+
+  @Test
+  public void loggingInWithoutRegisteredUsername() {
+    String loginInfo = String.format("login %s %s", newUser.username(), newUser.password());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals("Error: user has not registered an account yet", loginMessage);
+  }
+
+  @Test
+  public void loggingInWithMissingInfo() {
+    register();
+    logout();
+
+    String loginInfo = String.format("login %s", newUser.username());
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals("Error: username and password must be filled", loginMessage);
+  }
+
+  @Test
+  public void loggingInWithIncorrectPassword() {
+    register();
+    logout();
+
+    String loginInfo = String.format("login %s %s", existingUser.username(), "badPassword");
+    String loginMessage = chessClient.eval(loginInfo);
+
+    assertEquals("Error: invalid password", loginMessage);
+
+    logout();
+  }
   //
   //  @Test
   //  public void successfulLogout() {

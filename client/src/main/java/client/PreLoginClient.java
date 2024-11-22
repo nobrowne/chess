@@ -2,7 +2,9 @@ package client;
 
 import exception.ResponseException;
 import java.util.Arrays;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import serverfacade.ServerFacade;
 
@@ -24,7 +26,7 @@ public class PreLoginClient implements ClientInterface {
 
       return switch (command) {
         case "register" -> register(params);
-        //        case "login" -> login(params);
+        case "login" -> login(params);
         //        case "quit" -> quit();
         default -> help();
       };
@@ -45,10 +47,27 @@ public class PreLoginClient implements ClientInterface {
     RegisterResult result = serverFacade.register(request);
 
     chessClient.setAuthToken(result.authToken());
-    chessClient.setState(State.SIGNEDIN);
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
+    chessClient.setState(State.SIGNEDIN);
 
     return String.format("You are registered as %s", username);
+  }
+
+  public String login(String... params) throws ResponseException {
+    if (params.length < 2) {
+      throw new ResponseException(400, "Error: username and password must be filled");
+    }
+
+    String username = params[0];
+    String password = params[1];
+    LoginRequest request = new LoginRequest(username, password);
+    LoginResult result = serverFacade.login(request);
+
+    chessClient.setAuthToken(result.authToken());
+    chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
+    chessClient.setState(State.SIGNEDIN);
+
+    return String.format("You have logged in as %s%n", username);
   }
 
   @Override
