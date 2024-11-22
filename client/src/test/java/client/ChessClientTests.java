@@ -82,6 +82,10 @@ public class ChessClientTests {
     chessClient.eval(createGameInfo);
   }
 
+  public void leaveGame() {
+    chessClient.eval("leave");
+  }
+
   @Test
   public void successfulRegistration() {
     String registrationInfo =
@@ -252,20 +256,21 @@ public class ChessClientTests {
     String listGamesMessage = chessClient.eval("list");
     assertEquals(preLoginHelpMessage, listGamesMessage);
   }
-  //
-  //  @Test
-  //  public void successfulJoinGame() {
-  //    register();
-  //    createTestGame();
-  //
-  //    String playerColor = "white";
-  //    int gameID = 1;
-  //    String joinGameMessage = chessClient.eval("join" + " " + playerColor + " " + gameID);
-  //
-  //    assertEquals("You have joined game " + gameID, joinGameMessage);
-  //
-  //    logout();
-  //  }
+
+  @Test
+  public void successfulJoinGame() {
+    register();
+    createTestGame();
+
+    String playerColor = "white";
+    int gameID = 1;
+    String joinGameMessage = chessClient.eval("join" + " " + playerColor + " " + gameID);
+
+    assertEquals("You have joined game " + gameID, joinGameMessage);
+
+    leaveGame();
+    logout();
+  }
   //
   //  @Test
   //  public void joiningGameWithoutLoggingIn() {

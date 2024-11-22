@@ -1,10 +1,12 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import result.ListGamesResult;
 import serverfacade.ServerFacade;
 
@@ -28,7 +30,7 @@ public class PostLoginClient implements ClientInterface {
         case "logout" -> logout();
         case "create" -> createGame(params);
         case "list" -> listGames();
-        //        case "join" -> joinGame(params);
+        case "join" -> joinGame(params);
         //        case "observe" -> observeGame(params);
         default -> help();
       };
@@ -70,6 +72,29 @@ public class PostLoginClient implements ClientInterface {
     return formatListOfGames(result);
   }
 
+  public String joinGame(String... params) throws ResponseException {
+    if (params.length < 2) {
+      throw new ResponseException(400, "Error: team color and gameID must be filled");
+    }
+
+    ChessGame.TeamColor teamColor = parseTeamColor(params[0]);
+    int externalGameID = parseExternalGameID(params[1]);
+    int internalGameID = validateInternalGameID(externalGameID);
+
+    JoinGameRequest request = new JoinGameRequest(teamColor, internalGameID);
+    String authToken = chessClient.getAuthToken();
+    serverFacade.joinGame(request, authToken);
+
+    chessClient.setCurrentClient(new PlayerClient(chessClient, serverFacade));
+    chessClient.setState(State.PLAYING);
+
+    // We'll see how this changes with websocket. I'm not sure whether this block should be here
+    // GameData gameData = chessClient.getGame(internalGameID);
+    // formatBoards(gameData);
+
+    return String.format("You have joined game %d", externalGameID);
+  }
+
   @Override
   public String help() {
     return """
@@ -84,7 +109,7 @@ public class PostLoginClient implements ClientInterface {
         """;
   }
 
-  public String formatListOfGames(ListGamesResult result) {
+  private String formatListOfGames(ListGamesResult result) {
     ArrayList<GameData> games = result.games();
 
     StringBuilder sb = new StringBuilder();
@@ -106,5 +131,28 @@ public class PostLoginClient implements ClientInterface {
     }
 
     return sb.toString();
+  }
+
+  private ChessGame.TeamColor parseTeamColor(String teamColorParam) throws ResponseException {
+    try {
+      return ChessGame.TeamColor.valueOf(teamColorParam.toUpperCase());
+    } catch (IllegalArgumentException ex) {
+      throw new ResponseException(400, "Error: team color must be 'WHITE' or 'BLACK'");
+    }
+  }
+
+  private int parseExternalGameID(String externalGameIdParam) throws ResponseException {
+    try {
+      return Integer.parseInt(externalGameIdParam);
+    } catch (NumberFormatException ex) {
+      throw new ResponseException(400, "Error: gameID must be a valid integer");
+    }
+  }
+
+  private int validateInternalGameID(int externalGameID) throws ResponseException {
+    int internalGameID = chessClient.getInternalGameID(externalGameID);
+    chessClient.getGame(internalGameID);
+
+    return internalGameID;
   }
 }

@@ -29,6 +29,10 @@ public class ChessClient {
     this.authToken = authToken;
   }
 
+  public State getState() {
+    return state;
+  }
+
   public void setState(State state) {
     this.state = state;
   }
@@ -311,14 +315,14 @@ public class ChessClient {
   //    throw new ResponseException(400, "Error: invalid gameID");
   //  }
   //
-  //  public boolean isNotValidGameID(int gameID) {
-  //    try {
-  //      getGame(gameID);
-  //      return false;
-  //    } catch (ResponseException ex) {
-  //      return true;
+  //    public boolean isNotValidGameID(int gameID) {
+  //      try {
+  //        getGame(gameID);
+  //        return false;
+  //      } catch (ResponseException ex) {
+  //        return true;
+  //      }
   //    }
-  //  }
   //
   //  public String formatGamesList(ListGamesResult result) {
   //    ArrayList<GameData> games = result.games();
