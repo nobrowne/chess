@@ -27,7 +27,7 @@ public class PreLoginClient implements ClientInterface {
       return switch (command) {
         case "register" -> register(params);
         case "login" -> login(params);
-        //        case "quit" -> quit();
+        case "quit" -> quit();
         default -> help();
       };
     } catch (ResponseException ex) {
@@ -68,6 +68,10 @@ public class PreLoginClient implements ClientInterface {
     chessClient.setState(State.SIGNEDIN);
 
     return String.format("You have logged in as %s%n", username);
+  }
+
+  public String quit() {
+    return "quit";
   }
 
   @Override
