@@ -144,49 +144,56 @@ public class ChessClientTests {
 
     logout();
   }
-  //
-  //  @Test
-  //  public void successfulLogout() {
-  //    String loginInfo =
-  //        String.format("login %s %s", existingUser.username(), existingUser.password());
-  //    chessClient.eval(loginInfo);
-  //
-  //    logout();
-  //
-  //    assertEquals(
-  //        chessClient.help(),
-  //        """
-  //        - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-  //        - login <USERNAME> <PASSWORD>: play chess
-  //        - quit: shut down the application
-  //        - help: see possible commands
-  //      """);
-  //  }
-  //
-  //  @Test
-  //  public void successfulLogoutExtraParameters() {
-  //    String loginInfo =
-  //        String.format("login %s %s", existingUser.username(), existingUser.password());
-  //    chessClient.eval(loginInfo);
-  //
-  //    chessClient.eval("logout because I'm bored");
-  //
-  //    assertEquals(
-  //        chessClient.help(),
-  //        """
-  //            - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-  //            - login <USERNAME> <PASSWORD>: play chess
-  //            - quit: shut down the application
-  //            - help: see possible commands
-  //          """);
-  //  }
-  //
-  //  @Test
-  //  public void loggingOutWithoutBeingLoggedIn() {
-  //    String logoutMessage = chessClient.eval("logout because I'm bored");
-  //
-  //    assertEquals("Error: cannot log out if not logged in", logoutMessage);
-  //  }
+
+  @Test
+  public void successfulLogout() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    logout();
+
+    assertEquals(
+        chessClient.eval("help"),
+        """
+          - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+          - login <USERNAME> <PASSWORD>: play chess
+          - quit: shut down the application
+          - help: see possible commands
+        """);
+  }
+
+  @Test
+  public void successfulLogoutExtraParameters() {
+    String loginInfo =
+        String.format("login %s %s", existingUser.username(), existingUser.password());
+    chessClient.eval(loginInfo);
+
+    chessClient.eval("logout because I'm bored");
+
+    assertEquals(
+        """
+              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+              - login <USERNAME> <PASSWORD>: play chess
+              - quit: shut down the application
+              - help: see possible commands
+            """,
+        chessClient.eval("help"));
+  }
+
+  @Test
+  public void loggingOutWithoutBeingLoggedIn() {
+    String logoutMessage = chessClient.eval("logout because I'm bored");
+
+    assertEquals(
+        """
+              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+              - login <USERNAME> <PASSWORD>: play chess
+              - quit: shut down the application
+              - help: see possible commands
+            """,
+        logoutMessage);
+  }
   //
   //  @Test
   //  public void successfulCreateGame() {
