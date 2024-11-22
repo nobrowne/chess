@@ -1,8 +1,11 @@
 package client;
 
 import exception.ResponseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import model.GameData;
 import request.CreateGameRequest;
+import result.ListGamesResult;
 import serverfacade.ServerFacade;
 
 public class PostLoginClient implements ClientInterface {
@@ -24,7 +27,7 @@ public class PostLoginClient implements ClientInterface {
       return switch (command) {
         case "logout" -> logout();
         case "create" -> createGame(params);
-        //        case "list" -> listGames();
+        case "list" -> listGames();
         //        case "join" -> joinGame(params);
         //        case "observe" -> observeGame(params);
         default -> help();
@@ -59,6 +62,14 @@ public class PostLoginClient implements ClientInterface {
     return String.format("You have created a new game called %s", gameName);
   }
 
+  public String listGames() throws ResponseException {
+    String authToken = chessClient.getAuthToken();
+    ListGamesResult result = serverFacade.listGames(authToken);
+    chessClient.updateGameIdMappings();
+
+    return formatListOfGames(result);
+  }
+
   @Override
   public String help() {
     return """
@@ -71,5 +82,29 @@ public class PostLoginClient implements ClientInterface {
         - logout: leave the application
         - help: see possible commands
         """;
+  }
+
+  public String formatListOfGames(ListGamesResult result) {
+    ArrayList<GameData> games = result.games();
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Available Games:\n");
+    sb.append(
+        String.format(
+            "%-10s %-20s %-15s %-15s%n", "Game ID", "Game Name", "White Player", "Black Player"));
+    sb.append("=".repeat(60)).append("\n");
+
+    for (GameData gameData : games) {
+      sb.append(
+          String.format(
+              "%-10d %-20s %-15s %-15s%n",
+              chessClient.getExternalGameID(gameData.gameID()),
+              gameData.gameName(),
+              gameData.whiteUsername() != null ? gameData.whiteUsername() : "TBD",
+              gameData.blackUsername() != null ? gameData.blackUsername() : "TBD"));
+    }
+
+    return sb.toString();
   }
 }

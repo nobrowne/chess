@@ -3,6 +3,7 @@ package client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import exception.ResponseException;
+import java.util.ArrayList;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +14,7 @@ import serverfacade.ServerFacade;
 
 public class ChessClientTests {
   private static String preLoginHelpMessage;
+  private static String postLoginHelpMessage;
   private static ChessClient chessClient;
   private static ServerFacade serverFacade;
   private static Server server;
@@ -33,12 +35,24 @@ public class ChessClientTests {
 
     preLoginHelpMessage =
         """
-              Until you log in, here are your options:
+        Until you log in, here are your options:
 
-              - register <USERNAME> <PASSWORD> <EMAIL>: create an account
-              - login <USERNAME> <PASSWORD>: play chess
-              - quit: shut down the application
-              - help: see possible commands""";
+        - register <USERNAME> <PASSWORD> <EMAIL>: create an account
+        - login <USERNAME> <PASSWORD>: play chess
+        - quit: shut down the application
+        - help: see possible commands""";
+
+    postLoginHelpMessage =
+        """
+        Until you join or observe a game, here are your options:
+
+        - create <GAME NAME>: create a new game
+        - list: list all games
+        - join <WHITE|BLACK> <GAME ID>: join a game as the white or black team
+        - observe: join a game as a non-player observer
+        - logout: leave the application
+        - help: see possible commands
+        """;
   }
 
   @AfterAll
@@ -62,11 +76,11 @@ public class ChessClientTests {
     chessClient.eval("logout");
   }
 
-  //  public void createTestGame() {
-  //    String gameName = "fun game";
-  //    String createGameInfo = String.format("create %s", gameName);
-  //    chessClient.eval(createGameInfo);
-  //  }
+  public void createTestGame() {
+    String gameName = "fun game";
+    String createGameInfo = String.format("create %s", gameName);
+    chessClient.eval(createGameInfo);
+  }
 
   @Test
   public void successfulRegistration() {
@@ -210,34 +224,34 @@ public class ChessClientTests {
 
     assertEquals(preLoginHelpMessage, createGameMessage);
   }
-  //
-  //  @Test
-  //  public void successfulListGames() {
-  //    register();
-  //
-  //    ArrayList<String> gameNames = new ArrayList<>();
-  //    gameNames.add("game1");
-  //    gameNames.add("game2");
-  //    gameNames.add("game3");
-  //
-  //    for (String gameName : gameNames) {
-  //      String createGameInfo = String.format("create %s", gameName);
-  //      chessClient.eval(createGameInfo);
-  //    }
-  //
-  //    String listGamesMessage = chessClient.eval("list");
-  //
-  //    assertFalse(listGamesMessage.contains("Error"));
-  //    assertFalse(listGamesMessage.contains("create <GAME NAME>: create a new game"));
-  //
-  //    logout();
-  //  }
-  //
-  //  @Test
-  //  public void listingGamesWithoutLoggingIn() {
-  //    String listGamesMessage = chessClient.eval("list");
-  //    assertEquals("Error: cannot list games if not logged in", listGamesMessage);
-  //  }
+
+  @Test
+  public void successfulListGames() {
+    register();
+
+    ArrayList<String> gameNames = new ArrayList<>();
+    gameNames.add("game1");
+    gameNames.add("game2");
+    gameNames.add("game3");
+
+    for (String gameName : gameNames) {
+      String createGameInfo = String.format("create %s", gameName);
+      chessClient.eval(createGameInfo);
+    }
+
+    String listGamesMessage = chessClient.eval("list");
+
+    assertFalse(listGamesMessage.contains("Error"));
+    assertNotEquals(postLoginHelpMessage, listGamesMessage);
+
+    logout();
+  }
+
+  @Test
+  public void listingGamesWithoutLoggingIn() {
+    String listGamesMessage = chessClient.eval("list");
+    assertEquals(preLoginHelpMessage, listGamesMessage);
+  }
   //
   //  @Test
   //  public void successfulJoinGame() {
