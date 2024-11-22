@@ -43,7 +43,6 @@ public class PostLoginClient implements ClientInterface {
     String authToken = chessClient.getAuthToken();
     serverFacade.logout(authToken);
 
-    chessClient.setState(State.SIGNEDOUT);
     chessClient.setCurrentClient(new PreLoginClient(chessClient, serverFacade));
 
     return "You have logged out";
@@ -86,7 +85,6 @@ public class PostLoginClient implements ClientInterface {
     serverFacade.joinGame(request, authToken);
 
     chessClient.setCurrentClient(new PlayerClient(chessClient, serverFacade));
-    chessClient.setState(State.PLAYING);
 
     // We'll see how this changes with websocket. I'm not sure whether this block should be here
     // GameData gameData = chessClient.getGame(internalGameID);
@@ -109,7 +107,6 @@ public class PostLoginClient implements ClientInterface {
     // formatBoards(gameData);
 
     chessClient.setCurrentClient(new InGameClient(chessClient, serverFacade));
-    chessClient.setState(State.OBSERVING);
 
     return String.format("You have chosen to observe game %d", externalGameID);
   }

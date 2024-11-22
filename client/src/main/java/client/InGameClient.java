@@ -35,7 +35,6 @@ public class InGameClient implements ClientInterface {
 
   protected String leaveGame() {
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
-    chessClient.setState(State.SIGNEDIN);
 
     return "You have left the game";
   }

@@ -48,7 +48,6 @@ public class PreLoginClient implements ClientInterface {
 
     chessClient.setAuthToken(result.authToken());
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
-    chessClient.setState(State.SIGNEDIN);
 
     return String.format("You are registered as %s", username);
   }
@@ -65,7 +64,6 @@ public class PreLoginClient implements ClientInterface {
 
     chessClient.setAuthToken(result.authToken());
     chessClient.setCurrentClient(new PostLoginClient(chessClient, serverFacade));
-    chessClient.setState(State.SIGNEDIN);
 
     return String.format("You have logged in as %s", username);
   }
