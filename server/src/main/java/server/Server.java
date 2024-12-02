@@ -19,6 +19,7 @@ import result.CreateGameResult;
 import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
+import server.websocket.WebSocketHandler;
 import service.AdminService;
 import service.AuthService;
 import service.GameService;
@@ -31,10 +32,10 @@ import spark.Response;
 import spark.Spark;
 
 public class Server {
+  private WebSocketHandler webSocketHandler;
   private AuthDAO authDAO;
   private GameDAO gameDAO;
   private UserDAO userDAO;
-
   private AdminService adminService;
   private GameService gameService;
   private UserService userService;
@@ -44,6 +45,7 @@ public class Server {
       DatabaseManager.createDatabase();
       initializeDAOs();
       initializeServices();
+      initializeWebSocketHandler();
       setupSpark(desiredPort);
 
       Spark.awaitInitialization();
@@ -68,9 +70,15 @@ public class Server {
     this.userService = new UserService(authDAO, userDAO, authService);
   }
 
+  private void initializeWebSocketHandler() {
+    this.webSocketHandler = new WebSocketHandler(authDAO, gameDAO, userDAO);
+  }
+
   private void setupSpark(int desiredPort) {
     Spark.port(desiredPort);
     Spark.staticFiles.location("web");
+
+    Spark.webSocket("/ws", webSocketHandler);
 
     Spark.post("/user", this::register);
     Spark.post("/session", this::login);
