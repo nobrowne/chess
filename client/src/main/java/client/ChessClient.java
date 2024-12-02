@@ -1,5 +1,6 @@
 package client;
 
+import client.websocket.ServerMessageHandler;
 import exception.ResponseException;
 import java.util.*;
 import model.GameData;
@@ -7,16 +8,28 @@ import result.ListGamesResult;
 import serverfacade.ServerFacade;
 
 public class ChessClient {
+  private final String serverURL;
+  private final ServerMessageHandler serverMessageHandler;
   private final ServerFacade serverFacade;
   private final Map<Integer, Integer> externalToInternalGameIDs = new HashMap<>();
   private final Map<Integer, Integer> internalToExternalGameIDs = new HashMap<>();
   private String authToken;
   private ClientInterface currentClient;
 
-  public ChessClient(String serverURL) {
+  public ChessClient(String serverURL, ServerMessageHandler serverMessageHandler) {
+    this.serverURL = serverURL;
+    this.serverMessageHandler = serverMessageHandler;
     this.serverFacade = new ServerFacade(serverURL);
     this.authToken = null;
     this.currentClient = new PreLoginClient(this, serverFacade);
+  }
+
+  public String getServerURL() {
+    return serverURL;
+  }
+
+  public ServerMessageHandler getServerMessageHandler() {
+    return serverMessageHandler;
   }
 
   public String getAuthToken() {

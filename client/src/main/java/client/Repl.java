@@ -1,12 +1,15 @@
 package client;
 
+import client.websocket.ServerMessageHandler;
 import java.util.Scanner;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
-public class Repl {
+public class Repl implements ServerMessageHandler {
   private final ChessClient client;
 
   public Repl(String serverUrl) {
-    client = new ChessClient(serverUrl);
+    client = new ChessClient(serverUrl, this);
   }
 
   public void run() {
@@ -34,5 +37,12 @@ public class Repl {
 
   private void printPrompt() {
     System.out.print("\n" + ">>> ");
+  }
+
+  @Override
+  public void notify(ServerMessage serverMessage) {
+    // Will change to switch statement based on type, but I'm just using this for testing rn.
+    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+    System.out.println("Notification: " + notificationMessage.getNotification());
   }
 }

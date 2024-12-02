@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import client.websocket.ServerMessageHandler;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,15 +15,23 @@ import serverfacade.ServerFacade;
 public class PostLoginClient implements ClientInterface {
   private final ChessClient chessClient;
   private final ServerFacade serverFacade;
+  private final String serverURL;
+  private final ServerMessageHandler serverMessageHandler;
+  private WebSocketFacade ws;
 
   public PostLoginClient(ChessClient chessClient, ServerFacade serverFacade) {
     this.chessClient = chessClient;
     this.serverFacade = serverFacade;
+
+    serverURL = chessClient.getServerURL();
+    serverMessageHandler = chessClient.getServerMessageHandler();
   }
 
   @Override
   public String eval(String input) {
     try {
+      ws = new WebSocketFacade(serverURL, serverMessageHandler);
+      
       var tokens = input.toLowerCase().split(" ");
       var command = (tokens.length > 0) ? tokens[0] : "help";
       var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -84,6 +94,8 @@ public class PostLoginClient implements ClientInterface {
     String authToken = chessClient.getAuthToken();
     serverFacade.joinGame(request, authToken);
 
+    ws.connectToGame(authToken, internalGameID);
+
     chessClient.setCurrentClient(new PlayerClient(chessClient, serverFacade));
 
     // We'll see how this changes with websocket. I'm not sure whether this block should be here
@@ -127,6 +139,7 @@ public class PostLoginClient implements ClientInterface {
 
   private String formatListOfGames(ListGamesResult result) {
     ArrayList<GameData> games = result.games();
+    // TODO: sort based on external game id
 
     StringBuilder sb = new StringBuilder();
 
