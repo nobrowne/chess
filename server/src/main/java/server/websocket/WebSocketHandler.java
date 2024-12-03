@@ -45,8 +45,8 @@ public class WebSocketHandler {
     switch (commandType) {
       case CONNECT -> connectToGame(authToken, gameID, session);
       case MAKE_MOVE -> makeMove();
-      case LEAVE -> leave();
-      case RESIGN -> resign(authToken, gameID, session);
+      case LEAVE -> leave(authToken, gameID, session);
+      case RESIGN -> resign(authToken, gameID);
     }
   }
 
@@ -69,9 +69,33 @@ public class WebSocketHandler {
     // Add move to parameters
   }
 
-  private void leave() {}
+  private void leave(String authToken, int gameID, Session session) throws IOException {
+    String username = getUsername(authToken);
+    GameData currentGameData = getGameData(gameID, authToken);
 
-  private void resign(String authToken, int gameID, Session session) throws IOException {
+    if (userIsObserver(gameID, username, authToken)) {
+      NotificationMessage notificationMessage =
+          createNotificationMessage(String.format("%s has left the game", username));
+      connections.broadcastToGame(gameID, authToken, notificationMessage);
+      connections.remove(authToken, gameID);
+      return;
+    }
+
+    GameData updatedGameData = removeUserFromGameData(currentGameData, username);
+    try {
+      gameDAO.updateGame(updatedGameData);
+    } catch (DataAccessException ex) {
+      ErrorMessage errorMessage = createErrorMessage("Error: the game with that ID doesn't exist");
+      connections.broadcastToRootClient(authToken, errorMessage);
+    }
+
+    NotificationMessage notificationMessage =
+        createNotificationMessage(String.format("%s has left the game", username));
+    connections.broadcastToGame(gameID, authToken, notificationMessage);
+    connections.remove(authToken, gameID);
+  }
+
+  private void resign(String authToken, int gameID) throws IOException {
     String username = getUsername(authToken);
     if (userIsObserver(gameID, username, authToken)) {
       ErrorMessage errorMessage = createErrorMessage("Error: you can't resign as an observer");
@@ -159,6 +183,19 @@ public class WebSocketHandler {
     String blackUsername = gameData.blackUsername();
 
     return !username.equals(whiteUsername) && !username.equals(blackUsername);
+  }
+
+  private GameData removeUserFromGameData(GameData gameData, String username) {
+    int gameID = gameData.gameID();
+    String whiteUsername = gameData.whiteUsername();
+    String blackUsername = gameData.blackUsername();
+    String gameName = gameData.gameName();
+    ChessGame game = gameData.game();
+
+    if (username.equals(whiteUsername)) {
+      return new GameData(gameID, null, blackUsername, gameName, game);
+    }
+    return new GameData(gameID, whiteUsername, null, gameName, game);
   }
 
   private LoadGameMessage createLoadGameMessage(ChessGame game) {
