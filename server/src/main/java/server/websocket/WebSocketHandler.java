@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.GameState;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.auth.AuthDAO;
@@ -45,7 +46,7 @@ public class WebSocketHandler {
       case CONNECT -> connectToGame(authToken, gameID, session);
       case MAKE_MOVE -> makeMove();
       case LEAVE -> leave();
-      case RESIGN -> resign();
+      case RESIGN -> resign(authToken, gameID, session);
     }
   }
 
@@ -70,7 +71,34 @@ public class WebSocketHandler {
 
   private void leave() {}
 
-  private void resign() {}
+  private void resign(String authToken, int gameID, Session session) throws IOException {
+    String username = getUsername(authToken);
+    if (userIsObserver(gameID, username, authToken)) {
+      ErrorMessage errorMessage = createErrorMessage("Error: you can't resign as an observer");
+      connections.broadcastToRootClient(authToken, errorMessage);
+      return;
+    }
+
+    try {
+      if (gameDAO.getGameState(gameID) == GameState.OVER) {
+        ErrorMessage errorMessage = createErrorMessage("Error: you can't resign after the game");
+        connections.broadcastToRootClient(authToken, errorMessage);
+        return;
+      }
+      gameDAO.updateGameState(gameID, GameState.OVER);
+    } catch (DataAccessException e) {
+      ErrorMessage errorMessage = createErrorMessage("Error: the game with that ID doesn't exist");
+      connections.broadcastToRootClient(authToken, errorMessage);
+    }
+
+    NotificationMessage notificationToOthers =
+        createNotificationMessage(String.format("%s has resigned the game", username));
+    connections.broadcastToGame(gameID, authToken, notificationToOthers);
+
+    NotificationMessage notificationToRootClient =
+        createNotificationMessage("You have resigned the game");
+    connections.broadcastToRootClient(authToken, notificationToRootClient);
+  }
 
   private AuthData getAuthData(String authToken) throws IOException {
     try {
@@ -95,8 +123,7 @@ public class WebSocketHandler {
       }
       return gameData;
     } catch (DataAccessException ex) {
-      ErrorMessage errorMessage =
-          createErrorMessage("Error: the game associated with that ID does not exist");
+      ErrorMessage errorMessage = createErrorMessage("Error: the game with that ID doesn't exist");
       connections.broadcastToRootClient(authToken, errorMessage);
     }
 
@@ -124,6 +151,14 @@ public class WebSocketHandler {
   private ChessGame getChessGame(int gameID, String authToken) throws IOException {
     GameData gameData = getGameData(gameID, authToken);
     return gameData.game();
+  }
+
+  private boolean userIsObserver(int gameID, String username, String authToken) throws IOException {
+    GameData gameData = getGameData(gameID, authToken);
+    String whiteUsername = gameData.whiteUsername();
+    String blackUsername = gameData.blackUsername();
+
+    return !username.equals(whiteUsername) && !username.equals(blackUsername);
   }
 
   private LoadGameMessage createLoadGameMessage(ChessGame game) {

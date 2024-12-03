@@ -1,6 +1,8 @@
 package dataaccess.game;
 
 import chess.ChessGame;
+import chess.GameState;
+import dataaccess.DataAccessException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import model.GameData;
@@ -38,5 +40,15 @@ public class MemoryGameDAO implements GameDAO {
   public void clear() {
     games.clear();
     nextGameID = 1;
+  }
+  
+  @Override
+  public void updateGameState(int gameID, GameState gameState) throws DataAccessException {
+    throw new DataAccessException("this will never be called");
+  }
+  
+  @Override
+  public GameState getGameState(int gameID) throws DataAccessException {
+    throw new DataAccessException("this will never be called");
   }
 }

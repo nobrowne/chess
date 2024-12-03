@@ -1,6 +1,7 @@
 package dataaccess.game;
 
 import chess.ChessGame;
+import chess.GameState;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
@@ -85,7 +86,9 @@ public class SQLGameDAO implements GameDAO {
 
       try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
         if (generatedKeys.next()) {
-          return generatedKeys.getInt(1);
+          int gameId = generatedKeys.getInt(1);
+          updateGameState(gameId, GameState.IN_PLAY);
+          return gameId;
         } else {
           throw new SQLException("creating game failed, no ID retrieved");
         }
@@ -137,6 +140,48 @@ public class SQLGameDAO implements GameDAO {
     }
   }
 
+  @Override
+  public void updateGameState(int gameID, GameState gameState) throws DataAccessException {
+    if (getGame(gameID) == null) {
+      throw new DataAccessException("Error: specified game does not exist");
+    }
+
+    String statement = "UPDATE game SET gameState=? WHERE gameID=?";
+
+    try (java.sql.Connection conn = DatabaseManager.getConnection();
+        java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+      ps.setString(1, gameState.name());
+      ps.setInt(2, gameID);
+
+      ps.executeUpdate();
+
+    } catch (SQLException ex) {
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
+    }
+  }
+
+  @Override
+  public GameState getGameState(int gameID) throws DataAccessException {
+    String statement = "SELECT gameState FROM game WHERE gameID=?";
+
+    try (java.sql.Connection conn = DatabaseManager.getConnection();
+        java.sql.PreparedStatement ps = conn.prepareStatement(statement)) {
+
+      ps.setInt(1, gameID);
+
+      try (java.sql.ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return GameState.valueOf(rs.getString("gameState"));
+        } else {
+          return null;
+        }
+      }
+    } catch (SQLException ex) {
+      throw new DataAccessException(String.format("Error: %s", ex.getMessage()));
+    }
+  }
+
   private void configureTable() throws DataAccessException {
     String createStatement =
         """
@@ -146,6 +191,7 @@ public class SQLGameDAO implements GameDAO {
                 blackUsername VARCHAR(256),
                 gameName VARCHAR(256) NOT NULL,
                 game TEXT,
+                gameState TEXT,
                 PRIMARY KEY (gameID)
                 )
                 """;
