@@ -135,15 +135,14 @@ public class ChessGame {
 
     ChessPiece piece = board.getPiece(startPosition);
     if (piece == null) {
-      throw new InvalidMoveException("There is no piece at the specified location" + endPosition);
+      throw new InvalidMoveException("Error: there isn't a piece at " + startPosition);
     }
 
-    TeamColor teamColor = piece.getTeamColor();
-    TeamColor teamTurn = getTeamTurn();
-    if (!moveIsOnTurn(teamColor)) {
-      throw new InvalidMoveException(
-          String.format(
-              "You are on the %s team. It is currently the %s team's turn", teamColor, teamTurn));
+    TeamColor pieceTeamColor = piece.getTeamColor();
+    TeamColor currentTurn = getTeamTurn();
+
+    if (pieceTeamColor != currentTurn) {
+      throw new InvalidMoveException("Error: you can't move the other team's piece");
     }
 
     Collection<ChessMove> validMoves = validMoves(startPosition);
@@ -151,7 +150,7 @@ public class ChessGame {
       board.movePiece(startPosition, endPosition, promotionPiece);
       switchTeamTurn();
     } else {
-      throw new InvalidMoveException("Invalid move");
+      throw new InvalidMoveException("Error: invalid move");
     }
   }
 

@@ -12,33 +12,31 @@ public class ConnectionManager {
   public final ConcurrentHashMap<Integer, ArrayList<Connection>> gameConnections =
       new ConcurrentHashMap<>();
 
-  public void add(String authToken, int gameID, Session session) {
-    Connection connection = new Connection(authToken, session);
-    connections.put(authToken, connection);
+  public void add(String username, int gameID, Session session) {
+    Connection connection = new Connection(username, session);
+    connections.put(username, connection);
     gameConnections.computeIfAbsent(gameID, key -> new ArrayList<>()).add(connection);
   }
 
-  public void remove(String authToken, int gameID) {
-    connections.remove(authToken);
+  public void remove(String username, int gameID) {
+    connections.remove(username);
 
     ArrayList<Connection> gameList = gameConnections.get(gameID);
     if (gameList != null) {
-      gameList.removeIf(connection -> connection.authToken.equals(authToken));
+      gameList.removeIf(connection -> connection.username.equals(username));
       if (gameList.isEmpty()) {
         gameConnections.remove(gameID);
       }
     }
   }
 
-  public void broadcastToRootClient(String authToken, ServerMessage serverMessage)
-      throws IOException {
-    Connection c = connections.get(authToken);
-    if (c.session.isOpen()) {
-      c.send(new Gson().toJson(serverMessage));
+  public void sendToSession(Session session, ServerMessage serverMessage) throws IOException {
+    if (session.isOpen()) {
+      session.getRemote().sendString(new Gson().toJson(serverMessage));
     }
   }
 
-  public void broadcastToGame(int gameID, String excludeAuthToken, ServerMessage serverMessage)
+  public void sendToOthers(int gameID, String excludedUsername, ServerMessage serverMessage)
       throws IOException {
     ArrayList<Connection> gameList = gameConnections.get(gameID);
     if (gameList == null) {
@@ -48,7 +46,7 @@ public class ConnectionManager {
     var removeList = new ArrayList<Connection>();
     for (Connection c : gameList) {
       if (c.session.isOpen()) {
-        if (!c.authToken.equals(excludeAuthToken)) {
+        if (!c.username.equals(excludedUsername)) {
           c.send(new Gson().toJson(serverMessage));
         }
       } else {

@@ -71,7 +71,7 @@ public class Server {
   }
 
   private void initializeWebSocketHandler() {
-    this.webSocketHandler = new WebSocketHandler(authDAO, gameDAO, userDAO);
+    this.webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
   }
 
   private void setupSpark(int desiredPort) {
