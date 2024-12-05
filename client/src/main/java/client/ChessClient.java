@@ -1,6 +1,8 @@
 package client;
 
+import chess.ChessGame;
 import client.websocket.ServerMessageHandler;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import java.util.*;
 import model.GameData;
@@ -15,6 +17,9 @@ public class ChessClient {
   private final Map<Integer, Integer> internalToExternalGameIDs = new HashMap<>();
   private String authToken;
   private ClientInterface currentClient;
+  private int currentInternalGameID;
+  private WebSocketFacade ws;
+  private ChessGame.TeamColor currentTeamColor;
 
   public ChessClient(String serverURL, ServerMessageHandler serverMessageHandler) {
     this.serverURL = serverURL;
@@ -44,8 +49,32 @@ public class ChessClient {
     this.currentClient = client;
   }
 
+  public int getCurrentInternalGameID() {
+    return currentInternalGameID;
+  }
+
+  public void setCurrentInternalGameID(Integer internalGameID) {
+    this.currentInternalGameID = internalGameID;
+  }
+
   public String eval(String input) {
     return currentClient.eval(input);
+  }
+
+  public void setWebSocketFacade() throws ResponseException {
+    this.ws = new WebSocketFacade(serverURL, serverMessageHandler);
+  }
+
+  public WebSocketFacade getWebSocketFacade() {
+    return ws;
+  }
+
+  public ChessGame.TeamColor getCurrentTeamColor() {
+    return currentTeamColor;
+  }
+
+  public void setCurrentTeamColor(ChessGame.TeamColor teamColor) {
+    this.currentTeamColor = teamColor;
   }
 
   public void updateGameIdMappings() throws ResponseException {

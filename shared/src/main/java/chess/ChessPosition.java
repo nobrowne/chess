@@ -17,6 +17,25 @@ public class ChessPosition {
     this.col = col;
   }
 
+  public static ChessPosition fromString(String positionString) {
+    if (positionString == null || positionString.length() != 2) {
+      throw new IllegalArgumentException(
+          "Position string must be exactly 2 characters, e.g., 'e4'.");
+    }
+
+    char columnChar = positionString.charAt(0);
+    char rowChar = positionString.charAt(1);
+
+    if (columnChar < 'a' || columnChar > 'h' || rowChar < '1' || rowChar > '8') {
+      throw new IllegalArgumentException("Invalid position string: must be in range 'a1' to 'h8'.");
+    }
+
+    int col = columnChar - 'a' + 1; // Convert 'a'-'h' to 0-7
+    int row = rowChar - '0'; // Convert '1'-'8' to integers 1-8
+
+    return new ChessPosition(row, col);
+  }
+
   /**
    * @return which row this position is in 1 codes for the bottom row
    */

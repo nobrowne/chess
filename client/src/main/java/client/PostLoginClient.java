@@ -1,7 +1,6 @@
 package client;
 
 import chess.ChessGame;
-import client.websocket.ServerMessageHandler;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import java.util.ArrayList;
@@ -15,23 +14,17 @@ import serverfacade.ServerFacade;
 public class PostLoginClient implements ClientInterface {
   private final ChessClient chessClient;
   private final ServerFacade serverFacade;
-  private final String serverURL;
-  private final ServerMessageHandler serverMessageHandler;
-  private WebSocketFacade ws;
 
   public PostLoginClient(ChessClient chessClient, ServerFacade serverFacade) {
     this.chessClient = chessClient;
     this.serverFacade = serverFacade;
-
-    serverURL = chessClient.getServerURL();
-    serverMessageHandler = chessClient.getServerMessageHandler();
   }
 
   @Override
   public String eval(String input) {
     try {
-      ws = new WebSocketFacade(serverURL, serverMessageHandler);
-      
+      chessClient.setWebSocketFacade();
+
       var tokens = input.toLowerCase().split(" ");
       var command = (tokens.length > 0) ? tokens[0] : "help";
       var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -93,14 +86,12 @@ public class PostLoginClient implements ClientInterface {
     JoinGameRequest request = new JoinGameRequest(teamColor, internalGameID);
     String authToken = chessClient.getAuthToken();
     serverFacade.joinGame(request, authToken);
-
+    WebSocketFacade ws = chessClient.getWebSocketFacade();
     ws.connectToGame(authToken, internalGameID);
+    chessClient.setCurrentInternalGameID(internalGameID);
+    chessClient.setCurrentTeamColor(teamColor);
 
     chessClient.setCurrentClient(new PlayerClient(chessClient, serverFacade));
-
-    // We'll see how this changes with websocket. I'm not sure whether this block should be here
-    // GameData gameData = chessClient.getGame(internalGameID);
-    // formatBoards(gameData);
 
     return String.format("You have joined game %d", externalGameID);
   }
@@ -111,12 +102,10 @@ public class PostLoginClient implements ClientInterface {
     }
 
     int externalGameID = parseExternalGameID(params[0]);
-    validateInternalGameID(externalGameID);
-    // int internalGameID = validateInternalGameID(externalGameID);
-
-    // We'll see how this changes with websocket. I'm not sure whether this block should be here
-    // GameData gameData = chessClient.getGame(internalGameID);
-    // formatBoards(gameData);
+    int internalGameID = validateInternalGameID(externalGameID);
+    WebSocketFacade ws = chessClient.getWebSocketFacade();
+    ws.connectToGame(chessClient.getAuthToken(), internalGameID);
+    chessClient.setCurrentInternalGameID(internalGameID);
 
     chessClient.setCurrentClient(new InGameClient(chessClient, serverFacade));
 

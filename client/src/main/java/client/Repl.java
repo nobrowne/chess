@@ -48,7 +48,7 @@ public class Repl implements ServerMessageHandler {
       case LOAD_GAME -> {
         LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
         System.out.println();
-        BoardDrawer.drawBoard(loadGameMessage.game, loadGameMessage.isWhitePerspective);
+        BoardDrawer.drawBoard(loadGameMessage.game, loadGameMessage.isWhitePerspective, null);
       }
       case ERROR -> {
         ErrorMessage errorMessage = (ErrorMessage) serverMessage;
@@ -60,5 +60,6 @@ public class Repl implements ServerMessageHandler {
       }
       default -> System.out.println("Unknown message type received.");
     }
+    printPrompt();
   }
 }

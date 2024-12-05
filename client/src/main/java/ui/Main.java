@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 
 public class Main {
@@ -9,11 +8,11 @@ public class Main {
     ChessGame game = new ChessGame();
 
     System.out.println("White's perspective:");
-    BoardDrawer.drawBoard(game, true);
+    BoardDrawer.drawBoard(game, true, null);
 
     BoardDrawer.drawDividerLine();
 
     System.out.println("Black's Perspective:");
-    BoardDrawer.drawBoard(game, false);
+    BoardDrawer.drawBoard(game, false, null);
   }
 }
