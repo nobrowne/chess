@@ -113,16 +113,6 @@ public class ChessGame {
   }
 
   /**
-   * Checks to see if the turn belongs to the team making a move
-   *
-   * @param teamColor The team making the move
-   * @return True if the turn belongs to the team making the move
-   */
-  public boolean moveIsOnTurn(TeamColor teamColor) {
-    return getTeamTurn() == teamColor;
-  }
-
-  /**
    * Makes a move in a chess game
    *
    * @param move The chess move to perform
