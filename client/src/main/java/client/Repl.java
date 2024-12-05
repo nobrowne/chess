@@ -2,6 +2,9 @@ package client;
 
 import client.websocket.ServerMessageHandler;
 import java.util.Scanner;
+import ui.BoardDrawer;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -41,8 +44,21 @@ public class Repl implements ServerMessageHandler {
 
   @Override
   public void notify(ServerMessage serverMessage) {
-    // Will change to switch statement based on type, but I'm just using this for testing rn.
-    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
-    System.out.println("Notification: " + notificationMessage.getNotification());
+    switch (serverMessage.getServerMessageType()) {
+      case LOAD_GAME -> {
+        LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+        System.out.println();
+        BoardDrawer.drawBoard(loadGameMessage.game, loadGameMessage.isWhitePerspective);
+      }
+      case ERROR -> {
+        ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+        System.out.println(errorMessage.errorMessage);
+      }
+      case NOTIFICATION -> {
+        NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+        System.out.println(notificationMessage.message);
+      }
+      default -> System.out.println("Unknown message type received.");
+    }
   }
 }

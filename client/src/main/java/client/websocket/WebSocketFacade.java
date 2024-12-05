@@ -1,12 +1,17 @@
 package client.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import exception.ResponseException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class WebSocketFacade extends Endpoint {
@@ -24,12 +29,21 @@ public class WebSocketFacade extends Endpoint {
       this.session = container.connectToServer(this, socketURI);
 
       this.session.addMessageHandler(
-          new MessageHandler.Whole<String>() {
-            @Override
-            public void onMessage(String message) {
-              ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-              serverMessageHandler.notify(serverMessage);
-            }
+          String.class,
+          message -> {
+            JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+            String type = jsonObject.get("serverMessageType").getAsString();
+
+            Gson gson = new Gson();
+            ServerMessage serverMessage =
+                switch (type) {
+                  case "LOAD_GAME" -> gson.fromJson(jsonObject, LoadGameMessage.class);
+                  case "ERROR" -> gson.fromJson(jsonObject, ErrorMessage.class);
+                  case "NOTIFICATION" -> gson.fromJson(jsonObject, NotificationMessage.class);
+                  default -> gson.fromJson(jsonObject, ServerMessage.class);
+                };
+
+            serverMessageHandler.notify(serverMessage);
           });
     } catch (DeploymentException | IOException | URISyntaxException ex) {
       throw new ResponseException(500, ex.getMessage());

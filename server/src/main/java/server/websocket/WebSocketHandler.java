@@ -6,6 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.auth.AuthDAO;
 import dataaccess.game.GameDAO;
 import java.io.IOException;
+import java.util.ArrayList;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -57,12 +58,19 @@ public class WebSocketHandler {
     }
     connections.add(username, gameID, session);
 
-    String teamColor = getTeamColor(session, gameID, username);
-    sendNotificationToOthers(
-        gameID, username, String.format("%s has joined as %s", username, teamColor));
+    ChessGame.TeamColor teamColor = getTeamColor(session, gameID, username);
+    if (teamColor == null) {
+      sendNotificationToOthers(
+          gameID, username, String.format("%s has joined as an observer", username));
+    } else {
+      sendNotificationToOthers(
+          gameID,
+          username,
+          String.format("%s has joined as %s", username, teamColor.toString().toLowerCase()));
+    }
 
     ChessGame game = getChessGame(session, gameID);
-    sendLoadGameToSession(session, game);
+    sendLoadGameToSession(session, game, teamColor);
   }
 
   private void makeMove(String authToken, int gameID, ChessMove move, Session session)
@@ -99,8 +107,9 @@ public class WebSocketHandler {
       return;
     }
 
-    sendLoadGameToSession(session, game);
-    sendLoadGameToOthers(gameID, username, game);
+    ChessGame.TeamColor teamColor = getTeamColor(session, gameID, username);
+    sendLoadGameToSession(session, game, teamColor);
+    sendLoadGameToOthers(session, gameID, game, teamColor);
 
     String startPos = move.getStartPosition().toString();
     String endPos = move.getEndPosition().toString();
@@ -227,30 +236,26 @@ public class WebSocketHandler {
     }
   }
 
-  private String getTeamColor(Session session, int gameID, String username) throws IOException {
+  private ChessGame.TeamColor getTeamColor(Session session, int gameID, String username)
+      throws IOException {
     GameData gameData = getGameData(session, gameID);
     assert gameData != null;
 
     String whiteUsername = gameData.whiteUsername();
     String blackUsername = gameData.blackUsername();
 
-    if (username.equals(whiteUsername) && username.equals(blackUsername)) {
-      return "both teams";
-    }
-
     if (username.equals(whiteUsername)) {
-      return ChessGame.TeamColor.WHITE.toString().toLowerCase();
+      return ChessGame.TeamColor.WHITE;
     }
     if (username.equals(blackUsername)) {
-      return ChessGame.TeamColor.BLACK.toString().toLowerCase();
+      return ChessGame.TeamColor.BLACK;
     }
-    return "an observer";
+    return null;
   }
 
   private ChessGame.TeamColor getOtherTeamColor(Session session, int gameID, String username)
       throws IOException {
-    ChessGame.TeamColor userTeamColor =
-        ChessGame.TeamColor.valueOf(getTeamColor(session, gameID, username).toUpperCase());
+    ChessGame.TeamColor userTeamColor = getTeamColor(session, gameID, username);
     if (userTeamColor == ChessGame.TeamColor.WHITE) {
       return ChessGame.TeamColor.BLACK;
     }
@@ -290,8 +295,7 @@ public class WebSocketHandler {
   private boolean pieceBelongsToUser(
       Session session, int gameID, String username, ChessMove move, ChessGame game)
       throws IOException {
-    ChessGame.TeamColor userTeamColor =
-        ChessGame.TeamColor.valueOf(getTeamColor(session, gameID, username).toUpperCase());
+    ChessGame.TeamColor userTeamColor = getTeamColor(session, gameID, username);
     ChessPosition piecePosition = move.getStartPosition();
     ChessBoard board = game.getBoard();
     ChessPiece piece = board.getPiece(piecePosition);
@@ -305,15 +309,27 @@ public class WebSocketHandler {
         session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, message));
   }
 
-  private void sendLoadGameToSession(Session session, ChessGame game) throws IOException {
+  private void sendLoadGameToSession(Session session, ChessGame game, ChessGame.TeamColor teamColor)
+      throws IOException {
+    boolean isWhitePerspective = teamColor == null || teamColor.equals(ChessGame.TeamColor.WHITE);
     connections.sendToSession(
-        session, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+        session,
+        new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, isWhitePerspective));
   }
 
-  private void sendLoadGameToOthers(int gameID, String username, ChessGame game)
+  private void sendLoadGameToOthers(
+      Session userSession, int gameID, ChessGame game, ChessGame.TeamColor teamColor)
       throws IOException {
-    connections.sendToOthers(
-        gameID, username, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game));
+    ArrayList<Connection> sessionsInGame = connections.gameConnections.get(gameID);
+    for (Connection connection : sessionsInGame) {
+      boolean isWhitePerspective = teamColor == null || teamColor.equals(ChessGame.TeamColor.WHITE);
+      if (connection.session == userSession) {
+        continue;
+      }
+      connections.sendToSession(
+          connection.session,
+          new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, isWhitePerspective));
+    }
   }
 
   private void sendNotificationToSession(Session session, String message) throws IOException {

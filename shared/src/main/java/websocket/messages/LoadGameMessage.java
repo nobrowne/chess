@@ -5,10 +5,12 @@ import java.util.Objects;
 
 public class LoadGameMessage extends ServerMessage {
   public ChessGame game;
+  public boolean isWhitePerspective;
 
-  public LoadGameMessage(ServerMessageType type, ChessGame game) {
+  public LoadGameMessage(ServerMessageType type, ChessGame game, boolean isWhitePerspective) {
     super(type);
     this.game = game;
+    this.isWhitePerspective = isWhitePerspective;
   }
 
   @Override
