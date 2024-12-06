@@ -23,6 +23,8 @@ public class ChessPosition {
           "Position string must be exactly 2 characters, e.g., 'e4'.");
     }
 
+    positionString = positionString.toLowerCase();
+
     char columnChar = positionString.charAt(0);
     char rowChar = positionString.charAt(1);
 
@@ -30,8 +32,8 @@ public class ChessPosition {
       throw new IllegalArgumentException("Invalid position string: must be in range 'a1' to 'h8'.");
     }
 
-    int col = columnChar - 'a' + 1; // Convert 'a'-'h' to 0-7
-    int row = rowChar - '0'; // Convert '1'-'8' to integers 1-8
+    int col = columnChar - 'a' + 1;
+    int row = rowChar - '0';
 
     return new ChessPosition(row, col);
   }
@@ -69,7 +71,7 @@ public class ChessPosition {
 
   @Override
   public String toString() {
-    char columnChar = (char) ('a' + (col));
+    char columnChar = (char) ('a' + (col - 1));
     return "" + columnChar + row;
   }
 }

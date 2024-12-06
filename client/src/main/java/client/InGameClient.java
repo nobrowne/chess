@@ -1,10 +1,13 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import java.util.Arrays;
+import java.util.Scanner;
 import serverfacade.ServerFacade;
 import ui.BoardDrawer;
 
@@ -36,10 +39,11 @@ public class InGameClient implements ClientInterface {
   }
 
   protected String highlightLegalMoves(String... params) throws ResponseException {
-    ChessPosition startPosition = ChessPosition.fromString(params[0]);
-
     int gameID = chessClient.getCurrentInternalGameID();
     ChessGame game = chessClient.getGame(gameID).game();
+
+    ChessPosition startPosition = makeSurePieceIsNotNull(game, ChessPosition.fromString(params[0]));
+
     ChessGame.TeamColor teamColor = chessClient.getCurrentTeamColor();
     boolean isWhitePerspective = teamColor == null || teamColor.equals(ChessGame.TeamColor.WHITE);
     BoardDrawer.drawBoard(game, isWhitePerspective, startPosition);
@@ -80,5 +84,36 @@ public class InGameClient implements ClientInterface {
         - move <start position> <end position>: make a move (example: a7a8)
         - resign: forfeit the game, but must type 'leave' to leave it
         """;
+  }
+  
+  protected ChessPosition makeSurePieceIsNotNull(ChessGame game, ChessPosition position) {
+    ChessBoard board = game.getBoard();
+    ChessPiece piece = board.getPiece(position);
+    
+    Scanner scanner = new Scanner(System.in);
+    boolean firstPrompt = true;
+    
+    while (piece == null) {
+      if (firstPrompt) {
+        System.out.println("Please pick a position with a piece currently on it");
+        firstPrompt = false;
+      }
+      
+      System.out.print(">>> ");
+      String response = scanner.nextLine().trim().toLowerCase();
+      
+      try {
+        position = ChessPosition.fromString(response);
+        piece = board.getPiece(position);
+        
+        if (piece == null) {
+          System.out.println("There is no piece at that position. Please pick another position.");
+        }
+      } catch (IllegalArgumentException e) {
+        System.out.println("Invalid position. Please try again.");
+      }
+    }
+    
+    return position;
   }
 }

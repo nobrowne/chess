@@ -108,12 +108,14 @@ public class WebSocketHandler {
     }
 
     ChessGame.TeamColor teamColor = getTeamColor(session, gameID, username);
+
     sendLoadGameToSession(session, game, teamColor);
-    sendLoadGameToOthers(session, gameID, game, teamColor);
+    sendLoadGameToOthers(session, gameID, game);
 
     String startPos = move.getStartPosition().toString();
     String endPos = move.getEndPosition().toString();
-    sendNotificationToOthers(gameID, username, String.format("Move: %s to %s", startPos, endPos));
+    sendNotificationToOthers(
+        gameID, username, String.format("%s moved from %s to %s", username, startPos, endPos));
 
     GameData updatedGameData =
         new GameData(
@@ -317,11 +319,11 @@ public class WebSocketHandler {
         new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, isWhitePerspective));
   }
 
-  private void sendLoadGameToOthers(
-      Session userSession, int gameID, ChessGame game, ChessGame.TeamColor teamColor)
+  private void sendLoadGameToOthers(Session userSession, int gameID, ChessGame game)
       throws IOException {
     ArrayList<Connection> sessionsInGame = connections.gameConnections.get(gameID);
     for (Connection connection : sessionsInGame) {
+      ChessGame.TeamColor teamColor = getTeamColor(connection.session, gameID, connection.username);
       boolean isWhitePerspective = teamColor == null || teamColor.equals(ChessGame.TeamColor.WHITE);
       if (connection.session == userSession) {
         continue;

@@ -1,5 +1,6 @@
 package client;
 
+import chess.*;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import java.util.Arrays;
@@ -19,7 +20,7 @@ public class PlayerClient extends InGameClient {
       var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
       return switch (command) {
-        case "highlight" -> highlightLegalMoves();
+        case "highlight" -> highlightLegalMoves(params);
         case "move" -> makeMove(params);
         case "redraw" -> redrawBoard();
         case "leave" -> leaveGame();
@@ -31,8 +32,25 @@ public class PlayerClient extends InGameClient {
     }
   }
 
-  private String makeMove(String... params) {
-    return null;
+  private String makeMove(String... params) throws ResponseException {
+    int gameID = chessClient.getCurrentInternalGameID();
+    ChessGame game = chessClient.getGame(gameID).game();
+
+    ChessPosition startPosition = makeSurePieceIsNotNull(game, ChessPosition.fromString(params[0]));
+    ChessPosition endPosition = ChessPosition.fromString(params[1]);
+
+    ChessMove move;
+    if (pawnIsUpForPromotion(chessClient.getCurrentTeamColor(), game, startPosition)) {
+      ChessPiece.PieceType promotionPiece = getPromotionPiece();
+      move = new ChessMove(startPosition, endPosition, promotionPiece);
+    } else {
+      move = new ChessMove(startPosition, endPosition, null);
+    }
+
+    WebSocketFacade ws = chessClient.getWebSocketFacade();
+    ws.makeMove(chessClient.getAuthToken(), chessClient.getCurrentInternalGameID(), move);
+
+    return "";
   }
 
   private String resign() throws ResponseException {
@@ -62,5 +80,51 @@ public class PlayerClient extends InGameClient {
         - resign: forfeit the game, but must type 'leave' to leave it
         - help: see possible commands
         """;
+  }
+
+  private boolean pawnIsUpForPromotion(
+      ChessGame.TeamColor teamColor, ChessGame game, ChessPosition startPosition) {
+    ChessPiece piece = game.getBoard().getPiece(startPosition);
+    if (piece == null) {
+      return false;
+    }
+
+    ChessPiece.PieceType pieceType = piece.getPieceType();
+    ChessPiece.PieceType pawn = ChessPiece.PieceType.PAWN;
+
+    ChessGame.TeamColor white = ChessGame.TeamColor.WHITE;
+    ChessGame.TeamColor black = ChessGame.TeamColor.BLACK;
+    int row = startPosition.getRow();
+
+    return (teamColor == white && row == 7 && pieceType == pawn)
+        || (teamColor == black && row == 2 && pieceType == pawn);
+  }
+
+  private ChessPiece.PieceType getPromotionPiece() {
+    Scanner scanner = new Scanner(System.in);
+    ChessPiece.PieceType pieceType = null;
+
+    while (pieceType == null) {
+      System.out.println(
+          """
+              What do you want your pawn to be promoted to?
+
+              - QUEEN
+              - BISHOP
+              - KNIGHT
+              - ROOK
+              """);
+      System.out.print("\n>>> ");
+
+      String response = scanner.nextLine().trim().toUpperCase();
+
+      try {
+        pieceType = ChessPiece.PieceType.valueOf(response);
+      } catch (IllegalArgumentException e) {
+        System.out.println("Invalid input. Please enter one of: QUEEN, BISHOP, KNIGHT, ROOK.");
+      }
+    }
+
+    return pieceType;
   }
 }
