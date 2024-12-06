@@ -128,7 +128,13 @@ public class PostLoginClient implements ClientInterface {
 
   private String formatListOfGames(ListGamesResult result) {
     ArrayList<GameData> games = result.games();
-    // TODO: sort based on external game id
+
+    games.sort(
+        (game1, game2) -> {
+          int externalID1 = chessClient.getExternalGameID(game1.gameID());
+          int externalID2 = chessClient.getExternalGameID(game2.gameID());
+          return Integer.compare(externalID1, externalID2);
+        });
 
     StringBuilder sb = new StringBuilder();
 
